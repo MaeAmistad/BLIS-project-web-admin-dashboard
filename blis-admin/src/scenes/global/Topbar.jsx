@@ -11,7 +11,7 @@ import SearchIcon from "@mui/icons-material/Search";
 
 
 const Topbar = () => {
-    const theme = useTheme();
+    const theme = useTheme(); 
     const colors = tokens(theme.palette.mode);
     const colorMode = useContext(ColorModeContext);
 
