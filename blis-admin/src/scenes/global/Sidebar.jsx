@@ -1,9 +1,9 @@
 import {useState} from "react";
-import {ProSidebar, Menu, MenuItem} from "react-pro-sidebar";
+import {Sidebar, Menu, MenuItem} from "react-pro-sidebar";
 import {Box, IconButton, Typography, useTheme} from "@mui/material"
+import 'react-pro-sidebar/dist/scss/styles.scss';
 import {Link} from "react-router-dom";
 import { tokens} from "../../theme";
-import 'react-pro-sidebar/dist/css/style.css';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
 import ContactsOutlinedIcon from '@mui/icons-material/ContactsOutlined';
@@ -43,6 +43,30 @@ const Sidebar = () => {
                     color:"#6870fa !important",
                 },
             }}>
+
+            <Sidebar collapsed={isCollapsed}>
+                <Menu iconShape="square">
+                    {/**LOGO AND MENU ICON */}
+                    <MenuItem onClick={() => setIsCollapsed(!isCollapsed)}
+                    icon={isCollapsed ? <MenuOutlinedIcon/> : undefined}
+                    style={{
+                        margin:"10px 0 20px 0",
+                        color:colors.grey[100],
+                    }}
+                    >
+                    {!isCollapsed && (
+                        <Box display="flex" 
+                        justifyContent="space-between"
+                        alignItems="center"
+                        ml="15px"
+                        >
+                            <Typography>ADMIN</Typography>
+                            <IconButton><MenuOutlinedIcon/></IconButton>
+                        </Box>
+                    )}
+                    </MenuItem>
+                </Menu>
+            </Sidebar>
 
             </Box>
     )
