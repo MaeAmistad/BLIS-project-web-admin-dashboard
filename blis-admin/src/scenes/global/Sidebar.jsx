@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {Sidebar, Menu, MenuItem} from "react-pro-sidebar";
 import {Box, IconButton, Typography, useTheme} from "@mui/material"
-import 'react-pro-sidebar/dist/scss/styles.scss';
+// import 'react-pro-sidebar/dist/scss/styles.scss';
 import {Link} from "react-router-dom";
 import { tokens} from "../../theme";
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
@@ -9,7 +9,7 @@ import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
 import ContactsOutlinedIcon from '@mui/icons-material/ContactsOutlined';
 import ReceiptOutlinedIcon from '@mui/icons-material/ReceiptOutlined';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
-import CalendarOutlinedIcon from '@mui/icons-material/CalendarOutlined';
+import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import HelpOutlinedIcon from '@mui/icons-material/HelpOutlined';
 import BarChartOutlinedIcon from '@mui/icons-material/BarChartOutlined';
 import PieChartOutlineOutlinedIcon from '@mui/icons-material/PieChartOutlineOutlined';
@@ -18,7 +18,7 @@ import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 
 
-const Sidebar = () => {
+const Sidebarr = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -72,4 +72,4 @@ const Sidebar = () => {
     )
 }
 
-export default Sidebar;
+export default Sidebarr;
