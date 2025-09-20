@@ -1,51 +1,82 @@
-import {Box, IconButton, useTheme} from "@mui/material";
-import {useContext} from "react";
-import { ColorModeContext, tokens } from "../../theme";
-import InputBase from "@mui/material/InputBase";
-import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
-import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
-import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
-import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import * as React from 'react';
+import {Box, IconButton, Typography, AppBar,Toolbar, Menu, Container, Tooltip, MenuItem} from "@mui/material";
+import { tokens } from "../../theme";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import SearchIcon from "@mui/icons-material/Search";
+import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 
 
-const Topbar = () => {
-    const theme = useTheme(); 
-    const colors = tokens(theme.palette.mode);
-    const colorMode = useContext(ColorModeContext);
+const colors = tokens();
+const settings = ['Profile', 'Account', 'Logout'];
 
-    return (
-        <Box display="flex" justifyContent="space-between" p={2}>
-            {/*SEARCH BAR*/}
-            <Box display ="flex" background={colors.primary[400]}
-            borderRadius="3px">
-                <InputBase sx={{ml : 2, flex: 1}} placeholder="Search" />
-                <IconButton type="button" sx={{p:1}}>
-                    <SearchIcon />
-                </IconButton>
-            </Box>
-            {/*ICONS */}
-            <Box display="flex">
-                <IconButton onClick={colorMode.toggleColorMode}>
-                    {theme.palette.mode === 'dark' ? (
-                        <DarkModeOutlinedIcon />
-                    ) : (
-                        <LightModeOutlinedIcon/>
-                    )}
-                </IconButton>
-                <IconButton>
-                    <NotificationsOutlinedIcon/>
-                </IconButton>
-                <IconButton>
-                    <SettingsOutlinedIcon/>
-                </IconButton>
-                <IconButton>
-                    <PersonOutlinedIcon/>
-                </IconButton>
-            </Box>
-        </Box>
-    )
+function Topbar() {
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
+
+  const handleOpenUserMenu = (event) => {
+    setAnchorElUser(event.currentTarget);
+  };
+
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
+  };
+
+  return (
+    <AppBar position="static">
+      <Container maxWidth="l">
+        <Toolbar disableGutters>
+
+          <Typography
+            variant="h4"
+            noWrap
+            component="a"
+            sx={{
+                flexGrow: 1,
+                display: { xs: 'none', md: 'flex' },
+                fontFamily: "sans-serif",
+                fontWeight: 500,
+                letterSpacing: '.2rem',
+                color: 'inherit',
+                textDecoration: 'none',
+            }}
+          >
+            BANTAY LIVESTOCK INVENTORY SYSTEM
+          </Typography>
+
+          <Box sx={{ flexGrow: 0 }}>
+            <IconButton sx={{ p:1, color:colors.grey[100],background:colors.greenAccent[700]}}>
+                <NotificationsOutlinedIcon/>
+            </IconButton>
+            <Tooltip title="Open settings">
+              <IconButton onClick={handleOpenUserMenu} sx={{ p:1, mr:3, ml:.5, color:colors.grey[100], background:colors.greenAccent[700]}}>
+                 <PersonOutlinedIcon/>
+              </IconButton>
+            </Tooltip>
+            <Menu
+              sx={{ mt: '45px' }}
+              id="menu-appbar"
+              anchorEl={anchorElUser}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={Boolean(anchorElUser)}
+              onClose={handleCloseUserMenu}
+            >
+              {settings.map((setting) => (
+                <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                  <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box>
+
+        </Toolbar>
+      </Container>
+    </AppBar>
+  );
 }
-
 export default Topbar;
