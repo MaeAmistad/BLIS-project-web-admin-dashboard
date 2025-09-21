@@ -1,4 +1,4 @@
-import { ColorModeContext, useMode } from './theme';
+import {useMode } from './theme';
 import {CssBaseline, ThemeProvider} from "@mui/material";
 import {Routes, Route} from "react-router-dom";
 import Topbar from "./scenes/global/Topbar";
@@ -19,7 +19,7 @@ function App() {
           <main className="content"> 
             <Topbar/>
             <Routes>
-              <Route path="/" element={<Dashboard/>}/>
+              {/* <Route path="/" element={<Dashboard/>}/> */}
               {/* <Route path="/team" element={<Team/>}/> */}
               {/* <Route path="/contacts" element={<Contacts/>}/> */}
               {/* <Route path="/invoices" element={<Invoices/>}/> */}

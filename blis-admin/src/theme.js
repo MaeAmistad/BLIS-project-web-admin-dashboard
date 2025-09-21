@@ -26,7 +26,7 @@ primary: {
     900: "#040509"
 },
 greenAccent: {
-    100: "#dbf5ee",
+    100: "#edf1ed",
     200: "#b7ebde",
     300: "#94e2cd",
     400: "#70d8bd",
@@ -34,7 +34,7 @@ greenAccent: {
     600: "#2E7D32",
     700: "#2e7c67",
     800: "#1e5245",
-    900: "#0f2922"
+    900: "#2e7d32"
 },
 redAccent: {
     100: "#f8dcdb",
@@ -74,30 +74,30 @@ export const themeSettings = () => {
             },
         },
         typography:{
-            fontFamily:["Source Sans Pro", "sans-serif"].join(","),
+            fontFamily:["Roboto", 'sans-serif'].join(","),
             fontSize:12,
             h1:{
-                fontFamily:["Source Sans Pro", "sans-serif"].join(","),
+                fontFamily:["Roboto", 'sans-serif'].join(","),
                 fontSize:40,
             },
             h2:{
-                fontFamily:["Source Sans Pro", "sans-serif"].join(","),
+                fontFamily:["Roboto", 'sans-serif'].join(","),
                 fontSize:32,
             },
             h3:{
-                fontFamily:["Source Sans Pro", "sans-serif"].join(","),
+                fontFamily:["Roboto", 'sans-serif'].join(","),
                 fontSize:24,
             },
             h4:{
-                fontFamily:["Source Sans Pro", "sans-serif"].join(","),
+                fontFamily:["Roboto", 'sans-serif'].join(","),
                 fontSize:20,
             },
             h5:{
-                fontFamily:["Source Sans Pro", "sans-serif"].join(","),
+                fontFamily:["Roboto", 'sans-serif'].join(","),
                 fontSize:16,
             },
             h6:{
-                fontFamily:["Source Sans Pro", "sans-serif"].join(","),
+                fontFamily:["Roboto", "sans-serif"].join(","),
                 fontSize:14,
             },
         }

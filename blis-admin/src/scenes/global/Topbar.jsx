@@ -20,21 +20,19 @@ function Topbar() {
   };
 
   return (
-    <AppBar position="static">
       <Container maxWidth="l">
         <Toolbar disableGutters>
-
           <Typography
-            variant="h4"
+            variant="h3"
             noWrap
             component="a"
             sx={{
                 flexGrow: 1,
                 display: { xs: 'none', md: 'flex' },
-                fontFamily: "sans-serif",
-                fontWeight: 500,
+                fontFamily: "Roboto",
+                fontWeight: 700,
                 letterSpacing: '.2rem',
-                color: 'inherit',
+                color: " #424242",
                 textDecoration: 'none',
             }}
           >
@@ -42,11 +40,11 @@ function Topbar() {
           </Typography>
 
           <Box sx={{ flexGrow: 0 }}>
-            <IconButton sx={{ p:1, color:colors.grey[100],background:colors.greenAccent[700]}}>
+            <IconButton sx={{ p:1, color:colors.grey[900], border:"1px solid #d0d1d5"}}>
                 <NotificationsOutlinedIcon/>
             </IconButton>
             <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p:1, mr:3, ml:.5, color:colors.grey[100], background:colors.greenAccent[700]}}>
+              <IconButton onClick={handleOpenUserMenu} sx={{ p:1, mr:3, ml:.5, color:colors.grey[900], border:"1px solid #d0d1d5"}}>
                  <PersonOutlinedIcon/>
               </IconButton>
             </Tooltip>
@@ -76,7 +74,6 @@ function Topbar() {
 
         </Toolbar>
       </Container>
-    </AppBar>
   );
 }
 export default Topbar;
