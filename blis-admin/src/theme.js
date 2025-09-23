@@ -70,7 +70,7 @@ export const themeSettings = () => {
                 main: colors.greenAccent[800]
             },
             background:{
-                default: "#ffffff",
+                // default: "#ffffff",
             },
         },
         typography:{
