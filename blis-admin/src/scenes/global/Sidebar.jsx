@@ -2,7 +2,6 @@ import {useState} from "react";
 import {Sidebar, Menu, MenuItem} from "react-pro-sidebar";
 import {Box, Button, IconButton, Typography} from "@mui/material"
 import {Link} from "react-router-dom";
-import { tokens} from "../../theme";
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import PeopleRoundedIcon from '@mui/icons-material/PeopleOutlined'; 
 import InventoryRoundedIcon from '@mui/icons-material/InventoryRounded';
@@ -12,7 +11,7 @@ import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import ClearRoundedIcon from '@mui/icons-material/ClearRounded';
 
 const Item = ({title, to, icon, selected, setSelected}) => {
-const colors = tokens();
+
 
     return (
         <MenuItem active={selected === title} 
@@ -27,7 +26,6 @@ const colors = tokens();
 }
 
 const Sidebarr = () => {
-    const colors = tokens();
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [selected, setSelected] = useState("Dashboard");
 

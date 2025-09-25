@@ -1,5 +1,3 @@
-import {useMode } from './theme';
-import {CssBaseline, ThemeProvider} from "@mui/material";
 import {Routes, Route} from "react-router-dom";
 import Login from "./scenes/signin";
 import Dashboard from "./scenes/dashboard";
@@ -7,17 +5,14 @@ import Dashboard from "./scenes/dashboard";
 
 
 function App() {
-  const [theme] = useMode();
-
 
   return (
-      <ThemeProvider theme={theme}>
-        <CssBaseline/>
+
          <div className="app">  
           <main className="content"> 
             <Routes>
               <Route path="/" element={<Login/>}/>
-              <Route path="/home" element={<Dashboard/>}/>
+              {/* <Route path="/home" element={<Dashboard/>}/> */}
               {/* <Route path="/contacts" element={<Contacts/>}/> */}
               {/* <Route path="/invoices" element={<Invoices/>}/> */}
               {/* <Route path="/form" element={<Form/>}/> */}
@@ -30,8 +25,6 @@ function App() {
             </Routes>
           </main>
           </div>
-      </ThemeProvider>
-
   )
 }
 
