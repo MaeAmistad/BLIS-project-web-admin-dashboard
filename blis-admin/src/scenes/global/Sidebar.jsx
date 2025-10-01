@@ -1,140 +1,68 @@
-import {useState} from "react";
-import {Sidebar, Menu, MenuItem} from "react-pro-sidebar";
-import {Box, Button, IconButton, Typography} from "@mui/material"
-import {Link} from "react-router-dom";
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
+import {useState} from 'react';
+import logo from '../../assets/logo1.jpg'
+import KeyboardBackspaceRoundedIcon from '@mui/icons-material/KeyboardBackspaceRounded';
+import SpaceDashboardRoundedIcon from '@mui/icons-material/SpaceDashboardRounded';
 import PeopleRoundedIcon from '@mui/icons-material/PeopleOutlined'; 
 import InventoryRoundedIcon from '@mui/icons-material/InventoryRounded';
 import VaccinesRoundedIcon from '@mui/icons-material/VaccinesRounded';
 import CasesRoundedIcon from '@mui/icons-material/CasesRounded';
-import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
-import ClearRoundedIcon from '@mui/icons-material/ClearRounded';
-
-const Item = ({title, to, icon, selected, setSelected}) => {
-
-
-    return (
-        <MenuItem active={selected === title} 
-                    // Font Color and Icon
-                    style={{color: "#646262ff",}} 
-                    onClick={() => setSelected(title)} 
-                    icon={icon}>
-            <Typography variant="h6">{title}</Typography>
-            <Link to={to} />
-        </MenuItem>
-    )
-}
-
 const Sidebarr = () => {
-    const [isCollapsed, setIsCollapsed] = useState(false);
-    const [selected, setSelected] = useState("Dashboard");
+    const [open, setOpen] = useState(true);
+
+    const Menus = [
+        {title:"Dashboard"},
+        {title:"Raiser Profile", icon:<PeopleRoundedIcon/>},
+        {title:"Livestock Inventory", icon:<InventoryRoundedIcon/>},
+        {title:"VTT", icon:<VaccinesRoundedIcon/>},
+        {title:"MMR", icon:<CasesRoundedIcon/>},
+    ];
+       
 
 
     return (
+        <div className="flex">
+            {/* sidebar */}
+            <div className={ ` bg-[#2E7D32] h-screen p-5 pt-8 ${open ? "w-72" : "w-20"} 
+            duration-300 relative ` }>
+                <KeyboardBackspaceRoundedIcon className={`bg-white text-dark-purple text-3xl rounded-full 
+                absolute -right-3 top-9 border border-dark-purple cursor-pointer ${!open && "rotate-180"}`} onClick={() => setOpen (!open)}
+                />
 
-            <Sidebar collapsed={isCollapsed} style={{background:" #2da035"}}>
-                <Menu
-                    menuItemStyles={{
-                        button: {
-                            '&:hover': {
-                                backgroundColor: "#2E7D32 !important",
-                                color: "white !important",
-                                borderRadius: "10px !important",
-                                fontWeight: "bold !important",
-                                margin:"0 5px 0 5px !important",
-                            }
-                        }
-                        
-                    }}
-                >
-                     {/* *LOGO AND MENU ICON */}
-                     <IconButton onClick={() => setIsCollapsed(!isCollapsed)} 
-                        style={{
-                            padding:"10px",
-                            margin:"10px"
-                        }}
-                     >
-                        <MenuRoundedIcon/>
-                    </IconButton>
-                    {/* <MenuItem onClick={() => setIsCollapsed(!isCollapsed)}
-                            icon={isCollapsed ? <MenuRoundedIcon/> : undefined}
-                            style={{
-                                margin:"5px 0 15px 0",
-                                color:colors.grey[900],
-                            }}
-                        >
-                    {!isCollapsed && (
-                        <Box style={{display:"flex",
-                        justifyContent:"flex-end",
-                        alignItems:"center",
-                       }}>
-                            <IconButton onClick={() => setIsCollapsed(!isCollapsed)} sx={{ p:0, color:colors.grey[600],}}>
-                                <ClearRoundedIcon/>
-                            </IconButton>
-                        </Box>
-                    )}
-                    </MenuItem>  */}
+                <div className='flex justify-center mb-4 mt-8'>
+                    <img  src={logo}
+                    className={`${open ? "w-24 h-24" : "w-10 h-10"} 
+                    rounded-xl`} 
+                    alt="no-image" />
+                </div> 
+                <h1 className={`text-white text-center font-medium text-xl p-1 
+                    ${!open && "scale-0"}`}>
+                        BANTAY LIVESTOCK
+                </h1>
 
-                    {/* {USER} */}
+                <ul className='pt-2'>
+                    {Menus.map((menu, index) => (
+                        <>
+                            <li key={index} className='text-white text-sm flex items-center gap-x-4 
+                            cursor-pointer p-2 hover:bg-[#91ad84] rounded-md mt-2'>
+                                <span className='float-left'>
+                                   {menu.icon ? menu.icon : <SpaceDashboardRoundedIcon/>}
+                                </span>
+                                <span className={`text-base font-medium flex-1 duration-300
+                                    ${!open && "hidden"}`}>
+                                    {menu.title}
+                                </span>
+                            </li>
+                        </>
+                    ))}
+                </ul>
 
-                    {!isCollapsed && (
-                        // LOGO/PROFILE
-                        <Box style={{marginBottom:"40px", marginTop:"10px", padding:"5px",}}>
-                            <Box display="flex" justifyContent="center" alignItems="center">
-                                <img alt="profile-user"
-                                width="100px"
-                                height="100px"
-                                src={"../../assets/logo1.jpg"}
-                                style={{cursor:"pointer", borderRadius:"30%"}}
-                                />
-                            </Box>
-                        </Box>
-                    )}
-                    
-
-                    {/* {MENU ITEMS} */}
-                    <Box paddingLeft={isCollapsed ? undefined: "0%"}>
-
-                        <Item
-                            title="Dashboard"
-                            to="/"
-                            icon={<HomeRoundedIcon/>}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-                        <Item
-                            title="Raiser Profile"
-                            to="/raiseProf"
-                            icon={<PeopleRoundedIcon/>}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-                        <Item
-                            title="Livestock Inventory"
-                            to="/livestockInventory"
-                            icon={<InventoryRoundedIcon/>}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-                        <Item
-                            title="VTT"
-                            to="/vtt"
-                            icon={<VaccinesRoundedIcon/>}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-                        <Item
-                            title="MMR"
-                            to="/mormor"
-                            icon={<CasesRoundedIcon/>}
-                            selected={selected}
-                            setSelected={setSelected}
-                        />
-
-                    </Box>
-                </Menu>
-            </Sidebar>
-
+            </div>
+{/*             
+            
+            <div className="p-7">
+                <h1 className="text-2xl font-semibold">Home Page</h1>
+            </div> */}
+        </div>
     )
 }
 

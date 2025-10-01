@@ -1,5 +1,5 @@
 import {Routes, Route} from "react-router-dom";
-import Login from "./scenes/signin";
+// import Login from "./scenes/signin";
 import Dashboard from "./scenes/dashboard";
 
 
@@ -11,8 +11,8 @@ function App() {
          <div className="app">  
           <main className="content"> 
             <Routes>
-              <Route path="/" element={<Login/>}/>
-              {/* <Route path="/home" element={<Dashboard/>}/> */}
+              {/* <Route path="/" element={<Login/>}/> */}
+              <Route path="/" element={<Dashboard/>}/>
               {/* <Route path="/contacts" element={<Contacts/>}/> */}
               {/* <Route path="/invoices" element={<Invoices/>}/> */}
               {/* <Route path="/form" element={<Form/>}/> */}
