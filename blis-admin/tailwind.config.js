@@ -9,9 +9,15 @@ module.exports = {
       },
       fontFamily:{
         roboto: ["Roboto", "sans-serif"]
-      }
+      },
+      
     },
   },
   plugins: [],
+  variants:{
+    extend:{
+      display: ["focus-group"]
+    }
+  }
 }
 

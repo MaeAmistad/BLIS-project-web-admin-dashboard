@@ -1,6 +1,6 @@
 import {Box, Container, Paper, Typography, TextField, Button,} from "@mui/material";
 import {Link} from "react-router-dom";
-
+import photo from "../../assets/logo1.jpg"
 const Login = () => {
 
     const handleSubmit = () => <Link to="/home"/>;
@@ -14,7 +14,7 @@ const Login = () => {
                                 <img alt="profile-user"
                                 width="100px"
                                 height="100px"
-                                src={"../../assets/logo1.jpg"}
+                                src={photo}
                                 style={{borderRadius:"50%"}}
                                 />
                             </Box>

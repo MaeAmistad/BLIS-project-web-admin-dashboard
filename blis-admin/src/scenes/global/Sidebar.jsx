@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import logo from '../../assets/logo1.jpg'
-import KeyboardBackspaceRoundedIcon from '@mui/icons-material/KeyboardBackspaceRounded';
+import ArrowBackIosNewRoundedIcon from '@mui/icons-material/ArrowBackIosNewRounded';
 import SpaceDashboardRoundedIcon from '@mui/icons-material/SpaceDashboardRounded';
 import PeopleRoundedIcon from '@mui/icons-material/PeopleOutlined'; 
 import InventoryRoundedIcon from '@mui/icons-material/InventoryRounded';
@@ -24,13 +24,13 @@ const Sidebarr = () => {
             {/* sidebar */}
             <div className={ ` bg-[#2E7D32] h-screen p-5 pt-8 ${open ? "w-72" : "w-20"} 
             duration-300 relative ` }>
-                <KeyboardBackspaceRoundedIcon className={`bg-white text-dark-purple text-3xl rounded-full 
-                absolute -right-3 top-9 border border-dark-purple cursor-pointer ${!open && "rotate-180"}`} onClick={() => setOpen (!open)}
+                <ArrowBackIosNewRoundedIcon sx={{ mt:1, fontSize: 40, padding: 1, borderRadius: "50%", backgroundColor: "white" }}
+                 className={`text-dark-purple absolute -right-6 cursor-pointer ${!open && "rotate-180"}`} onClick={() => setOpen (!open)}
                 />
 
                 <div className='flex justify-center mb-4 mt-8'>
                     <img  src={logo}
-                    className={`${open ? "w-24 h-24" : "w-10 h-10"} 
+                    className={`${open ? "w-24 h-24" : "w-10 h-10 mt-8"} 
                     rounded-xl`} 
                     alt="no-image" />
                 </div> 

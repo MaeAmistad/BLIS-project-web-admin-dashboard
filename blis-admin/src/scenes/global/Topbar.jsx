@@ -1,12 +1,12 @@
 import * as React from 'react';
-import {Box, IconButton, Typography, AppBar,Toolbar, Menu, Container, Tooltip, MenuItem} from "@mui/material";
+import {Box, IconButton, Typography,Toolbar, Menu, Container, Tooltip, MenuItem} from "@mui/material";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 
 const settings = ['Profile', 'Account', 'Logout'];
 
-function Topbar() {
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+const Topbar = () => {
+const [anchorElUser, setAnchorElUser] = React.useState(null);
 
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
@@ -15,12 +15,11 @@ function Topbar() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
-
   return (
-      <Container maxWidth="l">
-        <Toolbar disableGutters>
+          <Container maxWidth="l" sx={{ bgcolor: "#ffffff"}}>
+        <Toolbar disableGutters >
           <Typography
-            variant="h3"
+            variant="h5"
             noWrap
             component="a"
             sx={{
@@ -33,16 +32,16 @@ function Topbar() {
                 textDecoration: 'none',
             }}
           >
-            BANTAY LIVESTOCK INVENTORY SYSTEM
+            INVENTORY SYSTEM
           </Typography>
 
           <Box sx={{ flexGrow: 0 }}>
             <IconButton sx={{ p:1, border:"1px solid #d0d1d5"}}>
-                <NotificationsOutlinedIcon/>
+                <NotificationsOutlinedIcon sx={{ fontSize: 20 }}/>
             </IconButton>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p:1, mr:3, ml:.5, border:"1px solid #d0d1d5"}}>
-                 <PersonOutlinedIcon/>
+                 <PersonOutlinedIcon sx={{ fontSize: 20 }}/>
               </IconButton>
             </Tooltip>
             <Menu
@@ -71,6 +70,7 @@ function Topbar() {
 
         </Toolbar>
       </Container>
+
   );
 }
 export default Topbar;
