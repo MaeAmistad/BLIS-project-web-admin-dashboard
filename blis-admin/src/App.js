@@ -1,7 +1,6 @@
 import {Routes, Route} from "react-router-dom";
-import Warehouse from "../src/scenes/vaccineRecord";
 import Dashboard from "./scenes/dashboard";
-import Login from "../src/scenes/signin"
+import RaiserProfile from "./scenes/raiserProfile"
 
 
 function App() {
@@ -12,8 +11,8 @@ function App() {
           <main className="content"> 
             <Routes>
               {/* <Route path="/" element={<Login/>}/> */}
-              <Route path="/" element={<Dashboard/>}/>
-              {/* <Route path="/vvt" element={<Warehouse/>}/> */}
+              {/* <Route path="/" element={<Dashboard/>}/> */}
+              <Route path="/" element={<RaiserProfile/>}/>
               {/* <Route path="/invoices" element={<Invoices/>}/> */}
               {/* <Route path="/form" element={<Form/>}/> */}
               {/* <Route path="/bar" element={<Bar/>}/> */}
