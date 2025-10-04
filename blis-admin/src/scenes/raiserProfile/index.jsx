@@ -1,13 +1,21 @@
+import { doc, setDoc, getDocs, collection} from "firebase/firestore";
+import db from "../../firebase";
 import {Button} from "@mui/material";
+import { useState, useEffect } from "react";
+import { ulid } from 'ulid';
 import Header from "../../components/header";
 import Topbar from "../global/Topbar";
 import Sidebarr from "../global/Sidebar";
-import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
-import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
-import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
+
 
 
 const RaiserProfile = () => {
+
+    const [fname, setFname]=useState('');
+    const [municipal, setMunicipal]=useState('');
+    const [brgy, setBrgy]=useState('');
+    const [farmsize, setFarmsize]=useState('');
+    const [raisers, setRaisers] = useState([]); 
 
     const Rows = [
         {tableHeader:"ID"},
@@ -17,6 +25,43 @@ const RaiserProfile = () => {
         {tableHeader:"Farm Size"},
         {tableHeader:"QR"},
     ] 
+
+    const saveData = async () => {
+        const datas={
+            fname:fname,
+            municipal:municipal,
+            brgy:brgy,
+            farmsize:farmsize,
+        }
+        // for Unique ID
+        const userId = ulid();
+        // save data to localStorage as a temporary database
+        localStorage.setItem('datas', JSON.stringify(datas));
+        // save data to firestore
+        await setDoc(doc(db, "Raiser", "Profile", "PersonalInfo", userId), {
+            uniqueID:userId,
+            name: datas.fname,
+            municipal: datas.municipal,
+            barangay: datas.brgy,
+            farmsize: datas.farmsize
+        });
+
+        // console.log("data save to Firestore");
+        fetchData(); // refresh table after adding
+    };
+
+    // Fetch and display data
+    const fetchData = async () => {
+        const querySnapshot = await getDocs(
+            collection(db, "Raiser", "Profile", "PersonalInfo")
+        );
+         const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+            setRaisers(data);
+        };
+        
+        useEffect(() => {
+            fetchData();
+        }, []);
 
     return (
          <div className="flex bg-[#F5F5F5]" >
@@ -43,14 +88,18 @@ const RaiserProfile = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class='border-b-2 border-black-200'>
-                                    <td class='p-3'>1</td>
-                                    <td class='p-3'>2</td>
-                                    <td class='p-3'>3</td>
-                                    <td class='p-3'>4</td>
-                                    <td class='p-3'>5</td>
-                                    <td class='text-center'><Button>View QR</Button></td>
+                                {raisers.map((raiser, index) => (
+                                <tr key={raiser.id} className="border-b-2 border-black-200">
+                                    <td className="p-3">{index + 1}</td>
+                                    <td className="p-3">{raiser.name}</td>
+                                    <td className="p-3">{raiser.municipal}</td>
+                                    <td className="p-3">{raiser.barangay}</td>
+                                    <td className="p-3">{raiser.farmsize}</td>
+                                    <td className="text-center">
+                                    <Button>View QR</Button>
+                                    </td>
                                 </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>
@@ -61,7 +110,7 @@ const RaiserProfile = () => {
                             <div className="mt-8">
                                 <label class="block text-base font-medium text-gray-900">Full Name</label>
                                 <div>
-                                    <input required
+                                    <input required value={fname} onChange={(e) => {setFname(e.target.value)}}
                                     className="block w-full rounded-md bg-white px-3 py-1.5 
                                     text-base text-gray-900 outline outline-1 -outline-offset-1 
                                     outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 
@@ -72,7 +121,7 @@ const RaiserProfile = () => {
                             <div className="mt-8">
                                 <label class="block text-base font-medium text-gray-900">Municipal</label>
                                 <div>
-                                    <input required
+                                    <input required value={municipal} onChange={(e) => {setMunicipal(e.target.value)}}
                                     className="block w-full rounded-md bg-white px-3 py-1.5 
                                     text-base text-gray-900 outline outline-1 -outline-offset-1 
                                     outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 
@@ -83,7 +132,7 @@ const RaiserProfile = () => {
                             <div className="mt-8">
                                 <label class="block text-base font-medium text-gray-900">Barangay</label>
                                 <div>
-                                    <input required
+                                    <input required value={brgy} onChange={(e) => {setBrgy(e.target.value)}}
                                     className="block w-full rounded-md bg-white px-3 py-1.5 
                                     text-base text-gray-900 outline outline-1 -outline-offset-1 
                                     outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 
@@ -94,7 +143,7 @@ const RaiserProfile = () => {
                             <div className="mt-8">
                                 <label class="block text-base font-medium text-gray-900">Farm Size</label>
                                 <div>
-                                    <input
+                                    <input value={farmsize} onChange={(e) => {setFarmsize(e.target.value)}}
                                     className="block w-full rounded-md bg-white px-3 py-1.5 
                                     text-base text-gray-900 outline outline-1 -outline-offset-1 
                                     outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 
@@ -104,7 +153,9 @@ const RaiserProfile = () => {
 
                             <div className="text-center mt-6 mb-2">
                                 <Button variant="contained" sx={{backgroundColor: "#4CAF50", pl: 5, pr:5, 
-                                "&:hover": { backgroundColor: "#45a049" }}}>
+                                "&:hover": { backgroundColor: "#45a049" }}} 
+                                onClick={saveData}
+                                >
                                     ADD
                                 </Button>
                             </div>
