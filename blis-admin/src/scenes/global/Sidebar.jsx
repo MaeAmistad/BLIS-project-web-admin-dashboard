@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import { Link } from "react-router-dom";
 import logo from '../../assets/logo1.jpg'
 import ArrowBackIosNewRoundedIcon from '@mui/icons-material/ArrowBackIosNewRounded';
 import SpaceDashboardRoundedIcon from '@mui/icons-material/SpaceDashboardRounded';
@@ -6,15 +7,23 @@ import PeopleRoundedIcon from '@mui/icons-material/PeopleOutlined';
 import InventoryRoundedIcon from '@mui/icons-material/InventoryRounded';
 import VaccinesRoundedIcon from '@mui/icons-material/VaccinesRounded';
 import CasesRoundedIcon from '@mui/icons-material/CasesRounded';
+import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 const Sidebarr = () => {
     const [open, setOpen] = useState(true);
+    const [submenuOpen, setSubmenuOpen] = useState(false);
 
     const Menus = [
-        {title:"Dashboard"},
-        {title:"Raiser Profile", icon:<PeopleRoundedIcon/>},
-        {title:"Livestock Inventory", icon:<InventoryRoundedIcon/>},
-        {title:"VTT", icon:<VaccinesRoundedIcon/>},
-        {title:"MMR", icon:<CasesRoundedIcon/>},
+        {title:"Dashboard", path:"/"},
+        {title:"Raiser Profile",  path:"/raiserProfile", icon:<PeopleRoundedIcon/>},
+        {title:"Livestock", path:"/Lsinventory",  icon:<InventoryRoundedIcon/>},
+        {title:"Vaccination",
+            submenu:true,
+            submenuItems:[
+                {title:"Schedule"},
+                {title:"Under Monitoring"}
+            ],
+            path:"/vaccinett", icon:<VaccinesRoundedIcon/>},
+        {title:"Morbidity & Mortality", path:"/mortabilitymr", icon:<CasesRoundedIcon/>},
     ];
        
 
@@ -41,7 +50,7 @@ const Sidebarr = () => {
 
                 <ul className='pt-2'>
                     {Menus.map((menu, index) => (
-                        <>
+                        <Link to={menu.path} key={index}>
                             <li key={index} className='text-white text-sm flex items-center gap-x-4 
                             cursor-pointer p-2 hover:bg-[#91ad84] rounded-md mt-2'>
                                 <span className='float-left'>
@@ -51,8 +60,21 @@ const Sidebarr = () => {
                                     ${!open && "hidden"}`}>
                                     {menu.title}
                                 </span>
+                                {menu.submenu && open && (
+                                    <KeyboardArrowDownRoundedIcon className={`${submenuOpen && "rotate-180"  }`}  onClick={() => setSubmenuOpen (!submenuOpen)}/>
+                                )}
                             </li>
-                        </>
+                            {menu.submenu && submenuOpen && open &&(
+                                <ul>
+                                    {menu.submenuItems.map((submenuItems,index) => (
+                                        <li key={index} className='text-white text-sm flex items-center gap-x-4 
+                                            cursor-pointer p-2 px-5 hover:bg-[#91ad84] rounded-md mt-2'>
+                                            {submenuItems.title}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </Link>
                     ))}
                 </ul>
 

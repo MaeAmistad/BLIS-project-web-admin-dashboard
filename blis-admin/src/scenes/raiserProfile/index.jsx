@@ -24,7 +24,7 @@ const RaiserProfile = () => {
         {tableHeader:"Barangay"},
         {tableHeader:"Farm Size"},
         {tableHeader:"QR"},
-    ] 
+    ]  
 
     const saveData = async () => {
         const datas={
@@ -45,6 +45,12 @@ const RaiserProfile = () => {
             barangay: datas.brgy,
             farmsize: datas.farmsize
         });
+
+         // ✅ Reset form fields
+        setFname("");
+        setMunicipal("");
+        setBrgy("");
+        setFarmsize("");
 
         // console.log("data save to Firestore");
         fetchData(); // refresh table after adding
@@ -89,7 +95,7 @@ const RaiserProfile = () => {
                             </thead>
                             <tbody>
                                 {raisers.map((raiser, index) => (
-                                <tr key={raiser.id} className="border-b-2 border-black-200">
+                                <tr key={raiser.id} className="border-b-2 border-black-200 hover:bg-green-50">
                                     <td className="p-3">{index + 1}</td>
                                     <td className="p-3">{raiser.name}</td>
                                     <td className="p-3">{raiser.municipal}</td>

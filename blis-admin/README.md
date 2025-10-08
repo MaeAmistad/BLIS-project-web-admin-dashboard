@@ -70,10 +70,8 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 
 
-<!-- YOUTUBE BUILDING COMPLETE REACT ADMIN DASHBOARD -->
-TIME STOP: 45:00
 
-<!-- Table  -->
+<!-- Tabe  -->
 import { IconButton } from "@mui/material";
 import Header from "../../components/header";
 import {
