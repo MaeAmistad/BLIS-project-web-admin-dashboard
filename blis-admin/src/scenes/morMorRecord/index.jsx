@@ -9,8 +9,6 @@ const LivestockInventory = () => {
         {tableHeader:"Full Name"},
         {tableHeader:"Municipal"},
         {tableHeader:"Barangay"},
-        {tableHeader:"Farm Size"},
-        {tableHeader:"QR"},
     ]  
 
     return (

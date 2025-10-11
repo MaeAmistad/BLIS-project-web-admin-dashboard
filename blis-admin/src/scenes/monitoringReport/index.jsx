@@ -2,18 +2,19 @@ import Header from "../../components/header";
 import Topbar from "../global/Topbar";
 import Sidebarr from "../global/Sidebar";
 
-const LivestockInventory = () => {
+const MonitoringReport = () => {
 
   const Rows = [
-        {tableHeader:"Date"},
-        {tableHeader:"Full Name"},
+        {tableHeader:"Date of Visit"},
+        {tableHeader:"Farmer's Name"},
         {tableHeader:"Address"},
-        {tableHeader:"Contact Num."},
-        {tableHeader:"Animal Type"},
-        {tableHeader:"Category"},
-        {tableHeader:"Quantity"},
-        {tableHeader:"Age"},
-        {tableHeader:"Remarks"},
+        {tableHeader:"Species"},
+        {tableHeader:"Age/Age Group"},
+        {tableHeader:"Population"},
+        {tableHeader:"Cases"},
+        {tableHeader:"Deaths"},
+        {tableHeader:"Clinical Sign"},
+        {tableHeader:"Other Informations"},
     ]  
 
     return (
@@ -23,7 +24,7 @@ const LivestockInventory = () => {
                 <Topbar/>
 
                  <div className="flex justify-between items-center">
-                    <Header title="Livestock"/>
+                    <Header title="Animal Health Monitoring Report"/>
                 </div>
 
                 <div className="flex bg-white p-2 m-5 overflow-auto rounded-lg">
@@ -52,4 +53,4 @@ const LivestockInventory = () => {
     )
 }
 
-export default LivestockInventory;
+export default MonitoringReport;

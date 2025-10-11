@@ -38,13 +38,13 @@ const RaiserProfile = () => {
         // save data to localStorage as a temporary database
         localStorage.setItem('datas', JSON.stringify(datas));
         // save data to firestore
-        await setDoc(doc(db, "Raiser", "Profile", "PersonalInfo", userId), {
+        await setDoc(doc(db, "Raiser"), {
             uniqueID:userId,
             name: datas.fname,
             municipal: datas.municipal,
             barangay: datas.brgy,
             farmsize: datas.farmsize
-        });
+        }); 
 
          // ✅ Reset form fields
         setFname("");

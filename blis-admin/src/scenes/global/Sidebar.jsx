@@ -8,6 +8,7 @@ import InventoryRoundedIcon from '@mui/icons-material/InventoryRounded';
 import VaccinesRoundedIcon from '@mui/icons-material/VaccinesRounded';
 import CasesRoundedIcon from '@mui/icons-material/CasesRounded';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+
 const Sidebarr = () => {
     const [open, setOpen] = useState(true);
     const [submenuOpen, setSubmenuOpen] = useState(false);
@@ -15,15 +16,15 @@ const Sidebarr = () => {
     const Menus = [
         {title:"Dashboard", path:"/"},
         {title:"Raiser Profile",  path:"/raiserProfile", icon:<PeopleRoundedIcon/>},
-        {title:"Livestock", path:"/Lsinventory",  icon:<InventoryRoundedIcon/>},
+        {title:"Livestock", path:"/Ls-inventory",  icon:<InventoryRoundedIcon/>},
         {title:"Vaccination",
             submenu:true,
             submenuItems:[
-                {title:"Schedule"},
-                {title:"Under Monitoring"}
+                {title:"Schedule", path:"/schedule-vaccination"},
+                {title:"Under Monitoring", path:"/monitoring-Report"}
             ],
             path:"/vaccinett", icon:<VaccinesRoundedIcon/>},
-        {title:"Morbidity & Mortality", path:"/mortabilitymr", icon:<CasesRoundedIcon/>},
+        {title:"Morbidity & Mortality", path:"/morbility-mortality", icon:<CasesRoundedIcon/>},
     ];
        
 
@@ -50,31 +51,54 @@ const Sidebarr = () => {
 
                 <ul className='pt-2'>
                     {Menus.map((menu, index) => (
-                        <Link to={menu.path} key={index}>
-                            <li key={index} className='text-white text-sm flex items-center gap-x-4 
-                            cursor-pointer p-2 hover:bg-[#91ad84] rounded-md mt-2'>
-                                <span className='float-left'>
-                                   {menu.icon ? menu.icon : <SpaceDashboardRoundedIcon/>}
-                                </span>
-                                <span className={`text-base font-medium flex-1 duration-300
-                                    ${!open && "hidden"}`}>
-                                    {menu.title}
-                                </span>
-                                {menu.submenu && open && (
-                                    <KeyboardArrowDownRoundedIcon className={`${submenuOpen && "rotate-180"  }`}  onClick={() => setSubmenuOpen (!submenuOpen)}/>
-                                )}
-                            </li>
-                            {menu.submenu && submenuOpen && open &&(
-                                <ul>
-                                    {menu.submenuItems.map((submenuItems,index) => (
-                                        <li key={index} className='text-white text-sm flex items-center gap-x-4 
-                                            cursor-pointer p-2 px-5 hover:bg-[#91ad84] rounded-md mt-2'>
-                                            {submenuItems.title}
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
+                    <div key={index}>
+                        {/* Main Menu Item */}
+                        <li
+                        className="text-white text-sm flex items-center gap-x-4 
+                        cursor-pointer p-2 hover:bg-[#91ad84] rounded-md mt-2"
+                        onClick={() => {
+                            if (menu.submenu) {
+                            setSubmenuOpen(submenuOpen === menu.title ? null : menu.title);
+                            }
+                        }}
+                        >
+                        <span className="float-left">
+                            {menu.icon ? menu.icon : <SpaceDashboardRoundedIcon />}
+                        </span>
+
+                        <Link
+                            to={menu.path}
+                            className={`text-base font-medium flex-1 duration-300 ${
+                            !open && "hidden"
+                            }`}
+                        >
+                            {menu.title}
                         </Link>
+
+                        {menu.submenu && open && (
+                            <KeyboardArrowDownRoundedIcon
+                            className={`${submenuOpen === menu.title && "rotate-180"}`}
+                            />
+                        )}
+                        </li>
+
+                        {/* Submenu items */}
+                        {menu.submenu && submenuOpen === menu.title && open && (
+                        <ul>
+                            {menu.submenuItems.map((submenuItem, subIndex) => (
+                            <Link to={submenuItem.path}>    
+                            <li
+                                key={subIndex}
+                                className="text-white text-sm flex items-center gap-x-4 
+                                cursor-pointer p-2 px-5 hover:bg-[#91ad84] rounded-md mt-2"
+                            >
+                                {submenuItem.title}
+                            </li>
+                            </Link>
+                            ))}
+                        </ul>
+                        )}
+                    </div>
                     ))}
                 </ul>
 
