@@ -1,9 +1,38 @@
+import { useState,useEffect  } from "react";
 import {Box, Container, Paper, Typography, TextField, Button,} from "@mui/material";
-import {Link} from "react-router-dom";
+import {useNavigate, useLocation} from "react-router-dom";
 import photo from "../../assets/logo1.jpg"
+
 const Login = () => {
 
-    const handleSubmit = () => <Link to="/home"/>;
+    const [email, setEmail] = useState('');
+    const [password,setPassword] = useState('');
+    const navigate = useNavigate();
+    const location = useLocation();
+    
+     // ✅ Clear inputs when this page is visited
+    useEffect(() => {
+
+        if (location.pathname === '/'){
+            setEmail("");
+            setPassword("");
+        }
+        
+    }, [location]);
+
+    const handleClick = () => {
+
+        if (email === 'admin' && password === '12345') {
+            setEmail("");
+            setPassword("");
+            return navigate('/dashboard');
+        } else{
+            setEmail("");
+            setPassword("");
+            alert("Wrong Inputs")
+        }
+        
+    };
 
     return (
         <Container maxWidth="xs" >
@@ -25,12 +54,13 @@ const Login = () => {
                 </Typography>
                 <Box
                     component="form"
-                    onClick={handleSubmit}
                     noValidate
                     sx={{mt:2, padding:2}}
                 >
                     <TextField 
                         placeholder="Enter Username"
+                        value={email}
+                        onChange={(e) => {setEmail(e.target.value)}}
                         fullWidth
                         required
                         autoFocus
@@ -38,16 +68,18 @@ const Login = () => {
                     />
                     <TextField 
                         placeholder="Password"
+                        value={password}
+                        onChange={(e) => {setPassword(e.target.value)}}
                         fullWidth
                         required
                         type="password"
                         sx={{mb:2}}
                     />
                     <Button 
-                        type="submit" 
                         variant="contained" 
                         fullWidth 
                         sx={{mt:1, background:"#4CAF50"}}
+                        onClick={handleClick}
                     >
                         SIGN IN
                     </Button>

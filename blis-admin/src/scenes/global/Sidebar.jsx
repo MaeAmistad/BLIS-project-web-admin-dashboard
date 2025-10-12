@@ -14,7 +14,7 @@ const Sidebarr = () => {
     const [submenuOpen, setSubmenuOpen] = useState(false);
 
     const Menus = [
-        {title:"Dashboard", path:"/"},
+        {title:"Dashboard", path:"/dashboard"},
         {title:"Raiser Profile",  path:"/raiserProfile", icon:<PeopleRoundedIcon/>},
         {title:"Livestock", path:"/Ls-inventory",  icon:<InventoryRoundedIcon/>},
         {title:"Vaccination",
@@ -51,7 +51,7 @@ const Sidebarr = () => {
 
                 <ul className='pt-2'>
                     {Menus.map((menu, index) => (
-                    <div key={index}>
+                    <div key={index}> 
                         {/* Main Menu Item */}
                         <li
                         className="text-white text-sm flex items-center gap-x-4 

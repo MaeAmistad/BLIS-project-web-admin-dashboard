@@ -1,9 +1,15 @@
 import * as React from 'react';
+import {Link} from 'react-router-dom';
 import {Box, IconButton, Typography,Toolbar, Menu, Container, Tooltip, MenuItem} from "@mui/material";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 
-const settings = ['Profile', 'Account', 'Logout'];
+// const settings = ['Profile', 'Account', 'Logout'];
+
+const settings = [
+    {title:"Account", path:'/account'},
+    {title:"Logout", path:'/'},
+]
 
 const Topbar = () => {
 const [anchorElUser, setAnchorElUser] = React.useState(null);
@@ -29,7 +35,7 @@ const [anchorElUser, setAnchorElUser] = React.useState(null);
                 fontWeight: 700,
                 letterSpacing: '.2rem',
                 color: " #424242",
-                textDecoration: 'none',
+                textDecoration: 'none', 
             }}
           >
             INVENTORY SYSTEM
@@ -61,9 +67,11 @@ const [anchorElUser, setAnchorElUser] = React.useState(null);
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
+                <Link to={setting.path}>
                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+                  <Typography sx={{ textAlign: 'center' }}>{setting.title}</Typography>
                 </MenuItem>
+                </Link>
               ))}
             </Menu>
           </Box>

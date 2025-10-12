@@ -2,56 +2,47 @@ import { doc, setDoc, getDocs, collection} from "firebase/firestore";
 import {db} from "../../firebase"; 
 import {Button} from "@mui/material";
 import { useState, useEffect } from "react";
-import { ulid } from 'ulid';
-// import QRCode from "qrcode";
 import Header from "../../components/header";
 import Topbar from "../global/Topbar";
 import Sidebarr from "../global/Sidebar";
 
 
 
-const RaiserProfile = () => {
+const Account = () => {
 
-    const [fname, setFname]=useState('');
-    const [municipal, setMunicipal]=useState('');
-    const [brgy, setBrgy]=useState('');
-    const [farmsize, setFarmsize]=useState('');
-    const [raisers, setRaisers] = useState([]); 
+    const [name, setName]=useState('');
+    const [email, setEmail]=useState('');
+    const [password, setPassword]=useState('');
+    const [user, setUsers] = useState([]); 
 
     const Rows = [
-        {tableHeader:"ID"},
-        {tableHeader:"Full Name"},
-        {tableHeader:"Municipal"},
-        {tableHeader:"Barangay"},
-        {tableHeader:"Farm Size"},
-        {tableHeader:"QR"},
+        {tableHeader:"No."},
+        {tableHeader:"Name"},
+        {tableHeader:"Email"},
+        {tableHeader:"Password"},
     ]  
 
     const saveData = async () => {
         const datas={
-            fname:fname,
-            municipal:municipal,
-            brgy:brgy,
-            farmsize:farmsize,
+            name:name,
+            email:email,
+            password:password,
         }
-        // for Unique ID
-        const userId = ulid();
         // save data to localStorage as a temporary database
         localStorage.setItem('datas', JSON.stringify(datas));
         // save data to firestore
-        await setDoc(doc(db, "Raiser"), {
-            uniqueID:userId,
-            name: datas.fname,
-            municipal: datas.municipal,
-            barangay: datas.brgy,
-            farmsize: datas.farmsize
+        const docRef = doc(collection(db,'users'));
+
+        await setDoc(docRef, {
+            name: datas.name,
+            email: datas.email,
+            password: datas.password,
         }); 
 
          // ✅ Reset form fields
-        setFname("");
-        setMunicipal("");
-        setBrgy("");
-        setFarmsize("");
+        setName("");
+        setEmail("");
+        setPassword("");
 
         // console.log("data save to Firestore");
         fetchData(); // refresh table after adding
@@ -60,10 +51,10 @@ const RaiserProfile = () => {
     // Fetch and display data
     const fetchData = async () => {
         const querySnapshot = await getDocs(
-            collection(db, "Raiser", "Profile", "PersonalInfo")
+            collection(db, "users")
         );
          const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-            setRaisers(data);
+            setUsers(data);
         };
         
         useEffect(() => {
@@ -77,7 +68,7 @@ const RaiserProfile = () => {
                 <Topbar/>
 
                 <div className="flex justify-between items-center">
-                    <Header title="Raiser Profile"/>
+                    <Header title="User Account"/>
                 </div>
 
 
@@ -95,16 +86,12 @@ const RaiserProfile = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {raisers.map((raiser, index) => (
-                                <tr key={raiser.id} className="border-b-2 border-black-200 hover:bg-green-50">
+                                {user.map((user, index) => (
+                                <tr key={user.id} className="border-b-2 border-black-200 hover:bg-green-50">
                                     <td className="p-3">{index + 1}</td>
-                                    <td className="p-3">{raiser.name}</td>
-                                    <td className="p-3">{raiser.municipal}</td>
-                                    <td className="p-3">{raiser.barangay}</td>
-                                    <td className="p-3">{raiser.farmsize}</td>
-                                    <td className="text-center">
-                                    <Button>View QR</Button>
-                                    </td>
+                                    <td className="p-3">{user.name}</td>
+                                    <td className="p-3">{user.email}</td>
+                                    <td className="p-3">{user.password}</td>
                                 </tr>
                                 ))}
                             </tbody>
@@ -113,11 +100,11 @@ const RaiserProfile = () => {
 
                     <div className="w-1/4 border border border-gray ml-2 p-3">
                         <form>
-                            <h4 className="font-bold text-xl text-center">ADD RAISER</h4>
+                            <h4 className="font-bold text-xl text-center">ADD ACCOUNT</h4>
                             <div className="mt-8">
-                                <label class="block text-base font-medium text-gray-900">Full Name</label>
+                                <label class="block text-base font-medium text-gray-900">Name</label>
                                 <div>
-                                    <input required value={fname} onChange={(e) => {setFname(e.target.value)}}
+                                    <input required value={name} onChange={(e) => {setName(e.target.value)}}
                                     className="block w-full rounded-md bg-white px-3 py-1.5 
                                     text-base text-gray-900 outline outline-1 -outline-offset-1 
                                     outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 
@@ -126,9 +113,9 @@ const RaiserProfile = () => {
                             </div>
 
                             <div className="mt-8">
-                                <label class="block text-base font-medium text-gray-900">Municipal</label>
+                                <label class="block text-base font-medium text-gray-900">Email</label>
                                 <div>
-                                    <input required value={municipal} onChange={(e) => {setMunicipal(e.target.value)}}
+                                    <input required value={email} onChange={(e) => {setEmail(e.target.value)}}
                                     className="block w-full rounded-md bg-white px-3 py-1.5 
                                     text-base text-gray-900 outline outline-1 -outline-offset-1 
                                     outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 
@@ -137,20 +124,9 @@ const RaiserProfile = () => {
                             </div>
 
                             <div className="mt-8">
-                                <label class="block text-base font-medium text-gray-900">Barangay</label>
+                                <label class="block text-base font-medium text-gray-900">Password</label>
                                 <div>
-                                    <input required value={brgy} onChange={(e) => {setBrgy(e.target.value)}}
-                                    className="block w-full rounded-md bg-white px-3 py-1.5 
-                                    text-base text-gray-900 outline outline-1 -outline-offset-1 
-                                    outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 
-                                    focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 uppercase" />
-                                </div>
-                            </div>
-
-                            <div className="mt-8">
-                                <label class="block text-base font-medium text-gray-900">Farm Size</label>
-                                <div>
-                                    <input value={farmsize} onChange={(e) => {setFarmsize(e.target.value)}}
+                                    <input required value={password} onChange={(e) => {setPassword(e.target.value)}}
                                     className="block w-full rounded-md bg-white px-3 py-1.5 
                                     text-base text-gray-900 outline outline-1 -outline-offset-1 
                                     outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 
@@ -178,4 +154,4 @@ const RaiserProfile = () => {
     
 }
 
-export default RaiserProfile;
+export default Account;
