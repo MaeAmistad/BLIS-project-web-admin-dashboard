@@ -179,12 +179,12 @@ const RaiserProfile = () => {
               />
             </div>
 
-            <table className="table-auto w-full border-collapse rounded-lg">
+            <table className="table-auto w-full border-collapse rounded-lg overflow-hidden">
               <thead className="bg-gray-100 border-b-2 border-gray-300">
                 <tr>
                   {Rows.map((rows, index) => (
                     <th
-                      key={index}
+                      key={index} 
                       className="p-3 text-sm font-semibold tracking-wide text-center"
                     >
                       {rows.tableHeader}

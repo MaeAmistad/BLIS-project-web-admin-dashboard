@@ -28,7 +28,7 @@ const LivestockInventory = () => {
 
                 <div className="flex bg-white p-2 m-5 overflow-auto rounded-lg">
                     <div className="w-full">
-                        <table class="table-auto w-full">
+                        <table class="table-auto w-full border-collapse rounded-lg overflow-hidden">
                             <thead class="bg-gray-100 border-b-2 border-gray-200 rounded-t-lg">
                                 <tr>
                                     {Rows.map((rows, index) => (
