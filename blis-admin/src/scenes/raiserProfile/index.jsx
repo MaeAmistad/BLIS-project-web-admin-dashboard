@@ -2,8 +2,6 @@ import { doc, setDoc, getDocs, collection} from "firebase/firestore";
 import {db} from "../../firebase"; 
 import {Button} from "@mui/material";
 import { useState, useEffect } from "react";
-import { ulid } from 'ulid';
-// import QRCode from "qrcode";
 import Header from "../../components/header";
 import Topbar from "../global/Topbar";
 import Sidebarr from "../global/Sidebar";
@@ -34,13 +32,10 @@ const RaiserProfile = () => {
             brgy:brgy,
             farmsize:farmsize,
         }
-        // for Unique ID
-        const userId = ulid();
         // save data to localStorage as a temporary database
         localStorage.setItem('datas', JSON.stringify(datas));
         // save data to firestore
         await setDoc(doc(db, "Raiser"), {
-            uniqueID:userId,
             name: datas.fname,
             municipal: datas.municipal,
             barangay: datas.brgy,
