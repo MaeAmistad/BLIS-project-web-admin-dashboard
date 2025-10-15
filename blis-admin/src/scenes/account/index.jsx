@@ -148,7 +148,7 @@ const Account = () => {
 
   return (
     <div className="flex bg-[#F5F5F5]">
-      <Sidebarr />
+      <Sidebarr /> 
       <div className="w-full">
         <Topbar />
         <div className="flex justify-between items-center">
@@ -233,6 +233,19 @@ const Account = () => {
                 margin="normal"
                 autoComplete="off"
                 name="username"
+                sx={{
+                mb: 3,
+                "& .MuiOutlinedInput-root": {
+                "&:hover fieldset": { borderColor: "#66BB6A" },
+                "&.Mui-focused fieldset": { borderColor: "#388E3C" },
+                },
+                "& .MuiInputLabel-root": {
+                color: "#666", // default label color
+                "&:hover": {
+                  color: "#66BB6A", // label color when hovered
+                },
+                }
+                }}
             />
 
             <TextField
@@ -244,6 +257,19 @@ const Account = () => {
                 margin="normal"
                 autoComplete="new-email"
                 name="new-email"
+                sx={{
+                mb: 3,
+                "& .MuiOutlinedInput-root": {
+                "&:hover fieldset": { borderColor: "#66BB6A" },
+                "&.Mui-focused fieldset": { borderColor: "#388E3C" },
+                },
+                "& .MuiInputLabel-root": {
+                color: "#666", // default label color
+                "&:hover": {
+                  color: "#66BB6A", // label color when hovered
+                },
+                }
+                }}
             />
 
             <TextField
@@ -255,6 +281,19 @@ const Account = () => {
                 margin="normal"
                 autoComplete="new-password"
                 name="new-password"
+                sx={{
+                mb: 3,
+                "& .MuiOutlinedInput-root": {
+                "&:hover fieldset": { borderColor: "#66BB6A" },
+                "&.Mui-focused fieldset": { borderColor: "#388E3C" },
+                },
+                "& .MuiInputLabel-root": {
+                color: "#666", // default label color
+                "&:hover": {
+                  color: "#66BB6A", // label color when hovered
+                },
+                }
+                }}
             />
 
             <div className="text-center mt-6">

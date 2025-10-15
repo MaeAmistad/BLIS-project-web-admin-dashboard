@@ -137,6 +137,12 @@ const Login = () => {
                 "&:hover fieldset": { borderColor: "#66BB6A" },
                 "&.Mui-focused fieldset": { borderColor: "#388E3C" },
                 },
+                "& .MuiInputLabel-root": {
+                color: "#666", // default label color
+                "&:hover": {
+                  color: "#66BB6A", // label color when hovered
+                },
+                }
             }}
             />
 
@@ -158,6 +164,12 @@ const Login = () => {
                 "&:hover fieldset": { borderColor: "#66BB6A" },
                 "&.Mui-focused fieldset": { borderColor: "#388E3C" },
                 },
+                "& .MuiInputLabel-root": {
+                color: "#666", // default label color
+                "&:hover": {
+                  color: "#66BB6A", // label color when hovered
+                },
+                }
             }}
             />
 
