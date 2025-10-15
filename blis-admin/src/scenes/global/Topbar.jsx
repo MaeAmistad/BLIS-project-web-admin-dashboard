@@ -30,7 +30,7 @@ const [anchorElUser, setAnchorElUser] = React.useState(null);
             sx={{
                 flexGrow: 1,
                 display: { xs: 'none', md: 'flex' },
-                fontFamily: "Roboto",
+                fontFamily: "Poppins",
                 fontWeight: 700,
                 letterSpacing: '.2rem',
                 color: " #424242",
