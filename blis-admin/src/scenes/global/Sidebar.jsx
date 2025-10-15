@@ -7,6 +7,7 @@ import PeopleRoundedIcon from '@mui/icons-material/PeopleOutlined';
 import InventoryRoundedIcon from '@mui/icons-material/InventoryRounded';
 import VaccinesRoundedIcon from '@mui/icons-material/VaccinesRounded';
 import CasesRoundedIcon from '@mui/icons-material/CasesRounded';
+import AccountCircleRoundedIcon from '@mui/icons-material/AccountCircleRounded';
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
 
 const Sidebarr = () => {
@@ -15,7 +16,8 @@ const Sidebarr = () => {
 
     const Menus = [
         {title:"Dashboard", path:"/dashboard"},
-        {title:"Raiser Profile",  path:"/raiserProfile", icon:<PeopleRoundedIcon/>},
+        {title:"User Management",  path:"/account", icon:<AccountCircleRoundedIcon/>},
+        {title:"List of Raiser",  path:"/raiserProfile", icon:<PeopleRoundedIcon/>},
         {title:"Livestock", path:"/Ls-inventory",  icon:<InventoryRoundedIcon/>},
         {title:"Vaccination",
             submenu:true,
@@ -34,7 +36,7 @@ const Sidebarr = () => {
             {/* sidebar */}
             <div className={ ` bg-[#2E7D32] h-screen p-5 pt-8 ${open ? "w-72" : "w-20"} 
             duration-300 relative ` }>
-                <ArrowBackIosNewRoundedIcon sx={{ mt:1, fontSize: 40, padding: 1, borderRadius: "50%", backgroundColor: "white" }}
+                <ArrowBackIosNewRoundedIcon sx={{ mt:80, fontSize: 40, padding: 1, borderRadius: "50%", backgroundColor: "white" }}
                  className={`text-dark-purple absolute -right-6 cursor-pointer ${!open && "rotate-180"}`} onClick={() => setOpen (!open)}
                 />
 
