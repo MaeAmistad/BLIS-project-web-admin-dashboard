@@ -2,7 +2,7 @@ import Header from "../../components/header";
 import Topbar from "../global/Topbar";
 import Sidebarr from "../global/Sidebar";
 
-const MonitoringReport = () => {
+const InventoryandSupplies = () => {
 
   const Rows = [
         {tableHeader:"Date of Visit"},
@@ -24,7 +24,7 @@ const MonitoringReport = () => {
                 <Topbar/>
 
                  <div className="flex justify-between items-center">
-                    <Header title="Animal Health Monitoring Report"/>
+                    <Header title="Inventory and Supplies"/>
                 </div>
 
                 <div className="flex bg-white p-2 m-5 overflow-auto rounded-lg">
@@ -53,4 +53,4 @@ const MonitoringReport = () => {
     )
 }
 
-export default MonitoringReport;
+export default InventoryandSupplies;

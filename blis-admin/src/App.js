@@ -4,12 +4,11 @@ import Dashboard from "./scenes/dashboard";
 import RaiserProfile from "./scenes/raiserProfile"
 import LivestockInventory from "./scenes/lsInventory"
 import VaccineTracking from "./scenes/vaccineTracking"
-import MorMorRecord from "./scenes/morMorRecord"
-import MonitoringReport from "./scenes/monitoringReport"
-import ScheduleVaccination from "./scenes/scheduleVaccination"
+import HealthandMedical from "./scenes/healthMedRecords"
+import InventoryandSupplies from "./scenes/inventorySupplies"
+import ReportandAnalytics from "./scenes/reportAnalytics"
 import Account from "./scenes/account"
-// import Profile from "./scenes/profile"
-
+ 
 function App() {
 
   return (
@@ -22,9 +21,9 @@ function App() {
               <Route path="/raiserProfile" element={<RaiserProfile/>}/>
               <Route path="/Ls-inventory" element={<LivestockInventory/>}/>
               <Route path="/vaccinett" element={<VaccineTracking/>}/>
-              <Route path="/morbility-mortality" element={<MorMorRecord/>}/>
-              <Route path="/monitoring-Report" element={<MonitoringReport/>}/>
-              <Route path="/schedule-vaccination" element={<ScheduleVaccination/>}/>
+              <Route path="/healthandmed" element={<HealthandMedical/>}/>
+              <Route path="/inventorySupplies" element={<InventoryandSupplies/>}/>
+              <Route path="/reportsAnalytics" element={<ReportandAnalytics/>}/>
               <Route path="/account" element={<Account/>}/>
               {/* <Route path="/profile" element={<Profile/>}/> */}
             </Routes>

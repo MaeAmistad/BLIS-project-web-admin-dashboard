@@ -2,13 +2,13 @@ import Header from "../../components/header";
 import Topbar from "../global/Topbar";
 import Sidebarr from "../global/Sidebar";
 
-const MonitoringReport = () => {
+const HealthandMedical = () => {
 
   const Rows = [
-        {tableHeader:"Date"},
-        {tableHeader:"Name of Owner"},
-        {tableHeader:"Contact Num."},
-        {tableHeader:"Address"},
+        {tableHeader:"ID"},
+        {tableHeader:"Full Name"},
+        {tableHeader:"Municipal"},
+        {tableHeader:"Barangay"},
     ]  
 
     return (
@@ -18,7 +18,7 @@ const MonitoringReport = () => {
                 <Topbar/>
 
                  <div className="flex justify-between items-center">
-                    <Header title="Schedule of Vaccination"/>
+                    <Header title="Health and Medical Records"/>
                 </div>
 
                 <div className="flex bg-white p-2 m-5 overflow-auto rounded-lg">
@@ -47,4 +47,4 @@ const MonitoringReport = () => {
     )
 }
 
-export default MonitoringReport;
+export default HealthandMedical;

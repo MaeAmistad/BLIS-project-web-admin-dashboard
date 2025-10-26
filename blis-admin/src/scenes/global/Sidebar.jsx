@@ -5,10 +5,11 @@ import ArrowBackIosNewRoundedIcon from "@mui/icons-material/ArrowBackIosNewRound
 import SpaceDashboardRoundedIcon from "@mui/icons-material/SpaceDashboardRounded";
 import PeopleRoundedIcon from "@mui/icons-material/PeopleOutlined";
 import InventoryRoundedIcon from "@mui/icons-material/InventoryRounded";
-import VaccinesRoundedIcon from "@mui/icons-material/VaccinesRounded";
-import CasesRoundedIcon from "@mui/icons-material/CasesRounded";
 import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
+import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
+import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded';
+import AssessmentRoundedIcon from '@mui/icons-material/AssessmentRounded';
 
 const Sidebarr = () => {
   const [open, setOpen] = useState(true);
@@ -18,19 +19,11 @@ const Sidebarr = () => {
   const Menus = [
     { title: "Dashboard", path: "/dashboard", icon: <SpaceDashboardRoundedIcon /> },
     { title: "User Management", path: "/account", icon: <AccountCircleRoundedIcon /> },
-    { title: "List of Raiser", path: "/raiserProfile", icon: <PeopleRoundedIcon /> },
+    { title: "Raiser/Farmer", path: "/raiserProfile", icon: <PeopleRoundedIcon /> },
     { title: "Livestock", path: "/Ls-inventory", icon: <InventoryRoundedIcon /> },
-    {
-      title: "Vaccination",
-      submenu: true,
-      submenuItems: [
-        { title: "Schedule", path: "/schedule-vaccination" },
-        { title: "Under Monitoring", path: "/monitoring-Report" },
-      ],
-      path: "/vaccinett",
-      icon: <VaccinesRoundedIcon />,
-    },
-    { title: "Morbidity & Mortality", path: "/morbility-mortality", icon: <CasesRoundedIcon /> },
+    { title: "Health and Medical", path: "/healthandmed", icon: <MedicalInformationIcon /> },
+    { title: "Inventory and Supplies", path: "/inventorySupplies", icon: <Inventory2RoundedIcon /> },
+    { title: "Report and Analytics", path: "/reportsAnalytics", icon: <AssessmentRoundedIcon /> },
   ];
 
   return (
@@ -119,25 +112,6 @@ const Sidebarr = () => {
                     />
                   )}
                 </li>
-
-                {/* Submenu */}
-                {menu.submenu && submenuOpen === menu.title && open && (
-                  <ul className="pl-10 mt-1 space-y-1 animate-fadeIn">
-                    {menu.submenuItems.map((subItem, subIndex) => (
-                      <Link key={subIndex} to={subItem.path}>
-                        <li
-                          className={`text-sm text-white p-2 rounded-md cursor-pointer hover:bg-[#A5D6A7] transition-all duration-200 ${
-                            location.pathname === subItem.path
-                              ? "bg-[#81C784]"
-                              : ""
-                          }`}
-                        >
-                          {subItem.title}
-                        </li>
-                      </Link>
-                    ))}
-                  </ul>
-                )}
               </div>
             );
           })}

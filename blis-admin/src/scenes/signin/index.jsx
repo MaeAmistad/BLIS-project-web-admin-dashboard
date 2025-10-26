@@ -116,7 +116,7 @@ const Login = () => {
             textAlign="center"
             color="green"
           >
-            Sign In
+            BLIS
           </Typography>
 
           <Box component="form" noValidate sx={{ mt: 3 }}>

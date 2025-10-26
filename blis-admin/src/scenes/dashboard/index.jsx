@@ -12,7 +12,7 @@ const Dashboard = () => {
                 <Topbar/>
 
                 <div className="flex justify-between items-center">
-                    <Header title="DASHBOARD" subtitle="Welcome to your dashboard"/>
+                    <Header title="DASHBOARD" subtitle="Welcome to your dashboard, Admin!"/>
                 </div>
                 
 
