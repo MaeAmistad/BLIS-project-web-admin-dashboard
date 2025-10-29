@@ -6,8 +6,12 @@ import Swal from "sweetalert2";
 import Header from "../../components/header";
 import Topbar from "../global/Topbar";
 import Sidebarr from "../global/Sidebar";
+import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
+import EditRoundedIcon from '@mui/icons-material/EditRounded';
+import RaiserModal from "../../components/modal";
 
-const RaiserProfile = () => {
+
+const RaiserProfile = () => { 
   const [fname, setFname] = useState('');
   const [middleinitial, setMiddleinitial] = useState('');
   const [lastname, setLastname] = useState('');
@@ -17,12 +21,37 @@ const RaiserProfile = () => {
   const [raisers, setRaisers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // MODAL
+  const [open, setOpen] = useState(false);
+  const [editData, setEditData] = useState(null);
+
+  const handleAdd = () => {
+    setEditData(null);
+    setOpen(true);
+  };
+
+  const handleEdit1 = (raiser) => {
+    setEditData(raiser);
+    setOpen(true);
+  };
+
+  const handleSave = (data) => {
+    if (editData) {
+      console.log("Updating:", data);
+    } else {
+      console.log("Adding:", data);
+    }
+  }
+
   const Rows = [
-    { tableHeader: "ID" },
     { tableHeader: "Full Name" },
-    { tableHeader: "Municipal" },
+    { tableHeader: "Gender" },
+    { tableHeader: "Contact No." },
     { tableHeader: "Barangay" },
-    { tableHeader: "Farm Size" },
+    { tableHeader: "Type of Raiser" },
+    { tableHeader: "Date Registered" },
+    { tableHeader: "No. of Livestock Owned" },
+    { tableHeader: "Registration Status" },
     { tableHeader: "Actions" },
   ];
 
@@ -135,6 +164,7 @@ const RaiserProfile = () => {
       raiser.barangay.toLowerCase().includes(term)
     );
   });
+  
 
   return (
     <div className="flex bg-[#F5F5F5] min-h-screen">
@@ -145,10 +175,31 @@ const RaiserProfile = () => {
         <div className="flex justify-between items-center">
           <Header title="List of Raiser" />
         </div>
-
+        <RaiserModal
+        open={open}
+        onClose={() => setOpen(false)}
+        onSave={handleSave}
+        initialData={editData}
+      />
+        <div>
+          <Button
+            variant="contained"
+            size="medium"
+            sx={{
+              mt:2,
+              ml:3,
+              pl:4,
+              pr:4,
+              backgroundColor: " #4CAF50",
+              "&:hover": { backgroundColor: " #68ca6bff" },
+            }}
+            onClick={handleAdd}>
+            Add Raiser
+          </Button>
+        </div>
         <div className="flex bg-white p-4 m-5 rounded-lg shadow-md">
           {/* TABLE + SEARCH */}
-          <div className="w-3/4 overflow-x-auto">
+          <div className="w-full overflow-x-auto">
             <div className="flex justify-between items-center mb-3 mt-2">
               <TextField
                 label="Search by Name or Barangay"
@@ -199,22 +250,42 @@ const RaiserProfile = () => {
                       key={raiser.id}
                       className="border-b hover:bg-green-50 text-center transition-all"
                     >
-                      <td className="p-3">{index + 1}</td>
                       <td className="p-3 font-medium">{raiser.name}</td>
                       <td className="p-3">{raiser.municipal}</td>
                       <td className="p-3">{raiser.barangay}</td>
                       <td className="p-3">{raiser.farmsize}</td>
-                      <td className="p-3">
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td className="p-3 flex justify-center gap-2">
+                        <Button
+                        size="small"
+                        variant="outlined"
+                      >
+                        View Details
+                      </Button>
                         <Button
                           variant="contained"
-                          size="small"
                           sx={{
                             backgroundColor: " #4CAF50",
                             "&:hover": { backgroundColor: " #68ca6bff" },
+                            minWidth: "32px",
+                            padding: "4px", 
                           }}
                           onClick={() => handleEdit(raiser)}
                         >
-                          Edit
+                          <EditRoundedIcon/>
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="error"
+                          sx={{
+                            minWidth: "32px",
+                            padding: "4px", 
+                          }}
+                        >
+                          <DeleteRoundedIcon/>
                         </Button>
                       </td>
                     </tr>
@@ -234,7 +305,7 @@ const RaiserProfile = () => {
           </div>
 
           {/* ADD FORM */}
-          <div className="w-1/4 ml-4 p-4 border border-gray-200 rounded-lg shadow-sm bg-[#fafafa]">
+          {/* <div className="w-1/4 ml-4 p-4 border border-gray-200 rounded-lg shadow-sm bg-[#fafafa]">
             <form>
               <h4 className="font-bold text-lg text-center text-green-700">
                 Add Raiser
@@ -324,7 +395,7 @@ const RaiserProfile = () => {
                 </Button>
               </div>
             </form>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
