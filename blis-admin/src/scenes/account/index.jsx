@@ -22,15 +22,16 @@ import Topbar from "../global/Topbar";
 import Sidebarr from "../global/Sidebar";
 
 const Account = () => {
+  const [role, setRole] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [users, setUsers] = useState([]);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editData, setEditData] = useState({ id: "", name: "", email: "", password: "" });
+  const [editData, setEditData] = useState({ role: "", name: "", email: "", password: "" });
 
-  const Rows = ["No.", "Name", "Email", "Password", "Actions"];
+  const Rows = ["Role", "Name", "Email", "Password", "Actions"];
 
   // ✅ Validation before adding
     const saveData = async () => {
@@ -46,9 +47,10 @@ const Account = () => {
 
     try {
         const docRef = doc(collection(db, "users"));
-        await setDoc(docRef, { name, email, password });
+        await setDoc(docRef, {role, name, email, password });
 
         // ✅ Clear input fields
+        setRole("");
         setName("");
         setEmail("");
         setPassword("");
@@ -120,7 +122,7 @@ const Account = () => {
 
     try {
       const userRef = doc(db, "users", id);
-      await updateDoc(userRef, { name, email, password });
+      await updateDoc(userRef, {role, name, email, password });
       setEditModalOpen(false);
 
       Swal.fire({
@@ -177,7 +179,7 @@ const Account = () => {
                     key={user.id}
                     className="border-b hover:bg-green-50 text-center transition-all"
                   >
-                    <td className="p-3">{index + 1}</td>
+                    <td className="p-3">{user.role}</td>
                     <td className="p-3">{user.name}</td>
                     <td className="p-3">{user.email}</td>
                     <td className="p-3">{user.password}</td>
@@ -213,16 +215,28 @@ const Account = () => {
             id="add-account-form"
             >
             <h4 className="font-bold text-xl text-center mb-4">ADD ACCOUNT</h4>
-
-            <input 
-                type="text" 
-                name="fakeusernameremembered" 
-                style={{ display: "none" }} 
-            />
-            <input 
-                type="password" 
-                name="fakepasswordremembered" 
-                style={{ display: "none" }} 
+            
+            <TextField
+                label="Role"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                fullWidth
+                margin="normal"
+                autoComplete="off"
+                name="role"
+                sx={{
+                mb: 3,
+                "& .MuiOutlinedInput-root": {
+                "&:hover fieldset": { borderColor: "#66BB6A" },
+                "&.Mui-focused fieldset": { borderColor: "#388E3C" },
+                },
+                "& .MuiInputLabel-root": {
+                color: "#666", // default label color
+                "&:hover": {
+                  color: "#66BB6A", // label color when hovered
+                },
+                }
+                }}
             />
 
             <TextField

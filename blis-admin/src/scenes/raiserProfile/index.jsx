@@ -1,4 +1,4 @@
-import { doc, setDoc, getDocs, collection, updateDoc } from "firebase/firestore";
+import { doc, setDoc, getDocs, collection, updateDoc, deleteDoc  } from "firebase/firestore";
 import { db } from "../../firebase"; 
 import { Button, TextField } from "@mui/material";
 import { useState, useEffect } from "react";
@@ -8,22 +8,24 @@ import Topbar from "../global/Topbar";
 import Sidebarr from "../global/Sidebar";
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
-import RaiserModal from "../../components/modal";
+import RaiserModal from "../../components/raisermodal";
+import ViewDetailsModal from "../../components/viewdetailsModal";
 
 
 const RaiserProfile = () => { 
-  const [fname, setFname] = useState('');
-  const [middleinitial, setMiddleinitial] = useState('');
-  const [lastname, setLastname] = useState('');
-  const [municipal, setMunicipal] = useState('');
-  const [brgy, setBrgy] = useState('');
-  const [farmsize, setFarmsize] = useState('');
   const [raisers, setRaisers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewOpen, setViewOpen] = useState(false);
+  const [selectedRaiser, setSelectedRaiser] = useState(null);
 
   // MODAL
   const [open, setOpen] = useState(false);
   const [editData, setEditData] = useState(null);
+
+  const handleView = (raiser) => {
+    setSelectedRaiser(raiser);
+    setViewOpen(true);
+  };
 
   const handleAdd = () => {
     setEditData(null);
@@ -35,14 +37,55 @@ const RaiserProfile = () => {
     setOpen(true);
   };
 
-  const handleSave = (data) => {
-    if (editData) {
-      console.log("Updating:", data);
-    } else {
-      console.log("Adding:", data);
-    }
-  }
+  const handleSave = async (data) => {
+  try {
+    //Capitalize all string values before saving
+    const capitalizedData = Object.fromEntries(
+      Object.entries(data).map(([key, value]) => [
+        key,
+        typeof value === "string" ? value.toUpperCase() : value,
+      ])
+    );
 
+    if (editData) {
+      // UPDATE existing record
+      const docRef = doc(db, "raisers", editData.id);
+      await updateDoc(docRef, capitalizedData);
+
+      Swal.fire({
+        icon: "success",
+        title: "Updated!",
+        text: "Raiser information has been updated successfully.",
+        confirmButtonColor: "#4CAF50",
+      });
+    } else {
+      //ADD new record
+      const docRef = doc(collection(db, "raisers"));
+      await setDoc(docRef, capitalizedData);
+
+      Swal.fire({
+        icon: "success",
+        title: "Raiser Added!",
+        text: "The new raiser has been added successfully.",
+        confirmButtonColor: "#4CAF50",
+      });
+    }
+
+    //Refresh table
+    fetchData();
+    setOpen(false);
+  } catch (error) {
+    console.error("Error saving raiser:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Save Failed",
+      text: "Something went wrong while saving. Please try again.",
+      confirmButtonColor: "#d33",
+    });
+  }
+};
+
+// Table Header
   const Rows = [
     { tableHeader: "Full Name" },
     { tableHeader: "Gender" },
@@ -54,52 +97,6 @@ const RaiserProfile = () => {
     { tableHeader: "Registration Status" },
     { tableHeader: "Actions" },
   ];
-
-  const saveData = async () => {
-    const datas = {
-      fname,
-      middleinitial,
-      lastname,
-      municipal,
-      brgy,
-      farmsize,
-    };
-
-    const capitalizedData = Object.fromEntries(
-      Object.entries(datas).map(([key, value]) => [
-        key,
-        typeof value === "string" ? value.toUpperCase() : value,
-      ])
-    );
-
-    const docRef = doc(collection(db, "raisers"));
-    await setDoc(docRef, {
-      name:
-        capitalizedData.lastname +
-        ", " +
-        capitalizedData.fname +
-        " " +
-        capitalizedData.middleinitial,
-      municipal: capitalizedData.municipal,
-      barangay: capitalizedData.brgy,
-      farmsize: capitalizedData.farmsize,
-    });
-
-    setFname("");
-    setMiddleinitial("");
-    setLastname("");
-    setMunicipal("");
-    setBrgy("");
-    setFarmsize("");
-    fetchData();
-
-    Swal.fire({
-      icon: "success",
-      title: "Raiser Added",
-      text: "The new raiser has been added successfully!",
-      confirmButtonColor: "#4CAF50",
-    });
-  };
 
   const fetchData = async () => {
     const querySnapshot = await getDocs(collection(db, "raisers"));
@@ -114,56 +111,38 @@ const RaiserProfile = () => {
     fetchData();
   }, []);
 
-  const handleEdit = async (raiser) => {
-    const { value: formValues } = await Swal.fire({
-      title: "Edit Raiser",
-      html: `
-        <input id="fname" class="swal2-input" placeholder="Full Name" value="${raiser.name}" />
-        <input id="municipal" class="swal2-input" placeholder="Municipal" value="${raiser.municipal}" />
-        <input id="barangay" class="swal2-input" placeholder="Barangay" value="${raiser.barangay}" />
-        <input id="farmsize" class="swal2-input" placeholder="Farm Size" value="${raiser.farmsize}" />
-      `,
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonText: "Save",
-      confirmButtonColor: "#4CAF50",
-      cancelButtonColor: "#d33",
-      preConfirm: () => {
-        const fname = document.getElementById("fname").value;
-        const municipal = document.getElementById("municipal").value;
-        const barangay = document.getElementById("barangay").value;
-        const farmsize = document.getElementById("farmsize").value;
-        return { fname, municipal, barangay, farmsize };
-      },
-    });
+  //Delete Data
+  const handleDelete = async (raiser) => {
+  const confirm = await Swal.fire({
+    title: "Delete Raiser?",
+    text: "This action cannot be undone.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Delete",
+  });
 
-    if (formValues) {
-      await updateDoc(doc(db, "raisers", raiser.id), {
-        name: formValues.fname.toUpperCase(),
-        municipal: formValues.municipal.toUpperCase(),
-        barangay: formValues.barangay.toUpperCase(),
-        farmsize: formValues.farmsize.toUpperCase(),
-      });
+  if (confirm.isConfirmed) {
+    await deleteDoc(doc(db, "raisers", raiser.id));
+    Swal.fire("Deleted!", "Raiser has been removed.", "success");
+    fetchData();
+  }
+};
 
-      Swal.fire({
-        icon: "success",
-        title: "Updated!",
-        text: "Raiser details have been updated successfully.",
-        confirmButtonColor: "#4CAF50",
-      });
-
-      fetchData();
-    }
-  };
-
-  // 🔍 Filter function for name or barangay
+  //Search Bar
   const filteredRaisers = raisers.filter((raiser) => {
     const term = searchTerm.toLowerCase();
+    const fullName = `${raiser.firstName || ""} ${raiser.middleInitial || ""} ${raiser.lastName || ""}`.toLowerCase();
+    
     return (
-      raiser.name.toLowerCase().includes(term) ||
-      raiser.barangay.toLowerCase().includes(term)
+      fullName.includes(term) ||
+      (raiser.address?.toLowerCase() || "").includes(term) ||
+      (raiser.typeOfRaiser?.toLowerCase() || "").includes(term)
     );
   });
+
+
   
 
   return (
@@ -176,10 +155,15 @@ const RaiserProfile = () => {
           <Header title="List of Raiser" />
         </div>
         <RaiserModal
-        open={open}
-        onClose={() => setOpen(false)}
-        onSave={handleSave}
-        initialData={editData}
+          open={open}
+          onClose={() => setOpen(false)}
+          onSave={handleSave}
+          initialData={editData}
+        />
+      <ViewDetailsModal
+        open={viewOpen}
+        onClose={() => setViewOpen(false)}
+        raiser={selectedRaiser}
       />
         <div>
           <Button
@@ -197,12 +181,12 @@ const RaiserProfile = () => {
             Add Raiser
           </Button>
         </div>
-        <div className="flex bg-white p-4 m-5 rounded-lg shadow-md">
-          {/* TABLE + SEARCH */}
+        <div className="flex bg-white p-4 m-5 rounded-lg shadow-md"> 
+          {/* SEARCH */}
           <div className="w-full overflow-x-auto">
             <div className="flex justify-between items-center mb-3 mt-2">
               <TextField
-                label="Search by Name or Barangay"
+                label="Search by Name, Barangay or Type of Raiser"
                 variant="outlined"
                 size="small"
                 fullWidth
@@ -250,18 +234,19 @@ const RaiserProfile = () => {
                       key={raiser.id}
                       className="border-b hover:bg-green-50 text-center transition-all"
                     >
-                      <td className="p-3 font-medium">{raiser.name}</td>
-                      <td className="p-3">{raiser.municipal}</td>
-                      <td className="p-3">{raiser.barangay}</td>
+                      <td className="p-3 font-medium">{raiser.lastName + ", " + raiser.firstName + " " + raiser.middleInitial}</td>
+                      <td className="p-3">{raiser.gender}</td>
+                      <td className="p-3">{raiser.contact}</td>
+                      <td className="p-3">{raiser.address}</td>
+                      <td className="p-3">{raiser.typeOfRaiser}</td>
+                      <td className="p-3">{raiser.createdAt}</td>
                       <td className="p-3">{raiser.farmsize}</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td className="p-3">{raiser.registrationStatus}</td>
                       <td className="p-3 flex justify-center gap-2">
                         <Button
                         size="small"
                         variant="outlined"
+                        onClick={() => handleView(raiser)}
                       >
                         View Details
                       </Button>
@@ -273,7 +258,7 @@ const RaiserProfile = () => {
                             minWidth: "32px",
                             padding: "4px", 
                           }}
-                          onClick={() => handleEdit(raiser)}
+                          onClick={() => handleEdit1(raiser)}
                         >
                           <EditRoundedIcon/>
                         </Button>
@@ -284,6 +269,7 @@ const RaiserProfile = () => {
                             minWidth: "32px",
                             padding: "4px", 
                           }}
+                          onClick={() => handleDelete(raiser)}
                         >
                           <DeleteRoundedIcon/>
                         </Button>
@@ -303,99 +289,6 @@ const RaiserProfile = () => {
               </tbody>
             </table>
           </div>
-
-          {/* ADD FORM */}
-          {/* <div className="w-1/4 ml-4 p-4 border border-gray-200 rounded-lg shadow-sm bg-[#fafafa]">
-            <form>
-              <h4 className="font-bold text-lg text-center text-green-700">
-                Add Raiser
-              </h4>
-
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  First Name
-                </label>
-                <input
-                  required
-                  value={fname}
-                  onChange={(e) => setFname(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 mt-1 focus:outline-green-500 uppercase"
-                />
-              </div>
-
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Middle Initial
-                </label>
-                <input
-                  value={middleinitial}
-                  onChange={(e) => setMiddleinitial(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 mt-1 focus:outline-green-500 uppercase"
-                />
-              </div>
-
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Last Name
-                </label>
-                <input
-                  required
-                  value={lastname}
-                  onChange={(e) => setLastname(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 mt-1 focus:outline-green-500 uppercase"
-                />
-              </div>
-
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Municipal
-                </label>
-                <input
-                  required
-                  value={municipal}
-                  onChange={(e) => setMunicipal(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 mt-1 focus:outline-green-500 uppercase"
-                />
-              </div>
-
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Barangay
-                </label>
-                <input
-                  required
-                  value={brgy}
-                  onChange={(e) => setBrgy(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 mt-1 focus:outline-green-500 uppercase"
-                />
-              </div>
-
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Farm Size
-                </label>
-                <input
-                  value={farmsize}
-                  onChange={(e) => setFarmsize(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 mt-1 focus:outline-green-500 uppercase"
-                />
-              </div>
-
-              <div className="text-center mt-6">
-                <Button
-                  variant="contained"
-                  sx={{
-                    backgroundColor: "#4CAF50",
-                    px: 5,
-                    "&:hover": { backgroundColor: "#45a049" },
-                  }}
-                  onClick={saveData}
-                >
-                  ADD
-                </Button>
-              </div>
-            </form>
-          </div> */}
         </div>
       </div>
     </div>
