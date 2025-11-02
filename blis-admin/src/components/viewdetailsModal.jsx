@@ -5,7 +5,7 @@ const ViewDetailsModal = ({ open, onClose, raiser }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl shadow-lg w-full max-w-2xl mx-4 p-6 relative">
+      <div className="bg-white rounded-2xl shadow-lg w-full max-w-3xl mx-4 p-6 relative overflow-y-auto max-h-[90vh]">
         
         {/* Close button */}
         <button
@@ -19,7 +19,12 @@ const ViewDetailsModal = ({ open, onClose, raiser }) => {
           Raiser Details
         </h2>
 
-        <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
+        {/* Raiser Info */}
+        <h3 className="text-lg font-semibold text-gray-800 mb-2 border-b pb-1">
+          Personal & Farm Information
+        </h3>
+
+        <div className="grid grid-cols-2 gap-4 text-sm text-gray-700 mb-6">
           <div>
             <p className="font-medium text-gray-900">Full Name</p>
             <p>{`${raiser.lastName || ""}, ${raiser.firstName || ""} ${raiser.middleInitial || ""}`}</p>
@@ -53,7 +58,7 @@ const ViewDetailsModal = ({ open, onClose, raiser }) => {
           </div>
           <div>
             <p className="font-medium text-gray-900">Farm Size</p>
-            <p>{raiser.farmsize || "—"}</p>
+            <p>{raiser.farmSize || "—"}</p>
           </div>
 
           <div>
@@ -65,13 +70,62 @@ const ViewDetailsModal = ({ open, onClose, raiser }) => {
             <p>{raiser.registrationStatus || "—"}</p>
           </div>
 
-          <div>
+          <div className="col-span-2">
             <p className="font-medium text-gray-900">Date Registered</p>
             <p>{raiser.createdAt || "—"}</p>
           </div>
         </div>
 
-        <div className="flex justify-center mt-6">
+        {/* LIVESTOCK INFO SECTION */}
+        <h3 className="text-lg font-semibold text-gray-800 mb-2 border-b pb-1">
+          Livestock Information
+        </h3>
+
+        <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
+          <div>
+            <p className="font-medium text-gray-900">Livestock Name</p>
+            <p>{raiser.livestockName || "—"}</p>
+          </div>
+          <div>
+            <p className="font-medium text-gray-900">Type of Animal</p>
+            <p>{raiser.typeOfAnimal || "—"}</p>
+          </div>
+
+          <div>
+            <p className="font-medium text-gray-900">Breed</p>
+            <p>{raiser.breed || "—"}</p>
+          </div>
+          <div>
+            <p className="font-medium text-gray-900">Gender</p>
+            <p>{raiser.livestockGender || "—"}</p>
+          </div>
+
+          <div>
+            <p className="font-medium text-gray-900">Age / Date of Birth</p>
+            <p>{raiser.ageOrBirthDate || "—"}</p>
+          </div>
+          <div>
+            <p className="font-medium text-gray-900">Color / Markings</p>
+            <p>{raiser.colorMarkings || "—"}</p>
+          </div>
+
+          <div>
+            <p className="font-medium text-gray-900">Health Condition</p>
+            <p>{raiser.healthCondition || "—"}</p>
+          </div>
+          <div>
+            <p className="font-medium text-gray-900">Weight</p>
+            <p>{raiser.weight || "—"}</p>
+          </div>
+
+          <div className="col-span-2">
+            <p className="font-medium text-gray-900">Status</p>
+            <p>{raiser.status || "—"}</p>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex justify-center mt-8">
           <button
             onClick={onClose}
             className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"

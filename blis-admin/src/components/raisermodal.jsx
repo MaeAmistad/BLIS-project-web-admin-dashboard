@@ -15,6 +15,15 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
     farmSize: "",
     numberOfWorkers: "",
     registrationStatus: "",
+    livestockName: "",
+    typeOfAnimal: "",
+    breed: "",
+    livestockGender: "",
+    ageOrBirthDate: "",
+    colorMarkings: "",
+    healthCondition: "",
+    weight: "",
+    status: "",
   });
 
   const resetForm = () => {
@@ -31,6 +40,15 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
       farmSize: "",
       numberOfWorkers: "",
       registrationStatus: "",
+      livestockName: "",
+      typeOfAnimal: "",
+      breed: "",
+      livestockGender: "",
+      ageOrBirthDate: "",
+      colorMarkings: "",
+      healthCondition: "",
+      weight: "",
+      status: "",
     });
   };
 
@@ -46,7 +64,7 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value.toUpperCase(),
+      [name]: value,
     }));
   };
 
@@ -60,25 +78,24 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
     registrationStatus: formData.registrationStatus,
   }).every(([_, value]) => value.trim() !== "");
 
- const handleSave = () => {
-  if (!isFormValid) return;
-  const formattedDate = new Date().toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const handleSave = () => {
+    if (!isFormValid) return;
+    const formattedDate = new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
 
-  const dataWithTimestamps = {
-    ...formData,
-    createdAt: initialData?.createdAt || formattedDate,
-    updatedAt: formattedDate,
+    const dataWithTimestamps = {
+      ...formData,
+      createdAt: initialData?.createdAt || formattedDate,
+      updatedAt: formattedDate,
+    };
+
+    onSave(dataWithTimestamps);
+    resetForm();
+    onClose();
   };
-
-  onSave(dataWithTimestamps);
-  resetForm();
-  onClose();
-};
-
 
   const handleCancel = async () => {
     const result = await Swal.fire({
@@ -112,7 +129,7 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
     >
       <div className="absolute inset-0 bg-black/50"></div>
 
-      <div className="relative bg-white rounded-xl shadow-lg w-full max-w-3xl mx-4">
+      <div className="relative bg-white rounded-xl shadow-lg w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
         <div className="text-center font-bold text-xl border-b p-4">
           {initialData ? "Edit Raiser" : "Add New Raiser"}
         </div>
@@ -120,15 +137,12 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
         <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* PERSONAL INFO */}
           <div>
-            <h2 className="text-lg font-semibold mb-3">
-              Personal Information
-            </h2>
+            <h2 className="text-lg font-semibold mb-3">Personal Information</h2>
 
+            {/* Existing Inputs */}
             <div className="flex flex-wrap gap-3 mb-3">
               <div className="flex-1 min-w-[12rem]">
-                <label className="block text-sm font-medium mb-1">
-                  Last Name
-                </label>
+                <label className="block text-sm font-medium mb-1">Last Name</label>
                 <input
                   type="text"
                   name="lastName"
@@ -139,9 +153,7 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
               </div>
 
               <div className="flex-1 min-w-[12rem]">
-                <label className="block text-sm font-medium mb-1">
-                  First Name
-                </label>
+                <label className="block text-sm font-medium mb-1">First Name</label>
                 <input
                   type="text"
                   name="firstName"
@@ -172,18 +184,14 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
                   onChange={handleChange}
                   className="w-full border rounded-lg p-2 bg-white focus:ring-2 focus:ring-green-400 focus:outline-none"
                 >
-                  <option value="" disabled>
-                    Select type
-                  </option>
-                  <option value="FEMALE">FEMALE</option>
-                  <option value="MALE">MALE</option>
+                  <option value="" disabled>Select type</option>
+                  <option value="Female">Female</option>
+                  <option value="Male">Male</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Contact No.
-                </label>
+                <label className="block text-sm font-medium mb-1">Contact No.</label>
                 <input
                   type="text"
                   name="contact"
@@ -194,9 +202,7 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Barangay
-                </label>
+                <label className="block text-sm font-medium mb-1">Barangay</label>
                 <input
                   type="text"
                   name="address"
@@ -207,20 +213,16 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Type of Raiser
-                </label>
+                <label className="block text-sm font-medium mb-1">Type of Raiser</label>
                 <select
                   name="typeOfRaiser"
                   value={formData.typeOfRaiser}
                   onChange={handleChange}
                   className="w-full border rounded-lg p-2 bg-white focus:ring-2 focus:ring-green-400 focus:outline-none mb-10"
                 >
-                  <option value="" disabled>
-                    Select type
-                  </option>
-                  <option value="BACKYARD">BACKYARD</option>
-                  <option value="COMMERCIAL">COMMERCIAL</option>
+                  <option value="" disabled>Select type</option>
+                  <option value="Backyard">Backyard</option>
+                  <option value="Commercial">Commercial</option>
                 </select>
               </div>
             </div>
@@ -232,9 +234,7 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
 
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Farm Name (If Applicable)
-                </label>
+                <label className="block text-sm font-medium mb-1">Farm Name</label>
                 <input
                   type="text"
                   name="farmName"
@@ -245,9 +245,7 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Farm Location
-                </label>
+                <label className="block text-sm font-medium mb-1">Farm Location</label>
                 <input
                   type="text"
                   name="farmLocation"
@@ -258,9 +256,7 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Farm Size (Optional)
-                </label>
+                <label className="block text-sm font-medium mb-1">Farm Size</label>
                 <input
                   type="text"
                   name="farmSize"
@@ -271,9 +267,7 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Number of Workers (Optional)
-                </label>
+                <label className="block text-sm font-medium mb-1">Number of Workers</label>
                 <input
                   type="text"
                   name="numberOfWorkers"
@@ -283,43 +277,57 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
                 />
               </div>
 
-              <h2 className="text-lg font-semibold mb-3">
-                Registration Status
-              </h2>
-
               <div>
+                <label className="block text-sm font-medium mb-1">Registration Status</label>
                 <select
                   name="registrationStatus"
                   value={formData.registrationStatus}
                   onChange={handleChange}
                   className="w-full border rounded-lg p-2 bg-white focus:ring-2 focus:ring-green-400 focus:outline-none"
                 >
-                  <option value="" disabled>
-                    Select type
-                  </option>
-                  <option value="ACTIVE">ACTIVE</option>
-                  <option value="INACTIVE">INACTIVE</option>
+                  <option value="" disabled>Select type</option>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
                 </select>
               </div>
+            </div>
+          </div>
+
+          {/* 🐄 LIVESTOCK INFO */}
+          <div className="md:col-span-2 mt-6">
+            <h2 className="text-lg font-semibold mb-3 text-center">Livestock Information</h2>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <input name="livestockName" value={formData.livestockName} onChange={handleChange} placeholder="Livestock Name" className="border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none" />
+              <input name="typeOfAnimal" value={formData.typeOfAnimal} onChange={handleChange} placeholder="Type of Animal (swine, etc.)" className="border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none" />
+              <input name="breed" value={formData.breed} onChange={handleChange} placeholder="Breed" className="border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none" />
+              <select name="livestockGender" value={formData.livestockGender} onChange={handleChange} className="border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none">
+                <option value="">Select Gender</option>
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+              </select>
+              <input name="ageOrBirthDate" value={formData.ageOrBirthDate} onChange={handleChange} placeholder="Age / Date of Birth" className="border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none" />
+              <input name="colorMarkings" value={formData.colorMarkings} onChange={handleChange} placeholder="Color / Markings" className="border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none" />
+              <input name="healthCondition" value={formData.healthCondition} onChange={handleChange} placeholder="Health Condition" className="border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none" />
+              <input name="weight" value={formData.weight} onChange={handleChange} placeholder="Weight (optional)" className="border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none" />
+              <select name="status" value={formData.status} onChange={handleChange} className="border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none">
+                <option value="">Select Status</option>
+                <option value="Active">Active</option>
+                <option value="Sold">Sold</option>
+                <option value="Deceased">Deceased</option>
+              </select>
             </div>
           </div>
         </div>
 
         {/* FOOTER */}
         <div className="flex justify-end gap-3 border-t p-4">
-          <button
-            onClick={handleCancel}
-            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
-          >
-            Cancel
-          </button>
+          <button onClick={handleCancel} className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">Cancel</button>
           <button
             onClick={handleSave}
             disabled={!isFormValid}
             className={`px-4 py-2 rounded-lg text-white ${
-              isFormValid
-                ? "bg-green-600 hover:bg-green-700"
-                : "bg-gray-400 cursor-not-allowed"
+              isFormValid ? "bg-green-600 hover:bg-green-700" : "bg-gray-400 cursor-not-allowed"
             }`}
           >
             Save

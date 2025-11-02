@@ -1,24 +1,20 @@
-import { doc, setDoc, getDocs, collection, updateDoc, deleteDoc  } from "firebase/firestore";
-import { db } from "../../firebase"; 
-import { Button, TextField } from "@mui/material";
+import { doc, setDoc, getDocs, collection, updateDoc, deleteDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import Header from "../../components/header";
 import Topbar from "../global/Topbar";
 import Sidebarr from "../global/Sidebar";
-import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
-import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import RaiserModal from "../../components/raisermodal";
 import ViewDetailsModal from "../../components/viewdetailsModal";
+import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded'; 
+import EditRoundedIcon from '@mui/icons-material/EditRounded';
 
-
-const RaiserProfile = () => { 
+const RaiserProfile = () => {
   const [raisers, setRaisers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [viewOpen, setViewOpen] = useState(false);
   const [selectedRaiser, setSelectedRaiser] = useState(null);
-
-  // MODAL
   const [open, setOpen] = useState(false);
   const [editData, setEditData] = useState(null);
 
@@ -38,54 +34,29 @@ const RaiserProfile = () => {
   };
 
   const handleSave = async (data) => {
-  try {
-    //Capitalize all string values before saving
-    const capitalizedData = Object.fromEntries(
-      Object.entries(data).map(([key, value]) => [
-        key,
-        typeof value === "string" ? value.toUpperCase() : value,
-      ])
-    );
+    try {
+      const capitalizedData = Object.fromEntries(
+        Object.entries(data).map(([key, value]) => [key, typeof value === "string" ? value : value])
+      );
 
-    if (editData) {
-      // UPDATE existing record
-      const docRef = doc(db, "raisers", editData.id);
-      await updateDoc(docRef, capitalizedData);
+      if (editData) {
+        const docRef = doc(db, "raisers", editData.id);
+        await updateDoc(docRef, capitalizedData);
+        Swal.fire("Updated!", "Raiser information updated successfully.", "success");
+      } else {
+        const docRef = doc(collection(db, "raisers"));
+        await setDoc(docRef, capitalizedData);
+        Swal.fire("Raiser Added!", "New raiser added successfully.", "success");
+      }
 
-      Swal.fire({
-        icon: "success",
-        title: "Updated!",
-        text: "Raiser information has been updated successfully.",
-        confirmButtonColor: "#4CAF50",
-      });
-    } else {
-      //ADD new record
-      const docRef = doc(collection(db, "raisers"));
-      await setDoc(docRef, capitalizedData);
-
-      Swal.fire({
-        icon: "success",
-        title: "Raiser Added!",
-        text: "The new raiser has been added successfully.",
-        confirmButtonColor: "#4CAF50",
-      });
+      fetchData();
+      setOpen(false);
+    } catch (error) {
+      console.error("Error saving raiser:", error);
+      Swal.fire("Error!", "Something went wrong while saving.", "error");
     }
+  };
 
-    //Refresh table
-    fetchData();
-    setOpen(false);
-  } catch (error) {
-    console.error("Error saving raiser:", error);
-    Swal.fire({
-      icon: "error",
-      title: "Save Failed",
-      text: "Something went wrong while saving. Please try again.",
-      confirmButtonColor: "#d33",
-    });
-  }
-};
-
-// Table Header
   const Rows = [
     { tableHeader: "Full Name" },
     { tableHeader: "Gender" },
@@ -100,10 +71,7 @@ const RaiserProfile = () => {
 
   const fetchData = async () => {
     const querySnapshot = await getDocs(collection(db, "raisers"));
-    const data = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     setRaisers(data);
   };
 
@@ -111,30 +79,28 @@ const RaiserProfile = () => {
     fetchData();
   }, []);
 
-  //Delete Data
   const handleDelete = async (raiser) => {
-  const confirm = await Swal.fire({
-    title: "Delete Raiser?",
-    text: "This action cannot be undone.",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#3085d6",
-    confirmButtonText: "Delete",
-  });
+    const confirm = await Swal.fire({
+      title: "Delete Raiser?",
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Delete",
+    });
 
-  if (confirm.isConfirmed) {
-    await deleteDoc(doc(db, "raisers", raiser.id));
-    Swal.fire("Deleted!", "Raiser has been removed.", "success");
-    fetchData();
-  }
-};
+    if (confirm.isConfirmed) {
+      await deleteDoc(doc(db, "raisers", raiser.id));
+      Swal.fire("Deleted!", "Raiser has been removed.", "success");
+      fetchData();
+    }
+  };
 
-  //Search Bar
   const filteredRaisers = raisers.filter((raiser) => {
     const term = searchTerm.toLowerCase();
     const fullName = `${raiser.firstName || ""} ${raiser.middleInitial || ""} ${raiser.lastName || ""}`.toLowerCase();
-    
+
     return (
       fullName.includes(term) ||
       (raiser.address?.toLowerCase() || "").includes(term) ||
@@ -142,86 +108,48 @@ const RaiserProfile = () => {
     );
   });
 
-
-  
-
   return (
     <div className="flex bg-[#F5F5F5] min-h-screen">
       <Sidebarr />
       <div className="w-full">
         <Topbar />
-
         <div className="flex justify-between items-center">
           <Header title="List of Raiser" />
         </div>
-        <RaiserModal
-          open={open}
-          onClose={() => setOpen(false)}
-          onSave={handleSave}
-          initialData={editData}
-        />
-      <ViewDetailsModal
-        open={viewOpen}
-        onClose={() => setViewOpen(false)}
-        raiser={selectedRaiser}
-      />
-        <div>
-          <Button
-            variant="contained"
-            size="medium"
-            sx={{
-              mt:2,
-              ml:3,
-              pl:4,
-              pr:4,
-              backgroundColor: " #4CAF50",
-              "&:hover": { backgroundColor: " #68ca6bff" },
-            }}
-            onClick={handleAdd}>
-            Add Raiser
-          </Button>
-        </div>
-        <div className="flex bg-white p-4 m-5 rounded-lg shadow-md"> 
-          {/* SEARCH */}
-          <div className="w-full overflow-x-auto">
-            <div className="flex justify-between items-center mb-3 mt-2">
-              <TextField
-                label="Search by Name, Barangay or Type of Raiser"
-                variant="outlined"
-                size="small"
-                fullWidth
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "#4CAF50",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: "#388E3C",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#2E7D32",
-                    },
-                  },
-                  "& .MuiInputLabel-root": {
-                    color: "#4d504dff",
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#2E7D32",
-                  },
-                }}
-              />
-            </div>
 
-            <table className="table-auto w-full border-collapse rounded-lg overflow-hidden">
-              <thead className="bg-gray-100 border-b-2 border-gray-300">
+        {/* Modals */}
+        <RaiserModal open={open} onClose={() => setOpen(false)} onSave={handleSave} initialData={editData} />
+        <ViewDetailsModal open={viewOpen} onClose={() => setViewOpen(false)} raiser={selectedRaiser} />
+
+        {/* Controls (Add + Search) */}
+        <div className="flex flex-col items-start gap-3 mt-4 mx-5">
+        {/* Add Raiser Button */}
+        <button
+          onClick={handleAdd}
+          className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-green-700 transition w-full sm:w-auto"
+        >
+          + Add Raiser
+        </button>
+
+        {/* Search Bar */}
+        <input
+          type="text"
+          placeholder="Search Bar"
+          className="w-full sm:max-w-sm border border-green-400 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-sm text-gray-700 placeholder-gray-400"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+
+        {/* Table Section */}
+        <div className="flex bg-white p-4 m-5 rounded-lg shadow-md overflow-x-auto">
+          <div className="w-full">
+            <table className="table-auto w-full border-collapse rounded-lg overflow-hidden text-sm">
+              <thead className="bg-gray-100 border-b-2 border-gray-300 text-gray-700">
                 <tr>
                   {Rows.map((rows, index) => (
-                    <th
-                      key={index} 
-                      className="p-3 text-sm font-semibold tracking-wide text-center"
-                    >
+                    <th key={index} className="p-3 font-semibold tracking-wide text-center whitespace-nowrap">
                       {rows.tableHeader}
                     </th>
                   ))}
@@ -229,59 +157,51 @@ const RaiserProfile = () => {
               </thead>
               <tbody>
                 {filteredRaisers.length > 0 ? (
-                  filteredRaisers.map((raiser, index) => (
+                  filteredRaisers.map((raiser) => (
                     <tr
                       key={raiser.id}
-                      className="border-b hover:bg-green-50 text-center transition-all"
+                      className="border-b hover:bg-green-50 text-center transition text-gray-700"
                     >
-                      <td className="p-3 font-medium">{raiser.lastName + ", " + raiser.firstName + " " + raiser.middleInitial}</td>
-                      <td className="p-3">{raiser.gender}</td>
-                      <td className="p-3">{raiser.contact}</td>
-                      <td className="p-3">{raiser.address}</td>
-                      <td className="p-3">{raiser.typeOfRaiser}</td>
-                      <td className="p-3">{raiser.createdAt}</td>
-                      <td className="p-3">{raiser.farmsize}</td>
-                      <td className="p-3">{raiser.registrationStatus}</td>
+                      <td className="p-3 font-medium whitespace-nowrap">
+                        {raiser.lastName + ", " + raiser.firstName + " " + raiser.middleInitial}
+                      </td>
+                      <td className="p-3 whitespace-nowrap">{raiser.gender}</td>
+                      <td className="p-3 whitespace-nowrap">{raiser.contact}</td>
+                      <td className="p-3 whitespace-nowrap">{raiser.address}</td>
+                      <td className="p-3 whitespace-nowrap">{raiser.typeOfRaiser}</td>
+                      <td className="p-3 whitespace-nowrap">{raiser.createdAt}</td>
+                      <td className="p-3 whitespace-nowrap">{raiser.farmsize}</td>
+                      <td className="p-3 whitespace-nowrap">{raiser.registrationStatus}</td>
                       <td className="p-3 flex justify-center gap-2">
-                        <Button
-                        size="small"
-                        variant="outlined"
-                        onClick={() => handleView(raiser)}
-                      >
-                        View Details
-                      </Button>
-                        <Button
-                          variant="contained"
-                          sx={{
-                            backgroundColor: " #4CAF50",
-                            "&:hover": { backgroundColor: " #68ca6bff" },
-                            minWidth: "32px",
-                            padding: "4px", 
-                          }}
+                        {/* View */}
+                        <button
+                          onClick={() => handleView(raiser)}
+                          className="flex items-center gap-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md text-xs font-medium transition"
+                        >
+                          View Details
+                        </button>
+
+                        {/* Edit */}
+                        <button
                           onClick={() => handleEdit1(raiser)}
+                          className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-md transition"
                         >
-                          <EditRoundedIcon/>
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="error"
-                          sx={{
-                            minWidth: "32px",
-                            padding: "4px", 
-                          }}
+                          <EditRoundedIcon />
+                        </button>
+
+                        {/* Delete */}
+                        <button
                           onClick={() => handleDelete(raiser)}
+                          className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-md transition"
                         >
-                          <DeleteRoundedIcon/>
-                        </Button>
+                          <DeleteRoundedIcon />
+                        </button>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td
-                      colSpan={Rows.length}
-                      className="text-center py-6 text-gray-500"
-                    >
+                    <td colSpan={Rows.length} className="text-center py-6 text-gray-500">
                       No raisers found.
                     </td>
                   </tr>
