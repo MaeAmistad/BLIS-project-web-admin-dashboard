@@ -63,7 +63,6 @@ const RaiserProfile = () => {
     { tableHeader: "Contact No." },
     { tableHeader: "Barangay" },
     { tableHeader: "Type of Raiser" },
-    { tableHeader: "Date Registered" },
     { tableHeader: "No. of Livestock Owned" },
     { tableHeader: "Registration Status" },
     { tableHeader: "Actions" },
@@ -169,7 +168,6 @@ const RaiserProfile = () => {
                       <td className="p-3 whitespace-nowrap">{raiser.contact}</td>
                       <td className="p-3 whitespace-nowrap">{raiser.address}</td>
                       <td className="p-3 whitespace-nowrap">{raiser.typeOfRaiser}</td>
-                      <td className="p-3 whitespace-nowrap">{raiser.createdAt}</td>
                       <td className="p-3 whitespace-nowrap">{raiser.farmsize}</td>
                       <td className="p-3 whitespace-nowrap">{raiser.registrationStatus}</td>
                       <td className="p-3 flex justify-center gap-2">

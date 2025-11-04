@@ -76,54 +76,6 @@ const ViewDetailsModal = ({ open, onClose, raiser }) => {
           </div>
         </div>
 
-        {/* LIVESTOCK INFO SECTION */}
-        <h3 className="text-lg font-semibold text-gray-800 mb-2 border-b pb-1">
-          Livestock Information
-        </h3>
-
-        <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
-          <div>
-            <p className="font-medium text-gray-900">Livestock Name</p>
-            <p>{raiser.livestockName || "—"}</p>
-          </div>
-          <div>
-            <p className="font-medium text-gray-900">Type of Animal</p>
-            <p>{raiser.typeOfAnimal || "—"}</p>
-          </div>
-
-          <div>
-            <p className="font-medium text-gray-900">Breed</p>
-            <p>{raiser.breed || "—"}</p>
-          </div>
-          <div>
-            <p className="font-medium text-gray-900">Gender</p>
-            <p>{raiser.livestockGender || "—"}</p>
-          </div>
-
-          <div>
-            <p className="font-medium text-gray-900">Age / Date of Birth</p>
-            <p>{raiser.ageOrBirthDate || "—"}</p>
-          </div>
-          <div>
-            <p className="font-medium text-gray-900">Color / Markings</p>
-            <p>{raiser.colorMarkings || "—"}</p>
-          </div>
-
-          <div>
-            <p className="font-medium text-gray-900">Health Condition</p>
-            <p>{raiser.healthCondition || "—"}</p>
-          </div>
-          <div>
-            <p className="font-medium text-gray-900">Weight</p>
-            <p>{raiser.weight || "—"}</p>
-          </div>
-
-          <div className="col-span-2">
-            <p className="font-medium text-gray-900">Status</p>
-            <p>{raiser.status || "—"}</p>
-          </div>
-        </div>
-
         {/* Footer */}
         <div className="flex justify-center mt-8">
           <button

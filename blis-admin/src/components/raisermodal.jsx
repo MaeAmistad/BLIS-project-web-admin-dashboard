@@ -292,32 +292,6 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
               </div>
             </div>
           </div>
-
-          {/* 🐄 LIVESTOCK INFO */}
-          <div className="md:col-span-2 mt-6">
-            <h2 className="text-lg font-semibold mb-3 text-center">Livestock Information</h2>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <input name="livestockName" value={formData.livestockName} onChange={handleChange} placeholder="Livestock Name" className="border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none" />
-              <input name="typeOfAnimal" value={formData.typeOfAnimal} onChange={handleChange} placeholder="Type of Animal (swine, etc.)" className="border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none" />
-              <input name="breed" value={formData.breed} onChange={handleChange} placeholder="Breed" className="border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none" />
-              <select name="livestockGender" value={formData.livestockGender} onChange={handleChange} className="border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none">
-                <option value="">Select Gender</option>
-                <option value="Female">Female</option>
-                <option value="Male">Male</option>
-              </select>
-              <input name="ageOrBirthDate" value={formData.ageOrBirthDate} onChange={handleChange} placeholder="Age / Date of Birth" className="border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none" />
-              <input name="colorMarkings" value={formData.colorMarkings} onChange={handleChange} placeholder="Color / Markings" className="border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none" />
-              <input name="healthCondition" value={formData.healthCondition} onChange={handleChange} placeholder="Health Condition" className="border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none" />
-              <input name="weight" value={formData.weight} onChange={handleChange} placeholder="Weight (optional)" className="border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none" />
-              <select name="status" value={formData.status} onChange={handleChange} className="border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none">
-                <option value="">Select Status</option>
-                <option value="Active">Active</option>
-                <option value="Sold">Sold</option>
-                <option value="Deceased">Deceased</option>
-              </select>
-            </div>
-          </div>
         </div>
 
         {/* FOOTER */}
