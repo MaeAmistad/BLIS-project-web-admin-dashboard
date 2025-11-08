@@ -35,9 +35,10 @@ const [anchorElUser, setAnchorElUser] = React.useState(null);
                 letterSpacing: '.2rem',
                 color: " #424242",
                 textDecoration: 'none', 
+                ml:1,
             }}
           >
-            INVENTORY SYSTEM
+            Bantay Livestock Information and Registration System
           </Typography>
 
           <Box sx={{ flexGrow: 0 }}>

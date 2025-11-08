@@ -27,8 +27,8 @@ const LivestockHealthListModal = ({ open, onClose }) => {
       showCancelButton: true,
       confirmButtonText: "Yes, save it!",
       cancelButtonText: "Cancel",
-      confirmButtonColor: "#16a34a", // Tailwind green-600
-      cancelButtonColor: "#6b7280", // Tailwind gray-500
+      confirmButtonColor: "#16a34a",
+      cancelButtonColor: "#6b7280",
     });
 
     if (result.isConfirmed) {
@@ -41,7 +41,7 @@ const LivestockHealthListModal = ({ open, onClose }) => {
         confirmButtonColor: "#16a34a",
       });
 
-      onClose(); // Close modal after success
+      onClose();
     }
   };
 
@@ -54,8 +54,8 @@ const LivestockHealthListModal = ({ open, onClose }) => {
       showCancelButton: true,
       confirmButtonText: "Yes, close it",
       cancelButtonText: "Cancel",
-      confirmButtonColor: "#dc2626", // Tailwind red-600
-      cancelButtonColor: "#6b7280",
+      confirmButtonColor: "#4CAF50",
+      cancelButtonColor: "#d33",
     });
 
     if (result.isConfirmed) {
@@ -76,28 +76,28 @@ const LivestockHealthListModal = ({ open, onClose }) => {
             value={formData.livestockName}
             onChange={handleChange}
             placeholder="Livestock Name / Tag"
-            className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+            className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
           />
           <input
             name="breed"
             value={formData.breed}
             onChange={handleChange}
             placeholder="Type / Breed"
-            className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+            className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
           />
           <input
             name="owner"
             value={formData.owner}
             onChange={handleChange}
             placeholder="Owner / Raiser"
-            className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+            className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
           />
 
           <select
             name="healthStatus"
             value={formData.healthStatus}
             onChange={handleChange}
-            className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+            className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
           >
             <option value="">Select Health Status</option>
             <option value="Healthy">Healthy</option>
@@ -110,13 +110,13 @@ const LivestockHealthListModal = ({ open, onClose }) => {
             <button
               type="button"
               onClick={handleClose}
-              className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
             >
-              Close
+              Cancel
             </button>
             <button
               type="submit"
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+              className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700"
             >
               Save
             </button>

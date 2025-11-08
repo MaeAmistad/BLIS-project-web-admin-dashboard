@@ -131,7 +131,7 @@ const LivestockModal = ({ open, onClose, onSave, initialData }) => {
                   name="farmName"
                   value={formData.farmName}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
               </div>
 
@@ -144,7 +144,7 @@ const LivestockModal = ({ open, onClose, onSave, initialData }) => {
                   name="barangay"
                   value={formData.barangay}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
               </div>
             </div>
@@ -163,7 +163,7 @@ const LivestockModal = ({ open, onClose, onSave, initialData }) => {
                   name="ownerName"
                   value={formData.ownerName}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
               </div>
 
@@ -176,7 +176,7 @@ const LivestockModal = ({ open, onClose, onSave, initialData }) => {
                   name="contactNumber"
                   value={formData.contactNumber}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
               </div>
 
@@ -188,7 +188,7 @@ const LivestockModal = ({ open, onClose, onSave, initialData }) => {
                   name="typeOfRaiser"
                   value={formData.typeOfRaiser}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 bg-white focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 bg-white focus:ring-2 focus:ring-green-400 focus:outline-none"
                 >
                   <option value="" disabled>
                     Select type
@@ -216,7 +216,7 @@ const LivestockModal = ({ open, onClose, onSave, initialData }) => {
                   name="livestockName"
                   value={formData.livestockName}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
               </div>
 
@@ -229,7 +229,7 @@ const LivestockModal = ({ open, onClose, onSave, initialData }) => {
                   name="typeOfAnimal"
                   value={formData.typeOfAnimal}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
               </div>
 
@@ -240,7 +240,7 @@ const LivestockModal = ({ open, onClose, onSave, initialData }) => {
                   name="breed"
                   value={formData.breed}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
               </div>
 
@@ -250,7 +250,7 @@ const LivestockModal = ({ open, onClose, onSave, initialData }) => {
                   name="gender"
                   value={formData.gender}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 bg-white focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 bg-white focus:ring-2 focus:ring-green-400 focus:outline-none"
                 >
                   <option value="" disabled>
                     Select gender
@@ -270,7 +270,7 @@ const LivestockModal = ({ open, onClose, onSave, initialData }) => {
                   value={formData.ageOrBirthDate}
                   onChange={handleChange}
                   placeholder="e.g., 2 years or Jan 2023"
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
               </div>
 
@@ -283,7 +283,7 @@ const LivestockModal = ({ open, onClose, onSave, initialData }) => {
                   name="colorMarkings"
                   value={formData.colorMarkings}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
               </div>
 
@@ -296,7 +296,7 @@ const LivestockModal = ({ open, onClose, onSave, initialData }) => {
                   name="healthCondition"
                   value={formData.healthCondition}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
               </div>
 
@@ -309,7 +309,7 @@ const LivestockModal = ({ open, onClose, onSave, initialData }) => {
                   name="weight"
                   value={formData.weight}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
               </div>
 
@@ -319,7 +319,7 @@ const LivestockModal = ({ open, onClose, onSave, initialData }) => {
                   name="status"
                   value={formData.status}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 bg-white focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 bg-white focus:ring-2 focus:ring-green-400 focus:outline-none"
                 >
                   <option value="" disabled>
                     Select status
@@ -344,7 +344,7 @@ const LivestockModal = ({ open, onClose, onSave, initialData }) => {
           <button
             onClick={handleSave}
             disabled={!isFormValid}
-            className={`px-4 py-2 rounded-lg text-white ${
+            className={`px-4 py-2 rounded-xl text-white ${
               isFormValid
                 ? "bg-green-600 hover:bg-green-700"
                 : "bg-gray-400 cursor-not-allowed"

@@ -148,7 +148,7 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
               </div>
 
@@ -159,7 +159,7 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
               </div>
 
@@ -170,7 +170,7 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
                   name="middleInitial"
                   value={formData.middleInitial}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
               </div>
             </div>
@@ -182,7 +182,7 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
                   name="gender"
                   value={formData.gender}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 bg-white focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 bg-white focus:ring-2 focus:ring-green-400 focus:outline-none"
                 >
                   <option value="" disabled>Select type</option>
                   <option value="Female">Female</option>
@@ -197,7 +197,7 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
                   name="contact"
                   value={formData.contact}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
               </div>
 
@@ -208,7 +208,7 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
               </div>
 
@@ -240,7 +240,7 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
                   name="farmName"
                   value={formData.farmName}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
               </div>
 
@@ -251,7 +251,7 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
                   name="farmLocation"
                   value={formData.farmLocation}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
               </div>
 
@@ -262,7 +262,7 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
                   name="farmSize"
                   value={formData.farmSize}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
               </div>
 
@@ -273,7 +273,7 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
                   name="numberOfWorkers"
                   value={formData.numberOfWorkers}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
               </div>
 
@@ -283,7 +283,7 @@ const RaiserModal = ({ open, onClose, onSave, initialData }) => {
                   name="registrationStatus"
                   value={formData.registrationStatus}
                   onChange={handleChange}
-                  className="w-full border rounded-lg p-2 bg-white focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  className="w-full border rounded-xl p-2 bg-white focus:ring-2 focus:ring-green-400 focus:outline-none"
                 >
                   <option value="" disabled>Select type</option>
                   <option value="Active">Active</option>

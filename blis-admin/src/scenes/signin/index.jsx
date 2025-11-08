@@ -1,12 +1,4 @@
 import { useState, useEffect } from "react";
-import {
-  Box,
-  Container,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-} from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import photo from "../../assets/logo1.jpg";
@@ -78,122 +70,85 @@ const Login = () => {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        background: "linear-gradient(135deg, #2E7D32, #81C784)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        p: 2,
-      }}
-    >
-      <Container maxWidth="xs">
-        <Paper
-          elevation={10}
-          sx={{
-            borderRadius: 4,
-            p: 4,
-            backdropFilter: "blur(8px)",
-            backgroundColor: "rgba(255,255,255,0.9)",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-          }}
-        >
-          {/* Logo */}
-          <Box display="flex" justifyContent="center" alignItems="center" mb={2}>
-            <img
-              alt="logo"
-              width="100px"
-              height="100px"
-              src={photo}
-              style={{ borderRadius: "50%" }}
-            />
-          </Box>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-800 to-green-400 p-4">
+      <div className="bg-white/90 backdrop-blur-lg shadow-lg rounded-2xl p-8 w-full max-w-sm">
+        {/* Logo */}
+        <div className="flex justify-center mb-4">
+          <img
+            src={photo}
+            alt="logo"
+            className="w-24 h-24 rounded-full object-cover"
+          />
+        </div>
 
-          <Typography
-            variant="h5"
-            fontWeight="bold"
-            textAlign="center"
-            color="green"
-          >
-            BLIS
-          </Typography>
+        <h1 className="text-2xl font-bold text-green-700 text-center mb-6">
+          Bantay Livestock Information and Registration System
+        </h1>
 
-          <Box component="form" noValidate sx={{ mt: 3 }}>
-            <TextField
-            label="Username"
-            variant="outlined"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            fullWidth
-            required
-            autoComplete="off" 
-            error={!!emailError}
-            helperText={emailError}
-            sx={{
-                mb: 2,
-                "& .MuiOutlinedInput-root": {
-                "& fieldset": { borderColor: "#A5D6A7" },
-                "&:hover fieldset": { borderColor: "#66BB6A" },
-                "&.Mui-focused fieldset": { borderColor: "#388E3C" },
-                },
-                "& .MuiInputLabel-root": {
-                color: "#666", // default label color
-                "&:hover": {
-                  color: "#66BB6A", // label color when hovered
-                },
-                }
-            }}
-            />
-
-            <TextField
-            label="Password"
-            variant="outlined"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            fullWidth
-            required
-            autoComplete="new-password"
-            error={!!passwordError}
-            helperText={passwordError}
-            sx={{
-                mb: 3,
-                "& .MuiOutlinedInput-root": {
-                "& fieldset": { borderColor: "#A5D6A7" },
-                "&:hover fieldset": { borderColor: "#66BB6A" },
-                "&.Mui-focused fieldset": { borderColor: "#388E3C" },
-                },
-                "& .MuiInputLabel-root": {
-                color: "#666", // default label color
-                "&:hover": {
-                  color: "#66BB6A", // label color when hovered
-                },
-                }
-            }}
-            />
-
-
-
-            <Button
-              variant="contained"
-              fullWidth
-              sx={{
-                backgroundColor: "#4CAF50",
-                py: 1.3,
-                fontWeight: "bold",
-                fontSize: "16px",
-                "&:hover": { backgroundColor: "#43A047" },
-                transition: "all 0.3s ease",
-              }}
-              onClick={handleClick}
+        <form className="space-y-4">
+          {/* Username */}
+          <div>
+            <label
+              htmlFor="username"
+              className="block text-gray-700 font-medium mb-1"
             >
-              SIGN IN
-            </Button>
-          </Box>
-        </Paper>
-      </Container>
-    </Box>
+              Username
+            </label>
+            <input
+              type="text"
+              id="username"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={`w-full px-4 py-2 rounded-xl border focus:outline-none focus:ring-2 transition-all ${
+                emailError
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-green-200 focus:ring-green-600"
+              }`}
+              autoComplete="off"
+              required
+            />
+            {emailError && (
+              <p className="text-red-500 text-sm mt-1">{emailError}</p>
+            )}
+          </div>
+
+          {/* Password */}
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-gray-700 font-medium mb-1"
+            >
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={`w-full px-4 py-2 rounded-xl border focus:outline-none focus:ring-2 transition-all ${
+                passwordError
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-green-200 focus:ring-green-600"
+              }`}
+              autoComplete="new-password"
+              required
+            />
+            {passwordError && (
+              <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+            )}
+          </div>
+
+          {/* Button */}
+          <button
+            type="button"
+            onClick={handleClick}
+            className="w-full bg-green-600 text-white py-2.5 rounded-xl font-semibold text-lg shadow-md hover:bg-green-700 transition duration-300"
+          >
+            SIGN IN
+          </button>
+        </form>
+      </div>
+    </div>
   );
 };
 

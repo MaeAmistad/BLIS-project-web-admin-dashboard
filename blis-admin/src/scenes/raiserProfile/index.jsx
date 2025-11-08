@@ -28,7 +28,7 @@ const RaiserProfile = () => {
     setOpen(true);
   };
 
-  const handleEdit1 = (raiser) => {
+  const handleEdit = (raiser) => {
     setEditData(raiser);
     setOpen(true);
   };
@@ -181,7 +181,7 @@ const RaiserProfile = () => {
 
                         {/* Edit */}
                         <button
-                          onClick={() => handleEdit1(raiser)}
+                          onClick={() => handleEdit(raiser)}
                           className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-md transition"
                         >
                           <EditRoundedIcon />

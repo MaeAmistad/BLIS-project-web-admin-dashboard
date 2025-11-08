@@ -80,7 +80,7 @@ const ViewDetailsModal = ({ open, onClose, raiser }) => {
         <div className="flex justify-center mt-8">
           <button
             onClick={onClose}
-            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
           >
             Close
           </button>

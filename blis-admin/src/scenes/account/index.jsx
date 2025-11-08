@@ -1,25 +1,12 @@
-import {
-  doc,
-  setDoc,
-  getDocs,
-  collection,
-  deleteDoc,
-  updateDoc,
-} from "firebase/firestore";
-import { db } from "../../firebase";
-import {
-  Button,
-  Modal,
-  Box,
-  Typography,
-  TextField,
-  Stack,
-} from "@mui/material";
 import { useState, useEffect } from "react";
+import { doc, setDoc, getDocs, collection, deleteDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 import Swal from "sweetalert2";
 import Header from "../../components/header";
 import Topbar from "../global/Topbar";
 import Sidebarr from "../global/Sidebar";
+import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded'; 
+import EditRoundedIcon from '@mui/icons-material/EditRounded';
 
 const Account = () => {
   const [role, setRole] = useState("");
@@ -27,71 +14,63 @@ const Account = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [users, setUsers] = useState([]);
-  const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editData, setEditData] = useState({ role: "", name: "", email: "", password: "" });
+  const [editData, setEditData] = useState({ id: "", role: "", name: "", email: "", password: "" });
 
   const Rows = ["Role", "Name", "Email", "Password", "Actions"];
-
-  // ✅ Validation before adding
-    const saveData = async () => {
-    if (!name || !email || !password) {
-        Swal.fire({
-          icon: "warning",
-          title: "Missing Fields",
-          text: "Please fill in all fields before adding a user.",
-          confirmButtonColor: "#4CAF50",
-        });
-        return;
-    }
-
-    try {
-        const docRef = doc(collection(db, "users"));
-        await setDoc(docRef, {role, name, email, password });
-
-        // ✅ Clear input fields
-        setRole("");
-        setName("");
-        setEmail("");
-        setPassword("");
-
-        // ✅ Show success modal
-        Swal.fire({
-          icon: "success",
-          title: "User Added!",
-          text: "The new user has been added successfully.",
-          confirmButtonColor: "#4CAF50",
-          timer: 2000,
-          showConfirmButton: false,
-        });
-
-        // ✅ Refresh table data
-        fetchData();
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "There was a problem adding the user.",
-        confirmButtonColor: "#d33",
-      });
-        console.error("Error adding user:", error);
-    }
-    };
-
 
   // ✅ Fetch users
   const fetchData = async () => {
     const querySnapshot = await getDocs(collection(db, "users"));
-    const data = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     setUsers(data);
   };
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  // ✅ Add new user
+  const saveData = async () => {
+    if (!name || !email || !password) {
+      Swal.fire({
+        icon: "warning",
+        title: "Missing Fields",
+        text: "Please fill in all fields before adding a user.",
+        confirmButtonColor: "#4CAF50",
+      });
+      return;
+    }
+
+    try {
+      const docRef = doc(collection(db, "users"));
+      await setDoc(docRef, { role, name, email, password });
+
+      setRole("");
+      setName("");
+      setEmail("");
+      setPassword("");
+
+      Swal.fire({
+        icon: "success",
+        title: "User Added!",
+        text: "The new user has been added successfully.",
+        confirmButtonColor: "#4CAF50",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      fetchData();
+    } catch (error) {
+      console.error("Error adding user:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "There was a problem adding the user.",
+        confirmButtonColor: "#d33",
+      });
+    }
+  };
 
   // ✅ Delete user
   const handleDelete = async (id) => {
@@ -109,7 +88,8 @@ const Account = () => {
 
   // ✅ Save edits
   const handleEditSave = async () => {
-    const { id, name, email, password } = editData;
+    const { id, role, name, email, password } = editData;
+
     if (!name || !email || !password) {
       Swal.fire({
         icon: "warning",
@@ -122,7 +102,8 @@ const Account = () => {
 
     try {
       const userRef = doc(db, "users", id);
-      await updateDoc(userRef, {role, name, email, password });
+      await updateDoc(userRef, { role, name, email, password });
+
       setEditModalOpen(false);
 
       Swal.fire({
@@ -136,70 +117,58 @@ const Account = () => {
 
       fetchData();
     } catch (error) {
-
+      console.error("Error updating user:", error);
       Swal.fire({
         icon: "error",
         title: "Error",
         text: "Failed to update user details.",
         confirmButtonColor: "#d33",
       });
-
-      console.error("Error updating user:", error);
     }
   };
 
   return (
-    <div className="flex bg-[#F5F5F5]">
-      <Sidebarr /> 
-      <div className="w-full">
+    <div className="flex bg-gray-100 min-h-screen">
+      <Sidebarr />
+      <div className="flex-1">
         <Topbar />
         <div className="flex justify-between items-center">
           <Header title="User Account" />
         </div>
 
-        <div className="bg-white p-4 m-5 rounded-lg shadow-md flex gap-3">
-          {/* ✅ TABLE SECTION */}
-          <div className="w-3/4 overflow-auto">
-            <table className="table-auto w-full border-collapse rounded-lg overflow-hidden">
-              <thead className="bg-gray-100 border-b-2 border-gray-300">
+        <div className="bg-white p-5 m-5 rounded-lg shadow-md flex flex-col lg:flex-row gap-5">
+          {/* TABLE SECTION */}
+          <div className="flex-1 overflow-auto">
+            <table className="w-full border-collapse rounded-lg overflow-hidden text-sm">
+              <thead className="bg-gray-100 border-b border-gray-300">
                 <tr>
                   {Rows.map((header, index) => (
-                    <th
-                      key={index}
-                      className="p-3 text-sm font-semibold tracking-wide text-center"
-                    >
+                    <th key={index} className="p-3 font-semibold text-center">
                       {header}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {users.map((user, index) => (
-                  <tr
-                    key={user.id}
-                    className="border-b hover:bg-green-50 text-center transition-all"
-                  >
+                {users.map((user) => (
+                  <tr key={user.id} className="border-b hover:bg-green-50 text-center">
                     <td className="p-3">{user.role}</td>
                     <td className="p-3">{user.name}</td>
                     <td className="p-3">{user.email}</td>
                     <td className="p-3">{user.password}</td>
                     <td className="p-3 flex justify-center gap-2">
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        color="success"
+                      <button
                         onClick={() => openEditModal(user)}
+                        className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-md transition"
                       >
-                        Edit
-                      </Button>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        color="error"
+                        <EditRoundedIcon/>
+                      </button>
+                      <button
                         onClick={() => handleDelete(user.id)}
+                        className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-md transition"
                       >
-                        Delete
-                      </Button>
+                        <DeleteRoundedIcon/>
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -207,225 +176,118 @@ const Account = () => {
             </table>
           </div>
 
-          {/* ✅ FORM SECTION */}
-          <div className="w-1/4 border border-gray-200 rounded-lg p-4 shadow-sm">
-           <form 
-            autoComplete="off" 
-            onSubmit={(e) => e.preventDefault()} 
-            id="add-account-form"
-            >
-            <h4 className="font-bold text-xl text-center mb-4">ADD ACCOUNT</h4>
-            
-            <TextField
-                label="Role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                fullWidth
-                margin="normal"
-                autoComplete="off"
-                name="role"
-                sx={{
-                mb: 3,
-                "& .MuiOutlinedInput-root": {
-                "&:hover fieldset": { borderColor: "#66BB6A" },
-                "&.Mui-focused fieldset": { borderColor: "#388E3C" },
-                },
-                "& .MuiInputLabel-root": {
-                color: "#666", // default label color
-                "&:hover": {
-                  color: "#66BB6A", // label color when hovered
-                },
-                }
-                }}
-            />
+          {/* FORM SECTION */}
+          <div className="w-full lg:w-1/4 border border-gray-200 rounded-lg p-4 shadow-sm bg-white">
+            <h4 className="font-bold text-xl text-center mb-2">ADD ACCOUNT</h4>
 
-            <TextField
-                label="Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                fullWidth
-                margin="normal"
-                autoComplete="off"
-                name="username"
-                sx={{
-                mb: 3,
-                "& .MuiOutlinedInput-root": {
-                "&:hover fieldset": { borderColor: "#66BB6A" },
-                "&.Mui-focused fieldset": { borderColor: "#388E3C" },
-                },
-                "& .MuiInputLabel-root": {
-                color: "#666", // default label color
-                "&:hover": {
-                  color: "#66BB6A", // label color when hovered
-                },
-                }
-                }}
-            />
+            <form onSubmit={(e) => e.preventDefault()} className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Role</label>
+                <input
+                  type="text"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value.toUpperCase())}
+                  className="w-full h-8 border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 uppercase"
+                />
+              </div>
 
-            <TextField
-                label="Email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                fullWidth
-                margin="normal"
-                autoComplete="new-email"
-                name="new-email"
-                sx={{
-                mb: 3,
-                "& .MuiOutlinedInput-root": {
-                "&:hover fieldset": { borderColor: "#66BB6A" },
-                "&.Mui-focused fieldset": { borderColor: "#388E3C" },
-                },
-                "& .MuiInputLabel-root": {
-                color: "#666", // default label color
-                "&:hover": {
-                  color: "#66BB6A", // label color when hovered
-                },
-                }
-                }}
-            />
 
-            <TextField
-                label="Password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                fullWidth
-                margin="normal"
-                autoComplete="new-password"
-                name="new-password"
-                sx={{
-                mb: 3,
-                "& .MuiOutlinedInput-root": {
-                "&:hover fieldset": { borderColor: "#66BB6A" },
-                "&.Mui-focused fieldset": { borderColor: "#388E3C" },
-                },
-                "& .MuiInputLabel-root": {
-                color: "#666", // default label color
-                "&:hover": {
-                  color: "#66BB6A", // label color when hovered
-                },
-                }
-                }}
-            />
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full h-8 border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
 
-            <div className="text-center mt-6">
-                <Button
-                variant="contained"
-                sx={{
-                    backgroundColor: "#4CAF50",
-                    px: 5,
-                    "&:hover": { backgroundColor: "#45a049" },
-                }}
-                onClick={saveData}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full h-8 border rounded-xl px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full h-8 border rounded-xl px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
+              <div className="text-center mt-4">
+                <button
+                  onClick={saveData}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 mt-3 rounded-xl transition font-semibold"
                 >
-                ADD
-                </Button>
-            </div>
+                  ADD
+                </button>
+              </div>
             </form>
           </div>
         </div>
 
-        {/* ✅ SUCCESS MODAL */}
-        <Modal
-          open={successModalOpen}
-          onClose={() => setSuccessModalOpen(false)}
-          aria-labelledby="success-modal"
-        >
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              bgcolor: "background.paper",
-              borderRadius: 2,
-              boxShadow: 24,
-              p: 4,
-              textAlign: "center",
-              width: 300,
-            }}
-          >
-            <Typography variant="h6">✅ User Created Successfully!</Typography>
-            <Typography sx={{ mt: 2 }}>
-              The new user has been added to the system.
-            </Typography>
-            <Button
-              variant="contained"
-              sx={{ mt: 3, backgroundColor: "#4CAF50" }}
-              onClick={() => setSuccessModalOpen(false)}
-            >
-              OK
-            </Button>
-          </Box>
-        </Modal>
+        {/* EDIT MODAL */}
+        {editModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+            <div className="bg-white rounded-lg shadow-lg w-[90%] max-w-md p-6">
+              <h2 className="text-lg font-bold mb-4"> Edit User</h2>
 
-        {/* ✅ EDIT MODAL */}
-        <Modal
-          open={editModalOpen}
-          onClose={() => setEditModalOpen(false)}
-          aria-labelledby="edit-modal"
-        >
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              bgcolor: "background.paper",
-              borderRadius: 2,
-              boxShadow: 24,
-              p: 4,
-              width: 400,
-            }}
-          >
-            <Typography variant="h6" gutterBottom>
-              ✏️ Edit User
-            </Typography>
-            <Stack spacing={2}>
-              <TextField
-                label="Name"
-                value={editData.name}
-                onChange={(e) =>
-                  setEditData({ ...editData, name: e.target.value })
-                }
-              />
-              <TextField
-                label="Email"
-                value={editData.email}
-                onChange={(e) =>
-                  setEditData({ ...editData, email: e.target.value })
-                }
-              />
-              <TextField
-                label="Password"
-                type="password"
-                value={editData.password}
-                onChange={(e) =>
-                  setEditData({ ...editData, password: e.target.value })
-                }
-              />
-            </Stack>
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  placeholder="Role"
+                  value={editData.role}
+                  onChange={(e) => setEditData({ ...editData, role: e.target.value })}
+                  className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
+                />
+                <input
+                  type="text"
+                  placeholder="Name"
+                  value={editData.name}
+                  onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                  className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
+                />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={editData.email}
+                  onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                  className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
+                />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={editData.password}
+                  onChange={(e) => setEditData({ ...editData, password: e.target.value })}
+                  className="w-full border px-3 py-2 rounded-md focus:ring-2 focus:ring-green-500"
+                />
+              </div>
 
-            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 1 }}>
-              <Button
-                variant="outlined"
-                color="error"
-                onClick={() => setEditModalOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="contained"
-                color="success"
-                onClick={handleEditSave}
-              >
-                Save Changes
-              </Button>
-            </Box>
-          </Box>
-        </Modal>
+              <div className="flex justify-end gap-2 mt-5">
+                <button
+                  onClick={() => setEditModalOpen(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleEditSave}
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -34,7 +34,8 @@ const AddItemModal = ({ open, onClose, formData, setFormData, onSave }) => {
         showCancelButton: true,
         confirmButtonText: "Yes, close it",
         cancelButtonText: "Cancel",
-        confirmButtonColor: "#dc2626",
+        confirmButtonColor: "#4CAF50",
+        cancelButtonColor: "#d33",
       });
   
       if (result.isConfirmed) {
@@ -58,7 +59,7 @@ const AddItemModal = ({ open, onClose, formData, setFormData, onSave }) => {
               name="itemName"
               value={formData.itemName}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-xl p-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
             />
           </div>
 
@@ -69,7 +70,7 @@ const AddItemModal = ({ open, onClose, formData, setFormData, onSave }) => {
               name="brand"
               value={formData.brand}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-xl p-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
             />
           </div>
 
@@ -106,7 +107,7 @@ const AddItemModal = ({ open, onClose, formData, setFormData, onSave }) => {
               name="quantity"
               value={formData.quantity}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-xl p-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
             />
           </div>
 
@@ -117,7 +118,7 @@ const AddItemModal = ({ open, onClose, formData, setFormData, onSave }) => {
               name="unit"
               value={formData.unit}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-xl p-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
             />
           </div>
 
@@ -128,7 +129,7 @@ const AddItemModal = ({ open, onClose, formData, setFormData, onSave }) => {
               name="supplier"
               value={formData.supplier}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-xl p-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
             />
           </div>
 
@@ -139,7 +140,7 @@ const AddItemModal = ({ open, onClose, formData, setFormData, onSave }) => {
               name="dateAcquired"
               value={formData.dateAcquired}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-xl p-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
             />
           </div>
 
@@ -150,7 +151,7 @@ const AddItemModal = ({ open, onClose, formData, setFormData, onSave }) => {
               name="expirationDate"
               value={formData.expirationDate}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-xl p-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
             />
           </div>
 
@@ -163,7 +164,7 @@ const AddItemModal = ({ open, onClose, formData, setFormData, onSave }) => {
               name="storageLocation"
               value={formData.storageLocation}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-xl p-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
             />
           </div>
 
@@ -173,7 +174,7 @@ const AddItemModal = ({ open, onClose, formData, setFormData, onSave }) => {
               name="remarks"
               value={formData.remarks}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg p-2 h-20 focus:ring-2 focus:ring-green-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-xl p-2 h-20 focus:ring-2 focus:ring-green-500 focus:outline-none"
             />
           </div>
         </div>
@@ -182,13 +183,13 @@ const AddItemModal = ({ open, onClose, formData, setFormData, onSave }) => {
         <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={handleCloseConfirm}
-            className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition"
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
           >
-            Close
+            Cancel
           </button>
           <button
             onClick={handleSave}
-            className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-green-700 transition"
+            className="bg-green-600 text-white px-6 py-2 rounded-xl font-semibold shadow hover:bg-green-700 transition"
           >
             Save
           </button>

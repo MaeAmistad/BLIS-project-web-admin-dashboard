@@ -29,8 +29,8 @@ const VaccinationRecordModal = ({ open, onClose }) => {
       showCancelButton: true,
       confirmButtonText: "Yes, save it!",
       cancelButtonText: "Cancel",
-      confirmButtonColor: "#16a34a", // Tailwind green-600
-      cancelButtonColor: "#6b7280", // Tailwind gray-500
+      confirmButtonColor: "#16a34a",
+      cancelButtonColor: "#6b7280",
     });
 
     if (result.isConfirmed) {
@@ -56,8 +56,8 @@ const VaccinationRecordModal = ({ open, onClose }) => {
       showCancelButton: true,
       confirmButtonText: "Yes, close it",
       cancelButtonText: "Cancel",
-      confirmButtonColor: "#dc2626", // Tailwind red-600
-      cancelButtonColor: "#6b7280",
+      confirmButtonColor: "#4CAF50",
+      cancelButtonColor: "#d33",
     });
 
     if (result.isConfirmed) {
@@ -78,42 +78,42 @@ const VaccinationRecordModal = ({ open, onClose }) => {
             value={formData.livestockName}
             onChange={handleChange}
             placeholder="Livestock Name / Tag Number"
-            className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
           />
           <input
             name="vaccineName"
             value={formData.vaccineName}
             onChange={handleChange}
             placeholder="Vaccine Name"
-            className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
           />
           <input
             type="date"
             name="dateOfVaccination"
             value={formData.dateOfVaccination}
             onChange={handleChange}
-            className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
           />
           <input
             name="administeredBy"
             value={formData.administeredBy}
             onChange={handleChange}
             placeholder="Administered By"
-            className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
           />
           <input
             name="dosage"
             value={formData.dosage}
             onChange={handleChange}
             placeholder="Dosage"
-            className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
           />
           <textarea
             name="remarks"
             value={formData.remarks}
             onChange={handleChange}
             placeholder="Remarks"
-            className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
           />
 
           {/* Buttons */}
@@ -121,13 +121,13 @@ const VaccinationRecordModal = ({ open, onClose }) => {
             <button
               type="button"
               onClick={handleClose}
-              className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
             >
-              Close
+              Cancel
             </button>
             <button
               type="submit"
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+              className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700"
             >
               Save
             </button>
