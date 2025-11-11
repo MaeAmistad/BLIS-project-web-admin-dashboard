@@ -52,7 +52,7 @@ const InventoryandSupplies = () => {
     <div className="flex bg-[#F5F5F5]">
       <Sidebarr />
       <div className="w-full">
-        <Topbar /> n 
+        <Topbar />
         <div className="flex justify-between items-center">
           <Header title="Inventory and Supplies" />
         </div>

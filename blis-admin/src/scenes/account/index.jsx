@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, getDocs, collection, deleteDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import Swal from "sweetalert2";
@@ -19,7 +20,7 @@ const Account = () => {
 
   const Rows = ["Role", "Name", "Email", "Password", "Actions"];
 
-  // ✅ Fetch users
+  // Fetch users
   const fetchData = async () => {
     const querySnapshot = await getDocs(collection(db, "users"));
     const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
@@ -30,49 +31,60 @@ const Account = () => {
     fetchData();
   }, []);
 
-  // ✅ Add new user
-  const saveData = async () => {
-    if (!name || !email || !password) {
-      Swal.fire({
-        icon: "warning",
-        title: "Missing Fields",
-        text: "Please fill in all fields before adding a user.",
-        confirmButtonColor: "#4CAF50",
-      });
-      return;
-    }
+// Add new user
+const saveData = async () => {
+  if (!name || !email || !password || !role) {
+    Swal.fire({
+      icon: "warning",
+      title: "Missing Fields",
+      text: "Please fill in all fields before adding a user.",
+      confirmButtonColor: "#4CAF50",
+    });
+    return;
+  }
 
-    try {
-      const docRef = doc(collection(db, "users"));
-      await setDoc(docRef, { role, name, email, password });
+  try {
+    const auth = getAuth();
 
-      setRole("");
-      setName("");
-      setEmail("");
-      setPassword("");
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const uid = userCredential.user.uid;
 
-      Swal.fire({
-        icon: "success",
-        title: "User Added!",
-        text: "The new user has been added successfully.",
-        confirmButtonColor: "#4CAF50",
-        timer: 2000,
-        showConfirmButton: false,
-      });
+    await setDoc(doc(db, "users", uid), {
+      role,
+      name,
+      email,
+      password, 
+      uid,
+    });
 
-      fetchData();
-    } catch (error) {
-      console.error("Error adding user:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "There was a problem adding the user.",
-        confirmButtonColor: "#d33",
-      });
-    }
-  };
+    setRole("");
+    setName("");
+    setEmail("");
+    setPassword("");
 
-  // ✅ Delete user
+    Swal.fire({
+      icon: "success",
+      title: "User Account Created!",
+      text: "The new user has been added successfully.",
+      confirmButtonColor: "#4CAF50",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+
+    fetchData();
+  } catch (error) {
+    console.error("Error adding user:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error Creating Account",
+      text: error.message || "There was a problem adding the user.",
+      confirmButtonColor: "#d33",
+    });
+  }
+};
+
+
+  // Delete user
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       await deleteDoc(doc(db, "users", id));
@@ -80,13 +92,13 @@ const Account = () => {
     }
   };
 
-  // ✅ Open edit modal
+  // Open edit modal
   const openEditModal = (user) => {
     setEditData(user);
     setEditModalOpen(true);
   };
 
-  // ✅ Save edits
+  // Save edits
   const handleEditSave = async () => {
     const { id, role, name, email, password } = editData;
 
