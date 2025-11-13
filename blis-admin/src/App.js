@@ -8,6 +8,7 @@ import HealthandMedical from "./scenes/healthMedRecords"
 import InventoryandSupplies from "./scenes/inventorySupplies"
 import ReportandAnalytics from "./scenes/reportAnalytics"
 import Account from "./scenes/account"
+import UserProfile from "./components/userprofile"
  
 function App() {
 
@@ -25,6 +26,7 @@ function App() {
               <Route path="/inventorySupplies" element={<InventoryandSupplies/>}/>
               <Route path="/reportsAnalytics" element={<ReportandAnalytics/>}/>
               <Route path="/account" element={<Account/>}/>
+              <Route path="/userprofile" element={<UserProfile/>}/>
               {/* <Route path="/profile" element={<Profile/>}/> */}
             </Routes>
           </main>

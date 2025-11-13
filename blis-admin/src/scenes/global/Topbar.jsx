@@ -7,7 +7,8 @@ import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined
 // const settings = ['Profile', 'Account', 'Logout'];
 
 const settings = [
-    {title:"Log-out", path:'/'},
+  {title:"User Profile", path: "/userprofile"},
+  {title:"Log-out", path:'/'},
 ]
 
 const Topbar = () => {
