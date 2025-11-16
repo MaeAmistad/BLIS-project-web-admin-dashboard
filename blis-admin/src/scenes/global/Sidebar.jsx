@@ -10,6 +10,8 @@ import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownR
 import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
 import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded';
 import AssessmentRoundedIcon from '@mui/icons-material/AssessmentRounded';
+import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
+import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 
 const Sidebarr = () => {
   const [open, setOpen] = useState(true);
@@ -24,6 +26,8 @@ const Sidebarr = () => {
     { title: "Health and Medical", path: "/healthandmed", icon: <MedicalInformationIcon /> },
     { title: "Inventory and Supplies", path: "/inventorySupplies", icon: <Inventory2RoundedIcon /> },
     { title: "Report and Analytics", path: "/reportsAnalytics", icon: <AssessmentRoundedIcon /> },
+    { title: "Settings", path: "/settings", icon: <SettingsRoundedIcon /> },
+    { title: "Log out", path: "/", icon: <LogoutRoundedIcon /> },
   ];
 
   return (

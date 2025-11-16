@@ -9,6 +9,7 @@ import InventoryandSupplies from "./scenes/inventorySupplies"
 import ReportandAnalytics from "./scenes/reportAnalytics"
 import Account from "./scenes/account"
 import UserProfile from "./components/userprofile"
+import Settings from "./scenes/settings";
  
 function App() {
 
@@ -27,6 +28,7 @@ function App() {
               <Route path="/reportsAnalytics" element={<ReportandAnalytics/>}/>
               <Route path="/account" element={<Account/>}/>
               <Route path="/userprofile" element={<UserProfile/>}/>
+              <Route path="/settings" element={<Settings/>}/>
               {/* <Route path="/profile" element={<Profile/>}/> */}
             </Routes>
           </main>

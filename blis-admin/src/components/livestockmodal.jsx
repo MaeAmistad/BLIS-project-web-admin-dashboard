@@ -17,6 +17,8 @@ const LivestockModal = ({ open, onClose, onSave, initialData }) => {
     healthCondition: "",
     weight: "",
     status: "",
+    ownership: "",
+    productionType: "",
   });
 
   const resetForm = () => {
@@ -35,6 +37,8 @@ const LivestockModal = ({ open, onClose, onSave, initialData }) => {
       healthCondition: "",
       weight: "",
       status: "",
+      ownership: "",
+      productionType: "",
     });
   };
 
@@ -60,6 +64,8 @@ const LivestockModal = ({ open, onClose, onSave, initialData }) => {
     breed: formData.breed,
     gender: formData.gender,
     status: formData.status,
+    ownership: formData.ownership,
+    productionType: formData.productionType,
   }).every(([_, value]) => value.trim() !== "");
 
   const handleSave = () => {
@@ -245,6 +251,22 @@ const LivestockModal = ({ open, onClose, onSave, initialData }) => {
               </div>
 
               <div>
+                <label className="block text-sm font-medium mb-1">Ownership</label>
+                <select
+                  name="ownership"
+                  value={formData.ownership}
+                  onChange={handleChange}
+                  className="w-full border rounded-xl p-2 bg-white focus:ring-2 focus:ring-green-400 focus:outline-none"
+                >
+                  <option value="" disabled>
+                    Select type
+                  </option>
+                  <option value="Backyard">Backyard</option>
+                  <option value="Commercial">Commercial</option>
+                </select>
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium mb-1">Gender</label>
                 <select
                   name="gender"
@@ -272,6 +294,22 @@ const LivestockModal = ({ open, onClose, onSave, initialData }) => {
                   placeholder="e.g., 2 years or Jan 2023"
                   className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Production Type</label>
+                <select
+                  name="productionType"
+                  value={formData.productionType}
+                  onChange={handleChange}
+                  className="w-full border rounded-xl p-2 bg-white focus:ring-2 focus:ring-green-400 focus:outline-none"
+                >
+                  <option value="" disabled>
+                    Select type
+                  </option>
+                  <option value="Meat">Meat</option>
+                  <option value="Dairy">Dairy</option>
+                </select>
               </div>
 
               <div>
