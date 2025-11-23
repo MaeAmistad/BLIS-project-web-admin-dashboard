@@ -59,12 +59,12 @@ const InventoryandSupplies = () => {
 
         <div className="flex flex-col items-start gap-3 mt-4 mx-5">
             <div className="flex">
-                <button
+                {/* <button
                     onClick={() => setOpenModal(true)}
                     className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-green-700 transition w-full sm:w-auto"
                 >
                     + Add Item
-                </button>
+                </button> */}
 
                 <button
                     className="flex items-center ml-3 gap-2 bg-gray-700 text-white px-5 py-3 rounded-xl shadow hover:bg-gray-800 transition"

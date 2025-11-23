@@ -94,11 +94,6 @@ const LivestockInventory = () => {
     setViewOpen(true);
   };
 
-  const handleAdd = () => {
-    setEditData(null);
-    setOpen(true);
-  };
-
   const handleEdit = (livestock) => {
     setEditData(livestock);
     setOpen(true);
@@ -127,12 +122,6 @@ const LivestockInventory = () => {
 
         {/* Controls */}
         <div className="flex flex-col items-start gap-3 mt-4 mx-5">
-          <button
-            onClick={handleAdd}
-            className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-green-700 transition w-full sm:w-auto"
-          >
-            + Add Livestock
-          </button>
 
           <input
             type="text"

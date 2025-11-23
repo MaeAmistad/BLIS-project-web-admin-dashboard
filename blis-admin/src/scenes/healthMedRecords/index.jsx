@@ -93,12 +93,6 @@ const HealthandMedical = () => {
           
           {activeTable === "healthList" && (
             <div className="bg-white p-4 rounded-lg shadow">
-              <button
-              onClick={() => setShowHealthModal(true)}
-              className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-green-700 transition w-full sm:w-auto mb-3"
-              >
-                + Add
-              </button>
 
               <h2 className="text-lg font-semibold mb-3">
                 Livestock Health List
@@ -124,12 +118,6 @@ const HealthandMedical = () => {
 
           {activeTable === "vaccination" && (
             <div className="bg-white p-4 rounded-lg shadow">
-              <button
-              onClick={() => setShowVaccinationModal(true)} 
-              className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-green-700 transition w-full sm:w-auto mb-3"
-              >
-                + Add
-              </button>
               <h2 className="text-lg font-semibold mb-3">Vaccination Record</h2>
               <table className="w-full text-left border">
                 <thead className="bg-blue-100">
@@ -154,12 +142,6 @@ const HealthandMedical = () => {
 
           {activeTable === "deworming" && (
             <div className="bg-white p-4 rounded-lg shadow">
-              <button
-              onClick={() => setShowDewormingModal(true)} 
-              className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-green-700 transition w-full sm:w-auto mb-3"
-              >
-                + Add
-              </button>
               <h2 className="text-lg font-semibold mb-3">Deworming Record</h2>
               <table className="w-full text-left border">
                 <thead className="bg-purple-100">
@@ -185,12 +167,6 @@ const HealthandMedical = () => {
 
           {activeTable === "treatment" && (
             <div className="bg-white p-4 rounded-lg shadow">
-              <button
-              onClick={() => setShowTreatmentModal(true)}
-              className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-green-700 transition w-full sm:w-auto mb-3"
-              >
-                + Add
-              </button>
               <h2 className="text-lg font-semibold mb-3">Treatment Record</h2>
               <table className="w-full text-left border">
                 <thead className="bg-red-100">
@@ -217,12 +193,6 @@ const HealthandMedical = () => {
 
           {activeTable === "ai" && (
             <div className="bg-white p-4 rounded-lg shadow">
-              <button
-              onClick={() => setShowAIModal(true)}
-              className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-green-700 transition w-full sm:w-auto mb-3"
-              >
-                + Add
-              </button>
               <h2 className="text-lg font-semibold mb-3">
                 Artificial Insemination Record
               </h2>
