@@ -1,82 +1,96 @@
-import { doc, setDoc, getDocs, collection, updateDoc, deleteDoc } from "firebase/firestore";
+import { 
+  doc, setDoc, getDocs, collection, updateDoc, deleteDoc 
+} from "firebase/firestore";
 import { db } from "../../firebase";
+
 import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
+
 import Header from "../../components/header";
 import Topbar from "../global/Topbar";
 import Sidebarr from "../global/Sidebar";
-import RaiserModal from "../../components/raisermodal";
 import ViewDetailsModal from "../../components/viewdetailsModal";
-import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded'; 
+
+import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 
+import RaiserModal from "../../components/raisermodal";
+import LivestockModal from "../../components/livestockmodal";
+import HealthRecordsModal from "../../components/HealthModal";
+import ConfirmationModal from "../../components/ConfirmationModal";
+
 const RaiserProfile = () => {
+
+  // ---------------------------------------------------------------------------
+  // LIST DATA
+  // ---------------------------------------------------------------------------
   const [raisers, setRaisers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // View Details Modal
   const [viewOpen, setViewOpen] = useState(false);
   const [selectedRaiser, setSelectedRaiser] = useState(null);
-  const [open, setOpen] = useState(false);
-  const [editData, setEditData] = useState(null);
 
+  // Edit Mode
+  const [editData, setEditData] = useState(null); // null = Add Mode
+
+  // ---------------------------------------------------------------------------
+  // MULTI-STEP WIZARD STATE
+  // ---------------------------------------------------------------------------
+ // ---------------------------------------------------------------------------
+// MULTI-STEP WIZARD STATE
+// ---------------------------------------------------------------------------
+  const [wizardStep, setWizardStep] = useState(0); 
+  // 0 = closed, 1 = Raiser, 2 = Livestock, 3 = Health Records, 4 = Confirmation
+
+  const [wizardData, setWizardData] = useState({
+    raiser: {},
+    livestock: [],
+    healthRecords: [], // each element = array of health records per livestock
+  });
+
+
+
+  // ---------------------------------------------------------------------------
+  // FETCH DATA
+  // ---------------------------------------------------------------------------
+  useEffect(() => { fetchData(); }, []);
+
+  const fetchData = async () => {
+    const snapshot = await getDocs(collection(db, "raisers"));
+    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    setRaisers(data);
+  };
+
+  // ---------------------------------------------------------------------------
+  // HANDLERS
+  // ---------------------------------------------------------------------------
   const handleView = (raiser) => {
     setSelectedRaiser(raiser);
     setViewOpen(true);
   };
 
   const handleAdd = () => {
-    setEditData(null);
-    setOpen(true);
-  };
+  setEditData(null); // Add Mode
+  setWizardData({
+    raiser: {},
+    livestock: [],
+    healthRecords: [],
+  });
+  setWizardStep(1);
+};
 
-  const handleEdit = (raiser) => {
-    setEditData(raiser);
-    setOpen(true);
-  };
+const handleEdit = (raiser) => {
+  setEditData(raiser); // Edit Mode
+  // Fetch or prefill livestock + healthRecords if stored in Firestore
+  setWizardData({
+    raiser: raiser,
+    livestock: raiser.livestock || [],
+    healthRecords: raiser.healthRecords || [],
+  });
+  setWizardStep(1);
+};
 
-  const handleSave = async (data) => {
-    try {
-      const capitalizedData = Object.fromEntries(
-        Object.entries(data).map(([key, value]) => [key, typeof value === "string" ? value : value])
-      );
-
-      if (editData) {
-        const docRef = doc(db, "raisers", editData.id);
-        await updateDoc(docRef, capitalizedData);
-        Swal.fire("Updated!", "Raiser information updated successfully.", "success");
-      } else {
-        const docRef = doc(collection(db, "raisers"));
-        await setDoc(docRef, capitalizedData);
-        Swal.fire("Raiser Added!", "New raiser added successfully.", "success");
-      }
-
-      fetchData();
-      setOpen(false);
-    } catch (error) {
-      console.error("Error saving raiser:", error);
-      Swal.fire("Error!", "Something went wrong while saving.", "error");
-    }
-  };
-
-  const Rows = [
-    { tableHeader: "Full Name" },
-    { tableHeader: "Gender" },
-    { tableHeader: "Contact No." },
-    { tableHeader: "Barangay" },
-    { tableHeader: "Type of Raiser" },
-    { tableHeader: "No. of Livestock Owned" },
-    { tableHeader: "Registration Status" },
-    { tableHeader: "Actions" },
-  ];
-
-  const fetchData = async () => {
-    const querySnapshot = await getDocs(collection(db, "raisers"));
-    const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    setRaisers(data);
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const handleDelete = async (raiser) => {
     const confirm = await Swal.fire({
@@ -89,13 +103,108 @@ const RaiserProfile = () => {
       confirmButtonText: "Delete",
     });
 
-    if (confirm.isConfirmed) {
-      await deleteDoc(doc(db, "raisers", raiser.id));
-      Swal.fire("Deleted!", "Raiser has been removed.", "success");
-      fetchData();
-    }
+    if (!confirm.isConfirmed) return;
+
+    await deleteDoc(doc(db, "raisers", raiser.id));
+    Swal.fire("Deleted!", "Raiser has been removed.", "success");
+    fetchData();
   };
 
+  // ---------------------------------------------------------------------------
+  // SAVE ALL DATA (FINAL STEP)
+  // ---------------------------------------------------------------------------
+  const saveAllData = async (wizardData) => {
+      try {
+        if (!editData) {
+          // -----------------------
+          // ADD MODE
+          // -----------------------
+          const raiserRef = doc(collection(db, "raisers"));
+          await setDoc(raiserRef, wizardData.raiser);
+          const raiserId = raiserRef.id;
+
+          for (let i = 0; i < wizardData.livestock.length; i++) {
+            const livestockRef = doc(collection(db, "raisers", raiserId, "livestock"));
+            await setDoc(livestockRef, wizardData.livestock[i]);
+
+            const records = wizardData.healthRecords[i] || [];
+            for (let record of records) {
+              const recordRef = doc(
+                collection(db, "raisers", raiserId, "livestock", livestockRef.id, "healthRecords")
+              );
+              await setDoc(recordRef, record);
+            }
+          }
+        } else {
+          // -----------------------
+          // EDIT MODE
+          // -----------------------
+          const raiserId = editData.id;
+
+          // 1️⃣ Update Raiser Info
+          await updateDoc(doc(db, "raisers", raiserId), wizardData.raiser);
+
+          // 2️⃣ Fetch existing livestock
+          const livestockSnap = await getDocs(collection(db, "raisers", raiserId, "livestock"));
+          const existingLivestock = livestockSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+          // 3️⃣ Sync livestock: update existing, add new, delete removed
+          for (let i = 0; i < wizardData.livestock.length; i++) {
+            const animal = wizardData.livestock[i];
+            const existing = existingLivestock[i];
+
+            let livestockId;
+            if (existing) {
+              // Update existing livestock
+              livestockId = existing.id;
+              await updateDoc(doc(db, "raisers", raiserId, "livestock", livestockId), animal);
+            } else {
+              // Add new livestock
+              const newLivestockRef = doc(collection(db, "raisers", raiserId, "livestock"));
+              await setDoc(newLivestockRef, animal);
+              livestockId = newLivestockRef.id;
+            }
+
+            // Sync health records for this livestock
+            const recordsRef = collection(db, "raisers", raiserId, "livestock", livestockId, "healthRecords");
+
+            // Delete all existing records first
+            const recSnap = await getDocs(recordsRef);
+            for (const recDoc of recSnap.docs) {
+              await deleteDoc(doc(recordsRef, recDoc.id));
+            }
+
+            // Add new records
+            const records = wizardData.healthRecords[i] || [];
+            for (const record of records) {
+              await setDoc(doc(recordsRef), record);
+            }
+          }
+
+          // 4️⃣ Delete removed livestock
+          if (wizardData.livestock.length < existingLivestock.length) {
+            for (let i = wizardData.livestock.length; i < existingLivestock.length; i++) {
+              const toDelete = existingLivestock[i];
+              await deleteDoc(doc(db, "raisers", raiserId, "livestock", toDelete.id));
+            }
+          }
+        }
+
+        Swal.fire("Saved!", "All data saved successfully.", "success");
+        fetchData();
+        setWizardStep(0);
+      } catch (error) {
+        console.error(error);
+        Swal.fire("Error!", "Something went wrong while saving.", "error");
+      }
+    };
+
+
+
+
+  // ---------------------------------------------------------------------------
+  // FILTER LIST
+  // ---------------------------------------------------------------------------
   const filteredRaisers = raisers.filter((raiser) => {
     const term = searchTerm.toLowerCase();
     const fullName = `${raiser.firstName || ""} ${raiser.middleInitial || ""} ${raiser.lastName || ""}`.toLowerCase();
@@ -107,107 +216,187 @@ const RaiserProfile = () => {
     );
   });
 
+  // ---------------------------------------------------------------------------
+  // JSX
+  // ---------------------------------------------------------------------------
   return (
-    <div className="flex bg-[#F5F5F5] min-h-screen">
+    <div className="flex flex-col md:flex-row bg-[#F5F5F5] min-h-screen">
       <Sidebarr />
       <div className="w-full">
         <Topbar />
-        <div className="flex justify-between items-center">
+
+        {/* HEADER */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-4 md:px-6 mt-3">
           <Header title="List of Raiser" />
         </div>
 
-        {/* Modals */}
-        <RaiserModal open={open} onClose={() => setOpen(false)} onSave={handleSave} initialData={editData} />
-        <ViewDetailsModal open={viewOpen} onClose={() => setViewOpen(false)} raiser={selectedRaiser} />
+        {/* ---------------------- WIZARD MODALS --------------------------------- */}
 
-        {/* Controls (Add + Search) */}
-        <div className="flex flex-col items-start gap-3 mt-4 mx-5">
-        {/* Add Raiser Button */}
-        <button
-          onClick={handleAdd}
-          className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-green-700 transition w-full sm:w-auto"
-        >
-          + Add Raiser
-        </button>
-
-        {/* Search Bar */}
-        <input
-          type="text"
-          placeholder="Search Bar"
-          className="w-full sm:max-w-sm border border-green-400 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-sm text-gray-700 placeholder-gray-400"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+       {/* STEP 1 — RAISER */}
+        <RaiserModal
+          open={wizardStep === 1}
+          initialData={wizardData.raiser}
+          onSave={(raiserData) => {
+            setWizardData(prev => ({ ...prev, raiser: raiserData }));
+            setWizardStep(2);
+          }}
+          onClose={() => setWizardStep(0)}
         />
-      </div>
+
+        {/* STEP 2 — LIVESTOCK */}
+        <LivestockModal
+          open={wizardStep === 2}
+          initialData={wizardData.livestock}
+          onSave={(list) => {
+            setWizardData(prev => {
+              // Ensure healthRecords array aligns with livestock count
+              const updatedHealthRecords = [...prev.healthRecords];
+              while (updatedHealthRecords.length < list.length) {
+                updatedHealthRecords.push([{ date: "", type: "", description: "", veterinarian: "" }]);
+              }
+              while (updatedHealthRecords.length > list.length) {
+                updatedHealthRecords.pop();
+              }
+
+              return {
+                ...prev,
+                livestock: list,
+                healthRecords: updatedHealthRecords,
+              };
+            });
+            setWizardStep(3); // next step
+          }}
+          onPrevious={() => setWizardStep(1)}
+          onClose={() => setWizardStep(0)}
+        />
 
 
-        {/* Table Section */}
-        <div className="flex bg-white p-4 m-5 rounded-lg shadow-md overflow-x-auto">
-          <div className="w-full">
-            <table className="table-auto w-full border-collapse rounded-lg overflow-hidden text-sm">
-              <thead className="bg-gray-100 border-b-2 border-gray-300 text-gray-700">
-                <tr>
-                  {Rows.map((rows, index) => (
-                    <th key={index} className="p-3 font-semibold tracking-wide text-center whitespace-nowrap">
-                      {rows.tableHeader}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRaisers.length > 0 ? (
-                  filteredRaisers.map((raiser) => (
-                    <tr
-                      key={raiser.id}
-                      className="border-b hover:bg-green-50 text-center transition text-gray-700"
-                    >
-                      <td className="p-3 font-medium whitespace-nowrap">
-                        {raiser.lastName + ", " + raiser.firstName + " " + raiser.middleInitial}
-                      </td>
-                      <td className="p-3 whitespace-nowrap">{raiser.gender}</td>
-                      <td className="p-3 whitespace-nowrap">{raiser.contact}</td>
-                      <td className="p-3 whitespace-nowrap">{raiser.address}</td>
-                      <td className="p-3 whitespace-nowrap">{raiser.typeOfRaiser}</td>
-                      <td className="p-3 whitespace-nowrap">{raiser.farmsize}</td>
-                      <td className="p-3 whitespace-nowrap">{raiser.registrationStatus}</td>
-                      <td className="p-3 flex justify-center gap-2">
-                        {/* View */}
-                        <button
+        {/* STEP 3 — HEALTH */}
+        <HealthRecordsModal
+          open={wizardStep === 3}
+          livestockList={wizardData.livestock}        // tell modal how many livestock
+          initialData={wizardData.healthRecords}      // array of arrays
+          onSubmit={(updatedHealthRecords) => {
+            setWizardData(prev => ({
+              ...prev,
+              healthRecords: updatedHealthRecords
+            }));
+            setWizardStep(4); // go to confirmation
+          }}
+          onPrevious={() => setWizardStep(2)}
+          onClose={() => setWizardStep(0)}
+        />
+
+
+
+        {/* STEP 4 — CONFIRMATION */}
+        <ConfirmationModal
+          open={wizardStep === 4}
+          data={wizardData}
+          onClose={() => setWizardStep(3)}
+          onConfirm={() => saveAllData(wizardData)}
+        />
+
+
+
+        {/* VIEW DETAILS */}
+        <ViewDetailsModal 
+          open={viewOpen} 
+          onClose={() => setViewOpen(false)} 
+          raiser={selectedRaiser} 
+        />
+
+      
+
+
+        {/* CONTROLS */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-4 px-4 md:px-6">
+          <button
+            onClick={handleAdd}
+            className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-green-700 transition w-full sm:w-auto"
+          >
+            + Add Raiser
+          </button>
+
+          <input
+            type="text"
+            placeholder="Search Bar"
+            className="w-full sm:max-w-xs border border-green-400 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-sm text-gray-700 placeholder-gray-400"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        {/* TABLE */}
+        <div className="bg-white p-4 md:p-5 m-4 md:m-5 rounded-lg shadow-md overflow-x-auto">
+          <table className="table-auto w-full border-collapse text-sm min-w-[900px]">
+            <thead className="bg-gray-100 border-b-2 border-gray-300">
+              <tr>
+                {[
+                  "Full Name",
+                  "Gender",
+                  "Contact No.",
+                  "Barangay",
+                  "Type of Raiser",
+                  "No. of Livestock Owned",
+                  "Registration Status",
+                  "Actions",
+                ].map((header, i) => (
+                  <th key={i} className="p-3 font-semibold text-center whitespace-nowrap">
+                    {header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+
+            <tbody>
+              {filteredRaisers.length > 0 ? (
+                filteredRaisers.map((raiser) => (
+                  <tr key={raiser.id} className="border-b hover:bg-green-50 text-center">
+                    <td className="p-3">{`${raiser.lastName}, ${raiser.firstName} ${raiser.middleInitial || ""}`}</td>
+                    <td>{raiser.gender}</td>
+                    <td>{raiser.contact}</td>
+                    <td>{raiser.address}</td>
+                    <td>{raiser.typeOfRaiser}</td>
+                    <td>{raiser.farmsize}</td>
+                    <td>{raiser.registrationStatus}</td>
+
+                    <td className="p-2">
+                      <div className="flex flex-col sm:flex-row justify-center gap-2">
+                        <button 
                           onClick={() => handleView(raiser)}
-                          className="flex items-center gap-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md text-xs font-medium transition"
+                          className="bg-gray-200 px-3 py-1 rounded-md text-xs"
                         >
-                          View Details
+                          View
                         </button>
-
-                        {/* Edit */}
-                        <button
+                        <button 
                           onClick={() => handleEdit(raiser)}
-                          className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-md transition"
+                          className="bg-green-600 p-2 text-white rounded-md"
                         >
                           <EditRoundedIcon />
                         </button>
-
-                        {/* Delete */}
-                        <button
+                        <button 
                           onClick={() => handleDelete(raiser)}
-                          className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-md transition"
+                          className="bg-red-600 p-2 text-white rounded-md"
                         >
                           <DeleteRoundedIcon />
                         </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={Rows.length} className="text-center py-6 text-gray-500">
-                      No raisers found.
+                      </div>
                     </td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="8" className="text-center py-6 text-gray-500">
+                    No raisers found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+
+          </table>
         </div>
+
       </div>
     </div>
   );

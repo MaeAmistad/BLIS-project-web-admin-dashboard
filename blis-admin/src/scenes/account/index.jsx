@@ -9,6 +9,7 @@ import Sidebarr from "../global/Sidebar";
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded'; 
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 
+
 const Account = () => {
   const [role, setRole] = useState("");
   const [name, setName] = useState("");
@@ -53,10 +54,12 @@ const saveData = async () => {
       role,
       name,
       email,
-      password, 
+      password,
       uid,
+      createdAt: new Date(),
     });
 
+    // Clear inputs
     setRole("");
     setName("");
     setEmail("");
@@ -71,17 +74,20 @@ const saveData = async () => {
       showConfirmButton: false,
     });
 
+    // Refresh users
     fetchData();
+
   } catch (error) {
     console.error("Error adding user:", error);
     Swal.fire({
       icon: "error",
       title: "Error Creating Account",
-      text: error.message || "There was a problem adding the user.",
+      text: error.message,
       confirmButtonColor: "#d33",
     });
   }
 };
+
 
 
   // Delete user
