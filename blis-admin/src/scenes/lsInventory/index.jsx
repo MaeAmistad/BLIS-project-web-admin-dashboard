@@ -18,6 +18,7 @@ import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import Headerr from "../../components/Headerr";
 import { IconButton } from "@mui/material";
 import {
+  AddCircleOutlineRounded,
   DeleteRounded,
   EditRounded,
   VisibilityRounded,
@@ -136,7 +137,16 @@ const LivestockInventory = () => {
       <div className="content flex-grow p-2 overflow-auto h-screen">
         <Topbar />
         <div className="sticky top-14 flex flex-col md:flex-row items-start md:items-center justify-between p-1 m-2">
-          <Headerr title="Livestock Inventory" />
+          <Headerr title="Livestock Information" />
+
+          <button
+            // onClick={handleAdd}
+            className="mt-2 md:mt-0 bg-green-600 text-white text-sm py-2 px-3 rounded-lg
+                         flex items-center gap-1"
+          >
+            <AddCircleOutlineRounded fontSize="small" />
+            Add Livestock
+          </button>
         </div>
 
         {/* Main Body */}

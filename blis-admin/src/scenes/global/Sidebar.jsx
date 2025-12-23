@@ -39,7 +39,7 @@ const Sidebarr = () => {
     },
     {
       title: "Livestock",
-      path: "/Ls-inventory",
+      path: "/livestock",
       icon: <InventoryRoundedIcon />,
     },
     {
@@ -52,11 +52,11 @@ const Sidebarr = () => {
       path: "/inventorySupplies",
       icon: <Inventory2RoundedIcon />,
     },
-    {
-      title: "Report and Analytics",
-      path: "/reportsAnalytics",
-      icon: <AssessmentRoundedIcon />,
-    },
+    // {
+    //   title: "Report and Analytics",
+    //   path: "/reportsAnalytics",
+    //   icon: <AssessmentRoundedIcon />,
+    // },
     // { title: "Settings", path: "/settings", icon: <SettingsRoundedIcon /> },
   ];
 

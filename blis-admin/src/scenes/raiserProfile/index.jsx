@@ -23,6 +23,7 @@ import {
   VisibilityRounded,
 } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
+import RaiserEdit from "../../components/RaiserEdit";
 
 const RaiserProfile = () => {
   const [raisers, setRaisers] = useState([]);
@@ -31,6 +32,7 @@ const RaiserProfile = () => {
   // View Details Modal
   const [viewOpen, setViewOpen] = useState(false);
   const [selectedRaiser, setSelectedRaiser] = useState(null);
+  const [showEdit, setShowEdit] = useState(false);
 
   const [wizardStep, setWizardStep] = useState(0);
   // 0 = closed, 1 = Raiser, 2 = Livestock, 3 = Health Records, 4 = Confirmation
@@ -67,6 +69,11 @@ const RaiserProfile = () => {
       livestock: [],
     });
     setWizardStep(1);
+  };
+
+  const handleEdit = (raiserId) => {
+    setShowEdit(true);
+    setSelectedRaiser(raiserId);
   };
 
   const handleDelete = async (raiser) => {
@@ -122,7 +129,11 @@ const RaiserProfile = () => {
       fetchData();
     } catch (error) {
       console.error(error);
-      Swal.fire("Error", "Failed to delete raiser. ", error, "error");
+      Swal.fire({
+        title: "Error",
+        text: "Something went wrong while saving.",
+        icon: "error",
+      });
     }
   };
 
@@ -153,11 +164,18 @@ const RaiserProfile = () => {
     });
   };
 
+  const cleanObject = (obj) =>
+    Object.fromEntries(
+      Object.entries(obj).filter(
+        ([key, value]) => key && value !== undefined && value !== ""
+      )
+    );
+
   const saveAllData = async (wizardData) => {
     try {
       // 1️⃣ Create raiser
       const raiserRef = doc(collection(db, "raisers"));
-      await setDoc(raiserRef, wizardData.raiser);
+      await setDoc(raiserRef, cleanObject(wizardData.raiser));
       const raiserId = raiserRef.id;
 
       // 2️⃣ Create livestock + health records
@@ -169,7 +187,7 @@ const RaiserProfile = () => {
         const { healthRecords = {}, ...livestockData } = animal;
 
         // 1️⃣ Save livestock (WITHOUT healthRecords)
-        await setDoc(livestockRef, livestockData);
+        await setDoc(livestockRef, cleanObject(livestockData));
 
         // 2️⃣ Save health records as subcollection
         const recordTypes = [
@@ -194,11 +212,11 @@ const RaiserProfile = () => {
                   "healthRecords"
                 )
               ),
-              {
+              cleanObject({
                 ...record,
                 type,
                 createdAt: new Date(),
-              }
+              })
             );
           }
         }
@@ -216,7 +234,11 @@ const RaiserProfile = () => {
       resetWizard();
     } catch (error) {
       console.error(error);
-      Swal.fire("Error!", "Something went wrong while saving. ", error, "error");
+      Swal.fire({
+        title: "Error",
+        text: "Something went wrong while saving.",
+        icon: "error",
+      });
     }
   };
 
@@ -319,7 +341,7 @@ const RaiserProfile = () => {
 
                           <IconButton
                             aria-label="edit"
-                            // onClick={() => handleEdit(raiser)}
+                            onClick={() => handleEdit(raiser)}
                           >
                             <EditRounded
                               sx={{ color: "#266b0f", fontSize: 16 }}
@@ -393,6 +415,14 @@ const RaiserProfile = () => {
         onClose={() => setViewOpen(false)}
         raiser={selectedRaiser}
       />
+
+      {showEdit && (
+        <RaiserEdit
+          open={showEdit}
+          onClose={() => setShowEdit(false)}
+          raiserData={selectedRaiser}
+        />
+      )}
     </div>
   );
 };

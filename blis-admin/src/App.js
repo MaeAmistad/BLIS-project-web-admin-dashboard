@@ -41,7 +41,7 @@ function App() {
             }
           />
           <Route
-            path="/Ls-inventory"
+            path="/livestock"
             element={
               <ProtectedRoute>
                 <LivestockInventory />

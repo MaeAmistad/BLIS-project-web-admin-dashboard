@@ -1,92 +1,86 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../firebase";
 import Swal from "sweetalert2";
 
-const defaultForm = {
-  address: "",
-  contactNumber: "",
-  email: "",
-  farmLocation: "",
-  farmSize: "",
-  farmName: "",
-  gender: "",
-  lastName: "",
-  firstName:"",
-  middleInitial: "",
-  numberOfWorkers: "",
-  registrationStatus: "",
-  dateOfRegistration:"",
-  typeOfRaiser: "",
-};
+const RaiserEdit = ({ open, onClose, raiserData }) => {
+  const [formData, setFormData] = useState({
+    address: "",
+    contactNumber: "",
+    email: "",
+    farmLocation: "",
+    farmSize: "",
+    farmName: "",
+    gender: "",
+    lastName: "",
+    firstName:"",
+    middleInitial: "",
+    numberOfWorkers: "",
+    registrationStatus: "",
+    dateOfRegistration: "",
+    typeOfRaiser: "",
+  });
 
-const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
-  const [formData, setFormData] = useState( defaultForm );
+  console.log("Passed Raiser Data: ", raiserData)
 
   useEffect(() => {
-  if (open && Object.keys(initialData || {}).length > 0) {
-    setFormData(initialData);
-  }
-}, [open, initialData]);
+    if (raiserData) {
+      setFormData({
+        address: raiserData?.address,
+        contactNumber: raiserData?.contactNumber,
+        email: raiserData?.email,
+        firstName: raiserData?.firstName,
+        farmLocation: raiserData?.farmLocation,
+        farmSize: raiserData?.farmSize,
+        farmName: raiserData?.farmName,
+        gender: raiserData?.gender,
+        lastName: raiserData?.lastName,
+        middleInitial: raiserData?.middleInitial,
+        numberOfWorkers: raiserData?.numberOfWorkers,
+        registrationStatus: raiserData?.registrationStatus,
+        dateOfRegistration: raiserData?.dateOfRegistration,
+        typeOfRaiser: raiserData?.typeOfRaiser,
+      });
+    }
+  }, [raiserData]);
 
-
-  const handleChange = (e) => {
+   const handleChange = (e) => {
     const { name, value } = e.target;
-    if(!name) return
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-  const validateForm = () => {
-    if (!formData.lastName || !formData.firstName) {
-      Swal.fire("Missing Info", "First and Last Name are required.", "warning");
-      return false;
-    }
 
-    if (!formData.gender || !formData.typeOfRaiser) {
-      Swal.fire("Missing Info", "Please complete required fields.", "warning");
-      return false;
-    }
+  const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    return true;
-  };
+  try {
+    const raiserRef = doc(db, "raisers", raiserData.id);
 
-  // Save and proceed to STEP 2 (Livestock)
-  const handleNext = () => {
-    if (!validateForm()) return;
-
-    //const now = new Date().toISOString();
-
-    const data = {
-      ...formData,
-    };
-
-    onSave(data);
-  };
-
-  const handleCancel = async () => {
-    const confirm = await Swal.fire({
-      title: "Are you sure?",
-      text: "Unsaved changes will be lost.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#4CAF50",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, close it",
+    await updateDoc(raiserRef, {
+      address: formData.address,
+      contactNumber: formData.contactNumber,
+      email: formData.email,
+      farmLocation: formData.farmLocation,
+      farmSize: formData.farmSize,
+      farmName: formData.farmName,
+      gender: formData.gender,
+      lastName: formData.lastName,
+      middleInitial: formData.middleInitial,
+      numberOfWorkers: formData.numberOfWorkers,
+      registrationStatus: formData.registrationStatus,
+      dateOfRegistration: formData.dateOfRegistration,
+      typeOfRaiser: formData.typeOfRaiser,
     });
 
-    if (confirm.isConfirmed) {
-      onCancel()
-    }
-  };
-
-  const handleBackdrop = (e) => {
-    if (e.target === e.currentTarget) handleCancel();
-  };
-
+    onClose();
+  } catch (error) {
+    console.error("Error updating raiser:", error);
+    Swal.fire("Error!", "Something went wrong while saving. ", error, "error");
+  }
+};
   if (!open) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      onClick={handleBackdrop}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
 
@@ -96,21 +90,16 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
                  bg-white rounded-2xl shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
+      <form onSubmit={handleSubmit}>
         {/* HEADER */}
         <div className="flex items-center justify-between px-6 py-4 border-b">
           <div>
             <h1 className="text-xl font-semibold text-gray-800">
-              Add New Raiser
+              Edit Raiser Information
             </h1>
-            <p className="text-sm text-gray-500">
-              Fill in personal and farm information
-            </p>
           </div>
 
-          <button
-            onClick={onClose}
-            className="text-red-500 text-xl"
-          >
+          <button onClick={onClose} className="text-red-500 text-xl">
             ✕
           </button>
         </div>
@@ -127,53 +116,53 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
               <Input
                 label="Last Name"
                 name="lastName"
-                value={formData.lastName || ""}
+                value={formData.lastName}
                 onChange={handleChange}
               />
               <Input
                 label="First Name"
                 name="firstName"
-                value={formData.firstName || ""}
+                value={formData.firstName}
                 onChange={handleChange}
               />
               <Input
                 label="Middle Initial"
                 name="middleInitial"
-                value={formData.middleInitial || ""}
+                value={formData.middleInitial}
                 onChange={handleChange}
               />
 
               <Input
                 label="Email"
                 name="email"
-                value={formData.email || ""}
+                value={formData.email}
                 onChange={handleChange}
               />
 
               <Select
                 label="Gender"
                 name="gender"
-                value={formData.gender || ""}
+                value={formData.gender}
                 onChange={handleChange}
                 options={["Male", "Female"]}
               />
               <Input
                 label="Contact No."
                 name="contactNumber"
-                value={formData.contactNumber || ""}
+                value={formData.contactNumber}
                 onChange={handleChange}
               />
               <Input
                 label="Barangay"
                 name="address"
-                value={formData.address || ""}
+                value={formData.address}
                 onChange={handleChange}
               />
 
               <Select
                 label="Type of Raiser"
                 name="typeOfRaiser"
-                value={formData.typeOfRaiser || ""}
+                value={formData.typeOfRaiser}
                 onChange={handleChange}
                 options={["Backyard", "Commercial"]}
               />
@@ -190,46 +179,44 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
               <Input
                 label="Farm Name"
                 name="farmName"
-                value={formData.farmName || ""}
+                value={formData.farmName}
                 onChange={handleChange}
               />
               <Input
                 label="Farm Location"
                 name="farmLocation"
-                value={formData.farmLocation || ""}
+                value={formData.farmLocation}
                 onChange={handleChange}
               />
               <Input
                 label="Farm Size"
                 name="farmSize"
-                value={formData.farmSize || ""}
+                value={formData.farmSize}
                 onChange={handleChange}
               />
 
               <Input
                 label="Number of Workers"
                 name="numberOfWorkers"
-                value={formData.numberOfWorkers || ""}
+                value={formData.numberOfWorkers}
                 onChange={handleChange}
               />
 
               <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-gray-600">
-                    Date of Registration
-                  </label>
-                  <input
-                    type="date"
-                    name="dateOfRegistration"
-                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
-                    value={formData.dateOfRegistration || ""}
-                    onChange={handleChange
-                    }
-                  />
-                </div>
+                <label className="text-xs font-medium text-gray-600">
+                  Date of Registration
+                </label>
+                <input
+                  type="date"
+                  className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                  value={formData.dateOfRegistration}
+                  onChange={handleChange}
+                />
+              </div>
               <Select
                 label="Registration Status"
                 name="registrationStatus"
-                value={formData.registrationStatus || ""}
+                value={formData.registrationStatus}
                 onChange={handleChange}
                 options={["Active", "Inactive"]}
               />
@@ -239,39 +226,28 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
 
         {/* FOOTER */}
         <div className="flex justify-between items-center px-6 py-4 border-t bg-gray-50">
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100"
-          >
+          <button className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100">
             Cancel
           </button>
 
-          <button
-            onClick={handleNext}
-            disabled={!formData.lastName || !formData.firstName}
+          <button type="submit"
             className="px-6 py-2 rounded-lg text-white bg-green-600
              hover:bg-green-700 shadow-sm disabled:opacity-50"
           >
-            Next →
+            Update Raiser
           </button>
         </div>
+
+        </form>
       </div>
     </div>
   );
 };
 
-export default RaiserModal;
-
-/* --------------------------
-   REUSABLE INPUT COMPONENTS
---------------------------- */
-
+export default RaiserEdit;
 const Input = ({ label, name, value, onChange, type = "text" }) => (
   <div className="flex flex-col gap-1">
-    <label
-      htmlFor={name}
-      className="text-xs font-medium text-gray-600"
-    >
+    <label htmlFor={name} className="text-xs font-medium text-gray-600">
       {label}
     </label>
 
@@ -286,13 +262,9 @@ const Input = ({ label, name, value, onChange, type = "text" }) => (
   </div>
 );
 
-
 const Select = ({ label, name, value, onChange, options }) => (
   <div className="flex flex-col gap-1">
-    <label
-      htmlFor={name}
-      className="text-xs font-medium text-gray-600"
-    >
+    <label htmlFor={name} className="text-xs font-medium text-gray-600">
       {label}
     </label>
 

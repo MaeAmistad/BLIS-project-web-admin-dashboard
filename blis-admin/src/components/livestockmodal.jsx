@@ -14,7 +14,6 @@ export default function LivestockModal({
 
   const [livestockList, setLivestockList] = useState([
     {
-      type: "",
       breed: "",
       age: "",
       colorMarkings: "",
@@ -42,26 +41,25 @@ export default function LivestockModal({
   ];
 
   useEffect(() => {
-    if (open) {
-      setLivestockList(
-        initialData.length > 0
-          ? initialData
-          : [
-              {
-                type: "",
-                breed: "",
-                age: "",
-                colorMarkings: "",
-                gender: "",
-                healthCondition: "",
-                livestockName: "",
-                status: "",
-                typeOfAnimal: "",
-                weight: "",
-                healthRecords: [],
-              },
-            ]
-      );
+    if (!open) return;
+
+    if (initialData?.length > 0) {
+      setLivestockList(initialData);
+    } else {
+      setLivestockList([
+        {
+          breed: "",
+          age: "",
+          colorMarkings: "",
+          gender: "",
+          healthCondition: "",
+          livestockName: "",
+          status: "",
+          typeOfAnimal: "",
+          weight: "",
+          healthRecords: [],
+        },
+      ]);
     }
   }, [open, initialData]);
 
@@ -69,7 +67,6 @@ export default function LivestockModal({
     setLivestockList((prev) => [
       ...prev,
       {
-        type: "",
         breed: "",
         age: "",
         colorMarkings: "",
@@ -79,17 +76,20 @@ export default function LivestockModal({
         status: "",
         typeOfAnimal: "",
         weight: "",
-        healthRecords: [],
+        healthRecords: {
+          vaccinations: [],
+          dewormings: [],
+          treatments: [],
+          aiRecords: [],
+        },
       },
     ]);
   };
 
   const updateLivestock = (index, field, value) => {
-    setLivestockList((prev) => {
-      const newList = [...prev];
-      newList[index][field] = value;
-      return newList;
-    });
+    setLivestockList((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
+    );
   };
 
   const validateLivestock = () => {
@@ -128,7 +128,7 @@ export default function LivestockModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="bg-white w-full max-w-5xl mx-4 p-6 rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto">
         {/* HEADER */}
-        <div className="mb-6 border-b pb-4">
+        <div className="mb-6 border-b pb-4 flex justify-between items-start">
           <div>
             <h2 className="text-xl font-semibold text-gray-800">
               Add Livestock
@@ -137,9 +137,10 @@ export default function LivestockModal({
               Provide details for each animal
             </p>
           </div>
+
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-xl"
+            className="text-red-500 text-xl leading-none"
           >
             ✕
           </button>
@@ -190,7 +191,7 @@ export default function LivestockModal({
                   <input
                     className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
                     placeholder="Livestock Name"
-                    value={item.livestockName}
+                    value={item.livestockName || ""}
                     onChange={(e) =>
                       updateLivestock(idx, "livestockName", e.target.value)
                     }
@@ -203,7 +204,7 @@ export default function LivestockModal({
                   </label>
                   <select
                     className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
-                    value={item.typeOfAnimal}
+                    value={item.typeOfAnimal || ""}
                     onChange={(e) =>
                       updateLivestock(idx, "typeOfAnimal", e.target.value)
                     }
@@ -224,7 +225,7 @@ export default function LivestockModal({
                   <input
                     className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
                     placeholder="Breed"
-                    value={item.breed}
+                    value={item.breed || ""}
                     onChange={(e) =>
                       updateLivestock(idx, "breed", e.target.value)
                     }
@@ -238,7 +239,7 @@ export default function LivestockModal({
                   <input
                     className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
                     placeholder="Color / Markings"
-                    value={item.colorMarkings}
+                    value={item.colorMarkings || ""}
                     onChange={(e) =>
                       updateLivestock(idx, "colorMarkings", e.target.value)
                     }
@@ -253,7 +254,7 @@ export default function LivestockModal({
                   <input
                     className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
                     placeholder="Weight"
-                    value={item.weight}
+                    value={item.weight || ""}
                     onChange={(e) =>
                       updateLivestock(idx, "weight", e.target.value)
                     }
@@ -267,7 +268,7 @@ export default function LivestockModal({
                   <input
                     className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
                     placeholder="Health Condition"
-                    value={item.healthCondition}
+                    value={item.healthCondition || ""}
                     onChange={(e) =>
                       updateLivestock(idx, "healthCondition", e.target.value)
                     }
@@ -280,7 +281,7 @@ export default function LivestockModal({
                   </label>
                   <select
                     className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
-                    value={item.gender}
+                    value={item.gender || ""}
                     onChange={(e) =>
                       updateLivestock(idx, "gender", e.target.value)
                     }
@@ -312,7 +313,7 @@ export default function LivestockModal({
                   <input
                     className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
                     placeholder="Age"
-                    value={item.age}
+                    value={item.age || ""}
                     onChange={(e) =>
                       updateLivestock(idx, "age", e.target.value)
                     }
@@ -325,7 +326,7 @@ export default function LivestockModal({
                   </label>
                   <select
                     className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
-                    value={item.status}
+                    value={item.status || ""}
                     onChange={(e) =>
                       updateLivestock(idx, "status", e.target.value)
                     }
@@ -395,11 +396,22 @@ export default function LivestockModal({
           open={healthOpen}
           initialData={livestockList[activeLivestockIndex].healthRecords}
           onSubmit={(records) => {
-            setLivestockList((prev) => {
-              const updated = [...prev];
-              updated[activeLivestockIndex].healthRecords = records;
-              return updated;
-            });
+            setLivestockList((prev) =>
+              prev.map((animal, i) =>
+                i === activeLivestockIndex
+                  ? {
+                      ...animal,
+                      healthRecords: {
+                        vaccinations: records.vaccinations || [],
+                        dewormings: records.dewormings || [],
+                        treatments: records.treatments || [],
+                        aiRecords: records.aiRecords || [],
+                      },
+                    }
+                  : animal
+              )
+            );
+
             setHealthOpen(false);
             setActiveLivestockIndex(null);
           }}

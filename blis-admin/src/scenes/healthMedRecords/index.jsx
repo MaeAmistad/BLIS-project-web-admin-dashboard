@@ -22,24 +22,23 @@ const HealthandMedical = () => {
   const [showVaccinationModal, setShowVaccinationModal] = useState(false);
   const [showDewormingModal, setShowDewormingModal] = useState(false);
 
-
   const handleButtonClick = (tableName) => {
     // Toggle visibility
     setActiveTable(activeTable === tableName ? null : tableName);
   };
 
   return (
-    <div className="flex bg-[#F5F5F5] min-h-screen">
+    <div className="app flex flex-col md:flex-row">
       <Sidebarr />
-      <div className="w-full">
+      <div className="content flex-grow p-2 overflow-auto h-screen">
         <Topbar />
-        <div className="flex justify-between items-center">
+        <div className="sticky top-14 flex flex-col md:flex-row items-start md:items-center justify-between p-1 m-2">
           <Headerr title="Health and Medical Records" />
         </div>
 
         <div className="p-6">
           {/* Buttons Section */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <button
               onClick={() => handleButtonClick("healthList")}
               className="flex items-center gap-2 bg-green-600 text-white px-5 py-3 rounded-xl shadow hover:bg-green-700 transition"
@@ -90,10 +89,9 @@ const HealthandMedical = () => {
           </div>
 
           {/* Conditional Tables */}
-          
+
           {activeTable === "healthList" && (
             <div className="bg-white p-4 rounded-lg shadow">
-
               <h2 className="text-lg font-semibold mb-3">
                 Livestock Health List
               </h2>
@@ -108,9 +106,7 @@ const HealthandMedical = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-
-                  </tr>
+                  <tr></tr>
                 </tbody>
               </table>
             </div>
@@ -132,9 +128,7 @@ const HealthandMedical = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-
-                  </tr>
+                  <tr></tr>
                 </tbody>
               </table>
             </div>
@@ -157,9 +151,7 @@ const HealthandMedical = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-
-                  </tr>
+                  <tr></tr>
                 </tbody>
               </table>
             </div>
@@ -183,9 +175,7 @@ const HealthandMedical = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-
-                  </tr>
+                  <tr></tr>
                 </tbody>
               </table>
             </div>
@@ -212,9 +202,7 @@ const HealthandMedical = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-
-                  </tr>
+                  <tr></tr>
                 </tbody>
               </table>
             </div>
@@ -222,29 +210,81 @@ const HealthandMedical = () => {
 
           {activeTable === "summary" && (
             <div className="bg-white p-4 rounded-lg shadow">
-              <h2 className="text-lg font-semibold mb-3">Health Summary Report</h2>
-              <p>This section will display summarized livestock health analytics.</p>
+              <h2 className="text-lg font-semibold mb-3">
+                Health Summary Report
+              </h2>
+              <p>
+                This section will display summarized livestock health analytics.
+              </p>
             </div>
           )}
         </div>
 
         {showTreatmentModal && (
-          <TreatmentRecordModal open={true} onClose={() => setShowTreatmentModal(false)} />
+          <TreatmentRecordModal
+            open={true}
+            onClose={() => setShowTreatmentModal(false)}
+          />
         )}
 
         {showAIModal && (
-          <ArtificialInseminationModal open={true} onClose={() => setShowAIModal(false)} />
+          <ArtificialInseminationModal
+            open={true}
+            onClose={() => setShowAIModal(false)}
+          />
         )}
         {showHealthModal && (
-          <LivestockHealthListModal open={true} onClose={() => setShowHealthModal(false)} />
+          <LivestockHealthListModal
+            open={true}
+            onClose={() => setShowHealthModal(false)}
+          />
         )}
         {showVaccinationModal && (
-          <VaccinationRecordModal open={true} onClose={() => setShowVaccinationModal(false)} />
+          <VaccinationRecordModal
+            open={true}
+            onClose={() => setShowVaccinationModal(false)}
+          />
         )}
         {showDewormingModal && (
-          <DewormingRecordModal open={true} onClose={() => setShowDewormingModal(false)} />
+          <DewormingRecordModal
+            open={true}
+            onClose={() => setShowDewormingModal(false)}
+          />
         )}
 
+        {/* Main Body */}
+        <div className="m-1 flex-grow overflow-y-auto bg-white-main shadow-md rounded-md">
+          {/* Search Filters */}
+          <div className="p-1">
+            <div>
+              <div className="flex my-1 mx-1 space-x-1">
+                <input
+                  type="text"
+                  placeholder="Search Bar"
+                  className="w-full sm:max-w-sm border border-green-400 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-sm text-gray-700 placeholder-gray-400"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Table */}
+          <div className="relative overflow-y-auto h-[550px] border border-gray-300 rounded-md">
+            <table cclassName="min-w-[500px] w-full text-center">
+              <thead className="h-6 bg-primary uppercase sticky top-0 text-white text-sm">
+                <tr>
+                  <th className="w-[50px]">NO</th>
+                  <th className="w-[300px]">Raiser Name</th>
+                  <th className="w-[250px]">Barangay</th>
+                  <th className="w-[350px]">List of Livestocks</th>
+                  <th className="w-[350px]">No of Livestocks</th>
+                  <th className="w-[250px]">Registration Status</th>
+                  <th className="w-[150px]">Action</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );

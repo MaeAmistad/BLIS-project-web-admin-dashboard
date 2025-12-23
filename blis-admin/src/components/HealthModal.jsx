@@ -6,7 +6,12 @@ export default function HealthRecordsModal({
   onClose,
   onSubmit,
   onPrevious,
-  initialData = [], // array of arrays: health records per livestock
+  initialData = {
+  vaccinations: [],
+  dewormings: [],
+  treatments: [],
+  aiRecords: [],
+}, // array of arrays: health records per livestock
   livestockList = [], // array of livestock objects
 }) {
 

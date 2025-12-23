@@ -106,15 +106,14 @@ export default function ConfirmationModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-white rounded-2xl w-full max-w-4xl p-6 shadow-lg max-h-[80vh] overflow-y-auto animate-fadeIn">
-        <div className="relative flex items-center justify-center mb-4">
+        <div className="relative mb-4">
           <h2 className="text-2xl font-semibold text-center">
             Confirm Submission
           </h2>
 
-          {/* Close button aligned with title */}
           <button
             onClick={onClose}
-            className="absolute right-0 text-gray-400 hover:text-red-500 text-xl font-semibold"
+            className="absolute top-0 right-0 text-red-500 text-xl font-semibold leading-none"
             aria-label="Close"
           >
             ✕
