@@ -1,6 +1,7 @@
-import Header from "../../components/header";
+
 import Topbar from "../global/Topbar";
 import Sidebarr from "../global/Sidebar";
+import Headerr from "../../components/Headerr";
 
 const Settings = () => {
 
@@ -10,7 +11,7 @@ const Settings = () => {
             <div className="w-full">
                 <Topbar />
                 <div className="flex justify-between items-center">
-                <Header title="Settings" />
+                <Headerr title="Settings" />
                 </div>
 
             </div>

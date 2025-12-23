@@ -1,14 +1,87 @@
 import React, { useState, useEffect } from "react";
+import HealthRecordsModal from "./HealthModal";
 
-export default function LivestockModal({ open, onClose, onSave, onPrevious, initialData }) {
-  const [livestockList, setLivestockList] = useState([{ type: "", breed: "", age: "", notes: "" }]);
+export default function LivestockModal({
+  open,
+  onClose,
+  onCancel,
+  onSave,
+  onPrevious,
+  initialData = [],
+}) {
+  const [healthOpen, setHealthOpen] = useState(false);
+  const [activeLivestockIndex, setActiveLivestockIndex] = useState(null);
+
+  const [livestockList, setLivestockList] = useState([
+    {
+      type: "",
+      breed: "",
+      age: "",
+      colorMarkings: "",
+      gender: "",
+      healthCondition: "",
+      livestockName: "",
+      status: "",
+      typeOfAnimal: "",
+      weight: "",
+      healthRecords: [],
+    },
+  ]);
+
+  const animalOptions = [
+    "Horse",
+    "Cattle",
+    "Swine",
+    "Goat",
+    "Duck",
+    "Chicken",
+    "Ostrich",
+    "Carabao",
+    "Dog",
+    "Cat",
+  ];
 
   useEffect(() => {
-    if (initialData && initialData.length > 0) setLivestockList(initialData);
-  }, [initialData]);
+    if (open) {
+      setLivestockList(
+        initialData.length > 0
+          ? initialData
+          : [
+              {
+                type: "",
+                breed: "",
+                age: "",
+                colorMarkings: "",
+                gender: "",
+                healthCondition: "",
+                livestockName: "",
+                status: "",
+                typeOfAnimal: "",
+                weight: "",
+                healthRecords: [],
+              },
+            ]
+      );
+    }
+  }, [open, initialData]);
 
   const addLivestock = () => {
-    setLivestockList((prev) => [...prev, { type: "", breed: "", age: "", notes: "" }]);
+    setLivestockList((prev) => [
+      ...prev,
+      {
+        type: "",
+        breed: "",
+        age: "",
+        colorMarkings: "",
+        gender: "",
+        healthCondition: "",
+        livestockName: "",
+        status: "",
+        typeOfAnimal: "",
+        weight: "",
+        healthRecords: [],
+      },
+    ]);
   };
 
   const updateLivestock = (index, field, value) => {
@@ -19,11 +92,29 @@ export default function LivestockModal({ open, onClose, onSave, onPrevious, init
     });
   };
 
+  const validateLivestock = () => {
+    if (livestockList.length === 0) {
+      alert("Please add at least one livestock.");
+      return false;
+    }
+
+    for (let i = 0; i < livestockList.length; i++) {
+      const animal = livestockList[i];
+      if (!animal.livestockName || !animal.typeOfAnimal) {
+        alert(`Livestock #${i + 1} requires a name and type.`);
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   const removeLivestock = (index) => {
     setLivestockList((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleNext = () => {
+    if (!validateLivestock()) return;
     onSave(livestockList);
   };
 
@@ -34,88 +125,290 @@ export default function LivestockModal({ open, onClose, onSave, onPrevious, init
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      <div className="bg-white w-full max-w-2xl p-6 rounded-2xl shadow-lg">
-        <h2 className="text-2xl font-semibold mb-6 text-gray-800">Add Livestock</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="bg-white w-full max-w-5xl mx-4 p-6 rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto">
+        {/* HEADER */}
+        <div className="mb-6 border-b pb-4">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-800">
+              Add Livestock
+            </h2>
+            <p className="text-sm text-gray-500">
+              Provide details for each animal
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 text-xl"
+          >
+            ✕
+          </button>
+        </div>
 
-        <div className="space-y-5">
+        {/* LIVESTOCK LIST */}
+        <div className="space-y-6">
           {livestockList.map((item, idx) => (
-            <div key={idx} className="p-4 border border-gray-200 rounded-xl bg-gray-50 shadow-sm">
-              <div className="flex flex-col md:flex-row gap-3">
-                <input
-                  className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400"
-                  placeholder="Type"
-                  value={item.type}
-                  onChange={(e) => updateLivestock(idx, "type", e.target.value)}
-                />
-                <input
-                  className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400"
-                  placeholder="Breed"
-                  value={item.breed}
-                  onChange={(e) => updateLivestock(idx, "breed", e.target.value)}
-                />
-              </div>
+            <div
+              key={idx}
+              className="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm"
+            >
+              {/* Card Header */}
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-sm font-semibold text-gray-700">
+                  Livestock #{idx + 1}
+                </h3>
 
-              <div className="flex flex-col md:flex-row gap-3 mt-3">
-                <input
-                  className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400"
-                  placeholder="Age"
-                  value={item.age}
-                  onChange={(e) => updateLivestock(idx, "age", e.target.value)}
-                />
-                <input
-                  className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400"
-                  placeholder="Notes"
-                  value={item.notes}
-                  onChange={(e) => updateLivestock(idx, "notes", e.target.value)}
-                />
-              </div>
-
-              {livestockList.length > 1 && (
-                <div className="flex justify-end mt-3">
+                <div className="flex gap-3">
                   <button
-                    className="text-red-600 hover:text-red-800 font-medium"
-                    onClick={() => removeLivestock(idx)}
+                    onClick={() => {
+                      setActiveLivestockIndex(idx);
+                      setHealthOpen(true);
+                    }}
+                    className="text-sm text-green-600 hover:text-green-800 font-medium"
                   >
-                    Remove
+                    Add Health Records
                   </button>
+
+                  {livestockList.length > 1 && (
+                    <button
+                      onClick={() => removeLivestock(idx)}
+                      className="text-sm text-red-600 hover:text-red-800 font-medium"
+                    >
+                      Remove
+                    </button>
+                  )}
                 </div>
-              )}
+              </div>
+
+              {/* GRID — 3 COLUMNS */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-gray-600">
+                    Livestock Name
+                  </label>
+
+                  <input
+                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    placeholder="Livestock Name"
+                    value={item.livestockName}
+                    onChange={(e) =>
+                      updateLivestock(idx, "livestockName", e.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-gray-600">
+                    Type Of Animal
+                  </label>
+                  <select
+                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    value={item.typeOfAnimal}
+                    onChange={(e) =>
+                      updateLivestock(idx, "typeOfAnimal", e.target.value)
+                    }
+                  >
+                    <option value="">Select Type of Animal</option>
+                    {animalOptions.map((animal) => (
+                      <option key={animal} value={animal}>
+                        {animal}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-gray-600">
+                    Breed
+                  </label>
+                  <input
+                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    placeholder="Breed"
+                    value={item.breed}
+                    onChange={(e) =>
+                      updateLivestock(idx, "breed", e.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-gray-600">
+                    Color / Markings
+                  </label>
+                  <input
+                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    placeholder="Color / Markings"
+                    value={item.colorMarkings}
+                    onChange={(e) =>
+                      updateLivestock(idx, "colorMarkings", e.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-gray-600">
+                    Weight
+                  </label>
+
+                  <input
+                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    placeholder="Weight"
+                    value={item.weight}
+                    onChange={(e) =>
+                      updateLivestock(idx, "weight", e.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-gray-600">
+                    Health Condition
+                  </label>
+                  <input
+                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    placeholder="Health Condition"
+                    value={item.healthCondition}
+                    onChange={(e) =>
+                      updateLivestock(idx, "healthCondition", e.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-gray-600">
+                    Gender
+                  </label>
+                  <select
+                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    value={item.gender}
+                    onChange={(e) =>
+                      updateLivestock(idx, "gender", e.target.value)
+                    }
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-gray-600">
+                    Date
+                  </label>
+                  <input
+                    type="date"
+                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    value={item.dateOfBirth || ""}
+                    onChange={(e) =>
+                      updateLivestock(idx, "dateOfBirth", e.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-gray-600">
+                    Age
+                  </label>
+                  <input
+                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    placeholder="Age"
+                    value={item.age}
+                    onChange={(e) =>
+                      updateLivestock(idx, "age", e.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-gray-600">
+                    Status
+                  </label>
+                  <select
+                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    value={item.status}
+                    onChange={(e) =>
+                      updateLivestock(idx, "status", e.target.value)
+                    }
+                  >
+                    <option value="">Select Status</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
+
+                {/* <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-gray-600">
+                    Barangay
+                  </label>
+                  <input
+                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    placeholder="Barangay"
+                    value={item.barangay || ""}
+                    onChange={(e) =>
+                      updateLivestock(idx, "barangay", e.target.value)
+                    }
+                  />
+                </div> */}
+              </div>
             </div>
           ))}
         </div>
 
+        {/* ADD BUTTON */}
         <button
-          className="w-full mt-4 py-2 text-blue-600 border border-blue-400 rounded-lg hover:bg-blue-50 font-medium"
           onClick={addLivestock}
+          className="w-full mt-5 py-2 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 font-medium"
         >
           + Add Another Livestock
         </button>
 
-        <div className="flex justify-between gap-3 mt-6">
+        {/* FOOTER */}
+        <div className="flex justify-between items-center mt-6 border-t pt-4">
           <button
-            className="px-6 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 font-medium"
             onClick={handlePrevious}
-            disabled={!onPrevious} // disable if no previous function
+            disabled={!onPrevious}
+            className="px-5 py-2 border rounded-lg hover:bg-gray-100 disabled:opacity-50"
           >
             Previous
           </button>
+
           <div className="flex gap-3">
             <button
-              className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 font-medium"
-              onClick={onClose}
+              onClick={onCancel}
+              className="px-5 py-2 border rounded-lg hover:bg-gray-100"
             >
               Cancel
             </button>
             <button
-              className="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-semibold"
               onClick={handleNext}
+              className="px-6 py-2 rounded-lg text-white bg-green-600
+             hover:bg-green-700 shadow-sm disabled:opacity-50"
             >
-              Next
+              Next →
             </button>
           </div>
         </div>
       </div>
+
+      {healthOpen && activeLivestockIndex !== null && (
+        <HealthRecordsModal
+          open={healthOpen}
+          initialData={livestockList[activeLivestockIndex].healthRecords}
+          onSubmit={(records) => {
+            setLivestockList((prev) => {
+              const updated = [...prev];
+              updated[activeLivestockIndex].healthRecords = records;
+              return updated;
+            });
+            setHealthOpen(false);
+            setActiveLivestockIndex(null);
+          }}
+          onClose={() => {
+            setHealthOpen(false);
+            setActiveLivestockIndex(null);
+          }}
+        />
+      )}
     </div>
   );
 }

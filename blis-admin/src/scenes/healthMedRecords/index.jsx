@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Header from "../../components/header";
 import Topbar from "../global/Topbar";
 import Sidebarr from "../global/Sidebar";
 import TreatmentRecordModal from "../../components/TreatmentRecordModal";
@@ -13,6 +12,7 @@ import MedicationIcon from "@mui/icons-material/Medication";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import BiotechIcon from "@mui/icons-material/Biotech";
 import AssessmentIcon from "@mui/icons-material/Assessment";
+import Headerr from "../../components/Headerr";
 
 const HealthandMedical = () => {
   const [activeTable, setActiveTable] = useState(null);
@@ -34,7 +34,7 @@ const HealthandMedical = () => {
       <div className="w-full">
         <Topbar />
         <div className="flex justify-between items-center">
-          <Header title="Health and Medical Records" />
+          <Headerr title="Health and Medical Records" />
         </div>
 
         <div className="p-6">

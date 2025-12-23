@@ -1,8 +1,8 @@
 import {useState} from 'react';
 import {Button} from '@mui/material'
-import Header from "../../components/header";
 import Topbar from "../global/Topbar";
 import Sidebarr from "../global/Sidebar";
+import Headerr from '../../components/Headerr';
 
 const VaccineTracking = () => {
 
@@ -46,7 +46,7 @@ const VaccineTracking = () => {
                 <Topbar/>
 
                  <div className="flex justify-between items-center">
-                    <Header title="Vaccine and Treatment"/>
+                    <Headerr title="Vaccine and Treatment"/>
                 </div>
 
                 <div>

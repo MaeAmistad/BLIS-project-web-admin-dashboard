@@ -72,7 +72,7 @@ const ViewDetailsModal = ({ open, onClose, raiser }) => {
 
           <div className="col-span-2">
             <p className="font-medium text-gray-900">Date Registered</p>
-            <p>{raiser.createdAt || "—"}</p>
+            <p>{raiser.dateOfRegistration|| "—"}</p>
           </div>
         </div>
 

@@ -6,121 +6,155 @@ import SpaceDashboardRoundedIcon from "@mui/icons-material/SpaceDashboardRounded
 import PeopleRoundedIcon from "@mui/icons-material/PeopleOutlined";
 import InventoryRoundedIcon from "@mui/icons-material/InventoryRounded";
 import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
-import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
-import MedicalInformationIcon from '@mui/icons-material/MedicalInformation';
-import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded';
-import AssessmentRoundedIcon from '@mui/icons-material/AssessmentRounded';
-import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
-import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
+import MedicalInformationIcon from "@mui/icons-material/MedicalInformation";
+import Inventory2RoundedIcon from "@mui/icons-material/Inventory2Rounded";
+import AssessmentRoundedIcon from "@mui/icons-material/AssessmentRounded";
+import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import { getAuth, signOut } from "firebase/auth";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 const Sidebarr = () => {
   const [open, setOpen] = useState(true);
-  const [submenuOpen, setSubmenuOpen] = useState(null);
   const location = useLocation();
 
+  const navigate = useNavigate();
+  const auth = getAuth();
+
   const Menus = [
-    { title: "Dashboard", path: "/dashboard", icon: <SpaceDashboardRoundedIcon /> },
-    { title: "User Management", path: "/account", icon: <AccountCircleRoundedIcon /> },
-    { title: "Raiser/Farmer", path: "/raiserProfile", icon: <PeopleRoundedIcon /> },
-    { title: "Livestock", path: "/Ls-inventory", icon: <InventoryRoundedIcon /> },
-    { title: "Health and Medical", path: "/healthandmed", icon: <MedicalInformationIcon /> },
-    { title: "Inventory and Supplies", path: "/inventorySupplies", icon: <Inventory2RoundedIcon /> },
-    { title: "Report and Analytics", path: "/reportsAnalytics", icon: <AssessmentRoundedIcon /> },
-    { title: "Settings", path: "/settings", icon: <SettingsRoundedIcon /> },
-    { title: "Log out", path: "/", icon: <LogoutRoundedIcon /> },
+    {
+      title: "Dashboard",
+      path: "/dashboard",
+      icon: <SpaceDashboardRoundedIcon />,
+    },
+    {
+      title: "User Management",
+      path: "/account",
+      icon: <AccountCircleRoundedIcon />,
+    },
+    {
+      title: "Raiser/Farmer",
+      path: "/raiserProfile",
+      icon: <PeopleRoundedIcon />,
+    },
+    {
+      title: "Livestock",
+      path: "/Ls-inventory",
+      icon: <InventoryRoundedIcon />,
+    },
+    {
+      title: "Health and Medical",
+      path: "/healthandmed",
+      icon: <MedicalInformationIcon />,
+    },
+    {
+      title: "Inventory and Supplies",
+      path: "/inventorySupplies",
+      icon: <Inventory2RoundedIcon />,
+    },
+    {
+      title: "Report and Analytics",
+      path: "/reportsAnalytics",
+      icon: <AssessmentRoundedIcon />,
+    },
+    // { title: "Settings", path: "/settings", icon: <SettingsRoundedIcon /> },
   ];
 
+  const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: "Logout Confirmation",
+      text: "Are you sure you want to log out?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, logout",
+      cancelButtonText: "Cancel",
+    });
+
+    if (result.isConfirmed) {
+      await signOut(auth);
+
+      Swal.fire({
+        icon: "success",
+        title: "Logged out",
+        text: "You have been logged out successfully.",
+        timer: 1200,
+        showConfirmButton: false,
+      });
+
+      navigate("/", { replace: true });
+    }
+  };
+
   return (
-    <div className="flex">
-      {/* Sidebar */}
-      <div
-        className={`bg-[#2E7D32] h-screen p-5 pt-8 ${
-          open ? "w-72" : "w-20"
-        } duration-300 relative shadow-lg`}
-      >
-        {/* Toggle Button */}
-        <ArrowBackIosNewRoundedIcon
-          sx={{
-            fontSize: 28,
-            borderRadius: "50%",
-            backgroundColor: "white",
-            color: "#2E7D32",
-            padding: 0.5,
-            boxShadow: "0 0 6px rgba(0,0,0,0.2)",
-            transition: "0.3s",
-          }}
-          className={`absolute top-6 -right-4 cursor-pointer ${
-            !open && "rotate-180"
-          }`}
-          onClick={() => setOpen(!open)}
+    <div
+      className={`bg-[#2E7D32] h-screen p-2 pt-5 ${
+        open ? "w-72" : "w-20"
+      } duration-300 relative shadow-lg`}
+    >
+      {/* Logo */}
+      <div className="flex flex-col items-center pt-2">
+        <img
+          src={logo}
+          alt="logo"
+          className={`rounded-xl transition-all duration-300
+          ${open ? "w-20 h-20" : "w-10 h-10"}`}
         />
 
-        {/* Logo */}
-        <div className="flex justify-center mb-3 mt-8">
-          <img
-            src={logo}
-            className={`${
-              open ? "w-20 h-20" : "w-10 h-10 mt-2"
-            } rounded-xl transition-all duration-300`}
-            alt="logo"
-          />
-        </div>
-
-        {/* Title */}
         <h1
-          className={`text-white text-center font-semibold text-lg tracking-wide mb-6 transition-all duration-300 ${
-            !open && "opacity-0 scale-0"
-          }`}
+          className={`text-white font-semibold text-sm mt-2 transition-all duration-300
+          ${!open && "opacity-0 scale-0"}`}
         >
           BANTAY LIVESTOCK
         </h1>
-
-        {/* Menu List */}
-        <ul className="space-y-1">
-          {Menus.map((menu, index) => {
-            const isActive = location.pathname === menu.path;
-            return (
-              <div key={index}>
-                {/* Main Item */}
-                <li
-                  className={`flex items-center gap-x-3 p-2 rounded-md cursor-pointer transition-all duration-200
-                  ${
-                    isActive
-                      ? "bg-[#33ab39] text-white"
-                      : "text-white hover:bg-[#4CAF50]/60"
-                  }`}
-                  onClick={() => {
-                    if (menu.submenu) {
-                      setSubmenuOpen(
-                        submenuOpen === menu.title ? null : menu.title
-                      );
-                    }
-                  }}
-                >
-                  <span className="text-lg">{menu.icon}</span>
-
-                  <Link
-                    to={menu.path}
-                    className={`flex-1 text-base font-medium duration-300 ${
-                      !open && "hidden"
-                    }`}
-                  >
-                    {menu.title}
-                  </Link>
-
-                  {menu.submenu && open && (
-                    <KeyboardArrowDownRoundedIcon
-                      className={`transition-transform duration-300 ${
-                        submenuOpen === menu.title ? "rotate-180" : ""
-                      }`}
-                    />
-                  )}
-                </li>
-              </div>
-            );
-          })}
-        </ul>
       </div>
+
+      {/* Menu */}
+      <ul className="flex-1 mt-6 overflow-y-auto">
+        {Menus.map((menu, index) => {
+          const isActive = location.pathname === menu.path;
+          return (
+            <li key={index}>
+              <Link
+                to={menu.path}
+                className={`flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-all
+                ${
+                  isActive
+                    ? "bg-[#12961A] text-white shadow"
+                    : "text-white hover:bg-[#4CAF50]/60"
+                }`}
+              >
+                <span className="text-sm">{menu.icon}</span>
+                <span className={`${!open && "hidden"}`}>{menu.title}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+
+      {/* Logout */}
+      <div>
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 p-3 rounded-lg font-medium text-white text-sm hover:bg-red-500/70 transition-all w-full"
+        >
+          <LogoutRoundedIcon />
+          <span className={`text-md ${!open && "hidden"}`}>Log out</span>
+        </button>
+      </div>
+
+      {/* Toggle Button (BOTTOM) */}
+      <button
+        onClick={() => setOpen(!open)}
+        className="absolute -right-3 bottom-10 bg-[#2E7D32] 
+        text-white rounded-full p-1 shadow-lg hover:scale-105 transition"
+      >
+        <ArrowBackIosNewRoundedIcon
+          className={`${!open && "rotate-180"} transition`}
+          fontSize="small"
+        />
+      </button>
     </div>
   );
 };

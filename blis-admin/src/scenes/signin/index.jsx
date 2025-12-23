@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import photo from "../../assets/logo1.jpg";
+import { db } from "../../firebase";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -41,100 +44,109 @@ const Login = () => {
     return valid;
   };
 
-  const handleClick = () => {
-    if (!validateInputs()) return;
+  const auth = getAuth();
 
-    if (email === "admin" && password === "12345") {
-      Swal.fire({
-        icon: "success",
-        title: "Welcome!",
-        text: "Login successful. Redirecting...",
-        showConfirmButton: false,
-        timer: 1500,
-      });
-      setTimeout(() => {
-        setEmail("");
-        setPassword("");
-        navigate("/dashboard");
-      }, 1500);
-    } else {
-      Swal.fire({
-        icon: "error",
-        title: "Invalid Credentials",
-        text: "Please check your username or password.",
-        confirmButtonColor: "#4CAF50",
-      });
-      setEmail("");
-      setPassword("");
+const handleClick = async () => {
+  if (!validateInputs()) return;
+
+  try {
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    const firebaseUser = userCredential.user;
+
+    const userRef = doc(db, "users", firebaseUser.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      throw new Error("User record not found");
     }
-  };
+
+    if (userSnap.data().role !== "ADMIN") {
+      throw new Error("Unauthorized access");
+    }
+
+    Swal.fire({
+      icon: "success",
+      title: `Welcome, ${userSnap.data().name}!`,
+      showConfirmButton: false,
+      timer: 1500,
+    });
+
+    navigate("/dashboard");
+
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Login Failed",
+      text: error.message,
+    });
+  }
+};
+
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-800 to-green-400 p-4">
-      <div className="bg-white/90 backdrop-blur-lg shadow-lg rounded-2xl p-8 w-full max-w-sm">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-900 via-green-700 to-green-400 px-4">
+      <div className="bg-white/90 backdrop-blur-xl shadow-2xl rounded-3xl p-8 w-full max-w-sm transition-all duration-300">
         {/* Logo */}
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mb-6">
           <img
             src={photo}
             alt="logo"
-            className="w-24 h-24 rounded-full object-cover"
+            className="w-24 h-24 rounded-full object-cover shadow-md ring-4 ring-green-200"
           />
         </div>
 
-        <h1 className="text-2xl font-bold text-green-700 text-center mb-6">
-          Bantay Livestock Information and Registration System
+        <h1 className="text-xl font-bold text-green-800 text-center leading-snug mb-6">
+          Bantay Livestock <br />
+          <span className="text-sm font-medium text-gray-600">
+            Information & Registration System
+          </span>
         </h1>
 
-        <form className="space-y-4">
+        <form className="space-y-5">
           {/* Username */}
           <div>
-            <label
-              htmlFor="username"
-              className="block text-gray-700 font-medium mb-1"
-            >
-              Username
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Email
             </label>
             <input
               type="text"
-              id="username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={`w-full px-4 py-2 rounded-xl border focus:outline-none focus:ring-2 transition-all ${
+              placeholder="Enter your email"
+              className={`w-full h-11 px-2 rounded-xl border text-sm focus:outline-none focus:ring-2 transition-all ${
                 emailError
                   ? "border-red-500 focus:ring-red-500"
-                  : "border-green-200 focus:ring-green-600"
+                  : "border-gray-300 focus:ring-green-600"
               }`}
-              autoComplete="off"
-              required
             />
             {emailError && (
-              <p className="text-red-500 text-sm mt-1">{emailError}</p>
+              <p className="text-red-500 text-xs mt-1">{emailError}</p>
             )}
           </div>
 
           {/* Password */}
           <div>
-            <label
-              htmlFor="password"
-              className="block text-gray-700 font-medium mb-1"
-            >
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
               Password
             </label>
             <input
               type="password"
-              id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className={`w-full px-4 py-2 rounded-xl border focus:outline-none focus:ring-2 transition-all ${
+              placeholder="Enter your password"
+              className={`w-full h-11 px-2 rounded-xl border text-sm focus:outline-none focus:ring-2 transition-all ${
                 passwordError
                   ? "border-red-500 focus:ring-red-500"
-                  : "border-green-200 focus:ring-green-600"
+                  : "border-gray-300 focus:ring-green-600"
               }`}
-              autoComplete="new-password"
-              required
             />
             {passwordError && (
-              <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+              <p className="text-red-500 text-xs mt-1">{passwordError}</p>
             )}
           </div>
 
@@ -142,11 +154,16 @@ const Login = () => {
           <button
             type="button"
             onClick={handleClick}
-            className="w-full bg-green-600 text-white py-2.5 rounded-xl font-semibold text-lg shadow-md hover:bg-green-700 transition duration-300"
+            className="w-full h-11 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-semibold tracking-wide shadow-lg hover:from-green-700 hover:to-green-800 active:scale-95 transition-all duration-200"
           >
-            SIGN IN
+            LOG IN
           </button>
         </form>
+
+        {/* Footer */}
+        <p className="text-xs text-center text-gray-500 mt-6">
+          © {new Date().getFullYear()} Bantay Livestock System
+        </p>
       </div>
     </div>
   );

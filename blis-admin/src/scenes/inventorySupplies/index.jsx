@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import Header from "../../components/header";
 import Topbar from "../global/Topbar";
 import Sidebarr from "../global/Sidebar";
 import AddItemModal from "../../components/AddItemModal";
-import SummarizeRoundedIcon from '@mui/icons-material/SummarizeRounded';
+import SummarizeRoundedIcon from "@mui/icons-material/SummarizeRounded";
+import Headerr from "../../components/Headerr";
+import { AddCircleOutlineRounded } from "@mui/icons-material";
 
 const InventoryandSupplies = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -49,51 +50,73 @@ const InventoryandSupplies = () => {
   };
 
   return (
-    <div className="flex bg-[#F5F5F5]">
+    <div className="app flex flex-col md:flex-row">
       <Sidebarr />
-      <div className="w-full">
+      <div className="content flex-grow p-2 overflow-auto h-screen">
         <Topbar />
-        <div className="flex justify-between items-center">
-          <Header title="Inventory and Supplies" />
+        <div className="sticky top-14 flex flex-col md:flex-row items-start md:items-center justify-between p-1 m-2">
+          <Headerr title="Inventory and Supplies" />
+
+          <button
+            className="mt-2 md:mt-0 bg-green-600 text-white text-sm py-2 px-3 rounded-lg
+                         flex items-center gap-1"
+            onClick={() => setOpenModal(true)}
+          >
+            <AddCircleOutlineRounded fontSize="small" />
+            Add Inventory
+          </button>
         </div>
 
-        <div className="flex flex-col items-start gap-3 mt-4 mx-5">
-            <div className="flex">
-                {/* <button
+        {/* <div className="flex flex-col items-start gap-3 mt-4 mx-5">
+          <div className="flex">
+           <button
                     onClick={() => setOpenModal(true)}
                     className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-green-700 transition w-full sm:w-auto"
                 >
                     + Add Item
-                </button> */}
+                </button> 
 
-                <button
-                    className="flex items-center ml-3 gap-2 bg-gray-700 text-white px-5 py-3 rounded-xl shadow hover:bg-gray-800 transition"
-                >
-                    <SummarizeRoundedIcon/> 
-                    Inventory Report
-                </button>
+            <button className="flex items-center ml-3 gap-2 bg-gray-700 text-white px-5 py-3 rounded-xl shadow hover:bg-gray-800 transition">
+              <SummarizeRoundedIcon />
+              Inventory Report
+            </button>
+          </div>
+        </div> */}
+
+        {/* Main Body */}
+        <div className="m-1 mt-1 flex-grow overflow-y-auto bg-white-main shadow-md rounded-md">
+          {/* SEARCH FILTERINGS */}
+          <div className="p-1">
+            <div>
+              <div className="flex my-1 mx-1 space-x-1">
+                <input
+                  type="text"
+                  placeholder="Search Inventory"
+                  className="w-full sm:max-w-xs border border-green-400 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-sm text-gray-700 placeholder-gray-400"
+                  // value={searchTerm}
+                  // onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
             </div>
-          
-        </div>
+          </div>
 
-        <div className="flex bg-white p-2 m-5 overflow-auto rounded-lg">
-          <div className="w-full">
-            <table className="table-auto w-full border-collapse rounded-lg overflow-hidden">
-              <thead className="bg-gray-100 border-b-2 border-gray-200 rounded-t-lg">
+          {/* TABLE */}
+          <div className="relative overflow-y-auto h-[550px] border border-gray-300 rounded-md">
+            <table className="min-w-[500px] w-full text-center">
+              <thead className="h-6 bg-primary uppercase sticky top-0 text-white text-sm">
                 <tr>
-                  {Rows.map((rows, index) => (
-                    <th
-                      key={index}
-                      className="p-3 text-sm font-semibold tracking-wide text-center"
-                    >
-                      {rows.tableHeader}
-                    </th>
-                  ))}
+                  <th className="w-[50px]">NO</th>
+                  <th className="w-[300px]">Item Name</th>
+                  <th className="w-[150px]">Category</th>
+                  <th className="w-[120px]">Quantity Available</th>
+                  <th className="w-[220px]">Unit</th>
+                  <th className="w-[150px]">Reorder Level</th>
+                  <th className="w-[150px]">Expiration Date</th>
+                  <th className="w-[150px]">Action</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr></tr>
-              </tbody>
+
+              <tbody></tbody>
             </table>
           </div>
         </div>
