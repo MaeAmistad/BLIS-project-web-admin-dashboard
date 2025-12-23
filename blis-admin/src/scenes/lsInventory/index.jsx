@@ -163,9 +163,10 @@ const LivestockInventory = () => {
                 <tr>
                   <th className="w-[50px]">NO</th>
                   <th className="w-[300px]">Raiser Name</th>
-                  <th className="w-[150px]">Barangay</th>
-                  <th className="w-[120px]">No. of Livestock</th>
-                  <th className="w-[220px]">Registration Status</th>
+                  <th className="w-[250px]">Barangay</th>
+                  <th className="w-[350px]">List of Livestocks</th>
+                  <th className="w-[350px]">No of Livestocks</th>
+                  <th className="w-[250px]">Registration Status</th>
                   <th className="w-[150px]">Action</th>
                 </tr>
               </thead>

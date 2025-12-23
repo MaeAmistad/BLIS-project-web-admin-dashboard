@@ -273,7 +273,7 @@ const RaiserProfile = () => {
           {/* TABLE */}
           <div className="relative overflow-y-auto h-[550px] border border-gray-300 rounded-md">
             <table className="min-w-[500px] w-full text-center">
-              <thead className="h-8 bg-primary uppercase sticky top-0 text-white text-sm">
+              <thead className="h-6 bg-primary uppercase sticky top-0 text-white text-sm">
                 <tr>
                   <th className="w-[50px]">NO</th>
                   <th className="w-[350px]">Full Name</th>
