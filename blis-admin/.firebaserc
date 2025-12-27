@@ -1,5 +1,7 @@
 {
   "projects": {
     "default": "bl-inventory-system"
-  }
+  },
+  "targets": {},
+  "etags": {}
 }

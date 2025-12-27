@@ -746,11 +746,12 @@ const Textarea = ({ label, ...props }) => (
   <div>
     <label className="block text-sm font-medium mb-1">{label}</label>
     <textarea
-      className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-600"
+      className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-600 resize-none leading-normal"
       {...props}
     />
   </div>
 );
+
 
 const Select = ({ label, options, ...props }) => (
   <div>
