@@ -23,7 +23,12 @@ export default function LivestockModal({
       status: "",
       typeOfAnimal: "",
       weight: "",
-      healthRecords: [],
+      healthRecords: {
+        vaccinations: [],
+        dewormings: [],
+        treatments: [],
+        aiRecords: [],
+      },
     },
   ]);
 
@@ -57,7 +62,12 @@ export default function LivestockModal({
           status: "",
           typeOfAnimal: "",
           weight: "",
-          healthRecords: [],
+          healthRecords: {
+            vaccinations: [],
+            dewormings: [],
+            treatments: [],
+            aiRecords: [],
+          },
         },
       ]);
     }

@@ -35,12 +35,22 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
   };
   const validateForm = () => {
     if (!formData.lastName || !formData.firstName) {
-      Swal.fire("Missing Info", "First and Last Name are required.", "warning");
+      Swal.fire({
+  title: "Missing Info",
+  text: "Please complete required fields.",
+  icon: "warning"
+});
+
       return false;
     }
 
     if (!formData.gender || !formData.typeOfRaiser) {
-      Swal.fire("Missing Info", "Please complete required fields.", "warning");
+      Swal.fire({
+  title: "Missing Info",
+  text: "Please complete required fields.",
+  icon: "warning"
+});
+
       return false;
     }
 
@@ -213,7 +223,7 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
                 onChange={handleChange}
               />
 
-              <div className="flex flex-col gap-1">
+              {/* <div className="flex flex-col gap-1">
                   <label className="text-xs font-medium text-gray-600">
                     Date of Registration
                   </label>
@@ -225,7 +235,7 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
                     onChange={handleChange
                     }
                   />
-                </div>
+                </div> */}
               <Select
                 label="Registration Status"
                 name="registrationStatus"
