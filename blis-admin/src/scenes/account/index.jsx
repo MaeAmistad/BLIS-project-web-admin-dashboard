@@ -29,6 +29,7 @@ const Account = () => {
     email: "",
     password: "",
   });
+  const [passwordError, setPasswordError] = useState("");
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedUserFilter, setSelectedUserFilter] = useState("");
@@ -52,14 +53,19 @@ const Account = () => {
     fetchData();
   }, []);
 
-  const handleInput = (e, transform) => {
-    const { name, value } = e.target;
+ const handleInput = (e, transform) => {
+  const { name, value } = e.target;
 
-    setData((prev) => ({
-      ...prev,
-      [name]: transform ? transform(value) : value,
-    }));
-  };
+  if (name === "password") {
+    setPasswordError("");
+  }
+
+  setData((prev) => ({
+    ...prev,
+    [name]: transform ? transform(value) : value,
+  }));
+};
+
 
   const handleSelectChange = (e) => {
     const { name, value } = e.target;
@@ -77,15 +83,18 @@ const Account = () => {
 
   // Filtered users list based on selection
   const filteredUsers = users.filter(
-  (user) =>
-    user.status === "active" &&
-    (selectedUserFilter ? user.name === selectedUserFilter : true)
-);
-
+    (user) =>
+      user.status === "active" &&
+      (selectedUserFilter ? user.name === selectedUserFilter : true)
+  );
 
   // Add/Edit new user
-  const handleSubmit = async () => {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
     const { role, name, email, password } = data;
+
+    setPasswordError("");
 
     if (!role || !name || !email || (mode === "add" && !password)) {
       Swal.fire({
@@ -95,6 +104,12 @@ const Account = () => {
         confirmButtonColor: "#106013ff",
       });
       return;
+    }
+
+    // 🔴 Password length validation
+    if (mode === "add" && password.length < 8) {
+      setPasswordError("Password must be at least 8 characters.");
+      return; // ❌ Stop submission
     }
 
     try {
@@ -163,6 +178,7 @@ const Account = () => {
           ...doc.data(),
         }))
       );
+      window.location.reload()
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -175,47 +191,44 @@ const Account = () => {
 
   // Delete user
   const handleDelete = async (user) => {
-  const confirm = await Swal.fire({
-    title: "Deactivate User?",
-    text: `Are you sure you want to deactivate ${user.name}?`,
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#3085d6",
-    confirmButtonText: "Yes, deactivate",
-  });
-
-  if (!confirm.isConfirmed) return;
-
-  try {
-    await updateDoc(doc(db, "users", user.id), {
-      status: "inactive",
-      updatedAt: new Date(),
+    const confirm = await Swal.fire({
+      title: "Deactivate User?",
+      text: `Are you sure you want to deactivate ${user.name}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, deactivate",
     });
 
-    Swal.fire({
-      icon: "success",
-      title: "User Deactivated",
-      text: "User has been set to inactive.",
-      timer: 1500,
-      showConfirmButton: false,
-    });
+    if (!confirm.isConfirmed) return;
 
-    // Update local state
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.id === user.id ? { ...u, status: "inactive" } : u
-      )
-    );
-  } catch (error) {
-    Swal.fire({
-      icon: "error",
-      title: "Action Failed",
-      text: error.message,
-    });
-  }
-};
+    try {
+      await updateDoc(doc(db, "users", user.id), {
+        status: "inactive",
+        updatedAt: new Date(),
+      });
 
+      Swal.fire({
+        icon: "success",
+        title: "User Deactivated",
+        text: "User has been set to inactive.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      // Update local state
+      setUsers((prev) =>
+        prev.map((u) => (u.id === user.id ? { ...u, status: "inactive" } : u))
+      );
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Action Failed",
+        text: error.message,
+      });
+    }
+  };
 
   // function for edit
   const handleEditClick = (user) => {
@@ -277,7 +290,7 @@ const Account = () => {
               <table className="min-w-[300px] w-full text-center">
                 <thead className="h-6 bg-primary uppercase sticky top-0 text-white text-sm">
                   <tr>
-                  <th>No</th>
+                    <th>No</th>
                     <th>Role</th>
                     <th>Name</th>
                     <th>Email</th>
@@ -300,7 +313,9 @@ const Account = () => {
                             aria-label="edit"
                             onClick={() => handleEditClick(user)}
                           >
-                            <EditRounded sx={{ color: "#266b0f", fontSize: 16 }} />
+                            <EditRounded
+                              sx={{ color: "#266b0f", fontSize: 16 }}
+                            />
                           </IconButton>
                           <IconButton
                             aria-label="edit"
@@ -337,7 +352,7 @@ const Account = () => {
                       value={data.role}
                       onChange={handleSelectChange}
                     >
-                      <option value=" "> </option>
+                      <option value=""> </option>
                       {role.map((stat) => (
                         <option key={stat.key} value={stat.value}>
                           {stat.value}
@@ -370,13 +385,22 @@ const Account = () => {
 
                   <div className="mt-1">
                     <p className="text-base">Password</p>
+
                     <input
                       type="password"
-                      className="w-full h-10 border border-current p-1 text-sm rounded-xl"
-                      name="pass"
+                      name="password"
                       value={data.password}
                       onChange={handleInput}
+                      className={`w-full h-10 border p-1 text-sm rounded-xl
+      ${passwordError ? "border-red-500" : "border-current"}
+    `}
                     />
+
+                    {passwordError && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {passwordError}
+                      </p>
+                    )}
                   </div>
                 </div>
 

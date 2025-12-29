@@ -1,8 +1,63 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
+import {
+  collection,
+  addDoc,
+  doc,
+  updateDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+import { db } from "../firebase"; // adjust path
 
-const AddItemModal = ({ open, onClose, formData, setFormData, onSave }) => {
-  if (!open) return null;
+const AddItemModal = ({ open, onClose, mode, inventory }) => {
+  const [loading, setLoading] = useState(false);
+
+  const [formData, setFormData] = useState({
+    itemName: "",
+    category: "",
+    brand: "",
+    quantity: "",
+    unit: "",
+    supplier: "",
+    dateAcquired: "",
+    expirationDate: "",
+    storageLocation: "",
+    remarks: "",
+  });
+
+  useEffect(() => {
+    if (!open) {
+      setFormData({
+        itemName: "",
+        category: "",
+        brand: "",
+        quantity: "",
+        unit: "",
+        supplier: "",
+        dateAcquired: "",
+        expirationDate: "",
+        storageLocation: "",
+        remarks: "",
+      });
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (mode === "edit" && inventory) {
+      setFormData({
+        itemName: inventory?.itemName || "",
+        category: inventory?.category || "",
+        brand: inventory?.brand || "",
+        quantity: inventory?.quantity || "",
+        unit: inventory?.unit || "",
+        supplier: inventory?.supplier || "",
+        dateAcquired: inventory?.dateAcquired || "",
+        expirationDate: inventory?.expirationDate || "",
+        storageLocation: inventory?.storageLocation || "",
+        remarks: inventory?.remarks || "",
+      });
+    }
+  }, [inventory, mode]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -10,44 +65,89 @@ const AddItemModal = ({ open, onClose, formData, setFormData, onSave }) => {
   };
 
   const handleSave = async () => {
+    if (loading) return;
     const result = await Swal.fire({
-      title: "Save Item?",
-      text: "Are you sure you want to save this item?",
+      title: mode === "edit" ? "Update Item?" : "Add Item?",
+      text:
+        mode === "edit"
+          ? "Are you sure you want to update this item?"
+          : "Are you sure you want to add this item?",
       icon: "question",
       showCancelButton: true,
       confirmButtonColor: "#16a34a",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, save it!",
+      confirmButtonText: mode === "edit" ? "Yes, update it!" : "Yes, add it!",
     });
 
-    if (result.isConfirmed) {
-      Swal.fire("Saved!", "Item has been added successfully.", "success");
-      onSave(); // callback to parent
+    if (!result.isConfirmed) return;
+
+    try {
+      if (mode === "add") {
+        // ADD
+        await addDoc(collection(db, "inventories"), {
+          ...formData,
+          quantity: Number(formData.quantity),
+          createdAt: serverTimestamp(),
+        });
+
+        Swal.fire({
+          title: "Added!",
+          text: "Item has been added successfully.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        onClose();
+      } else if (mode === "edit" && inventory?.id) {
+        // UPDATE
+        const docRef = doc(db, "inventories", inventory.id);
+
+        await updateDoc(docRef, {
+          ...formData,
+          quantity: Number(formData.quantity),
+          updatedAt: serverTimestamp(),
+        });
+
+        Swal.fire({
+          title: "Updated!",
+          text: "Item has been updated successfully.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      }
+
+      onClose();
+    } catch (error) {
+      console.error("Firestore error:", error);
+      Swal.fire("Error", "Something went wrong. Please try again.", "error");
     }
   };
 
   const handleCloseConfirm = async () => {
-      const result = await Swal.fire({
-        title: "Discard changes?",
-        text: "Any unsaved data will be lost.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Yes, close it",
-        cancelButtonText: "Cancel",
-        confirmButtonColor: "#4CAF50",
-        cancelButtonColor: "#d33",
-      });
-  
-      if (result.isConfirmed) {
-        onClose();
-      }
-    };
+    const result = await Swal.fire({
+      title: "Discard changes?",
+      text: "Any unsaved data will be lost.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, close it",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#4CAF50",
+      cancelButtonColor: "#d33",
+    });
+
+    if (result.isConfirmed) {
+      onClose();
+    }
+  };
+
+  if (!open) return null;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
       <div className="bg-white w-full max-w-2xl rounded-2xl shadow-lg p-6 relative overflow-y-auto max-h-[90vh]">
         <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-          Add Inventory Item
+          {mode === "edit" ? "Edit Inventory Item" : "Add Inventory Item"}
         </h2>
 
         {/* Form Inputs */}
@@ -183,15 +283,29 @@ const AddItemModal = ({ open, onClose, formData, setFormData, onSave }) => {
         <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={handleCloseConfirm}
-            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
+            disabled={loading}
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50"
           >
             Cancel
           </button>
+
           <button
             onClick={handleSave}
-            className="bg-green-600 text-white px-6 py-2 rounded-xl font-semibold shadow hover:bg-green-700 transition"
+            disabled={loading}
+            className={`px-6 py-2 rounded-xl font-semibold shadow transition
+    ${
+      loading
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-green-600 hover:bg-green-700 text-white"
+    }`}
           >
-            Save
+            {loading
+              ? mode === "edit"
+                ? "Updating..."
+                : "Adding..."
+              : mode === "edit"
+              ? "Update Item"
+              : "Add Item"}
           </button>
         </div>
       </div>

@@ -32,34 +32,40 @@ const LivestockInventory = () => {
   const [selectedLivestock, setSelectedLivestock] = useState(null);
   const [editData, setEditData] = useState(null);
 
-  const Rows = [
-    { tableHeader: "Livestock Name" },
-    { tableHeader: "Type of Animal" },
-    { tableHeader: "Breed" },
-    { tableHeader: "Owner Name" },
-    { tableHeader: "Barangay" },
-    { tableHeader: "Health Condition" },
-    { tableHeader: "Status" },
-    { tableHeader: "Actions" },
-  ];
 
   // Fetch all livestock data
-  const fetchLivestock = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(db, "livestock"));
-      const data = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setLivestocks(data);
-    } catch (error) {
-      console.error("Error fetching livestock:", error);
-      Swal.fire("Error", "Failed to load livestock data.", "error");
-    }
+  const fetchRaisersWithLivestock = async () => {
+    const raisersSnapshot = await getDocs(collection(db, "raisers"));
+
+    const raisersData = await Promise.all(
+      raisersSnapshot.docs.map(async (raiserDoc) => {
+        const raiserData = raiserDoc.data();
+
+        // fetch livestock subcollection
+        const livestockSnapshot = await getDocs(
+          collection(db, "raisers", raiserDoc.id, "livestock")
+        );
+
+        const livestockList = livestockSnapshot.docs.map(
+          (doc) => doc.data().typeOfAnimal
+        );
+
+        return {
+          id: raiserDoc.id,
+          raiserName: `${raiserData.firstName} ${raiserData.lastName}`,
+          address: raiserData.address,
+          registrationStatus: raiserData.registrationStatus,
+          livestockList,
+          livestockCount: livestockList.length,
+        };
+      })
+    );
+
+    setLivestocks(raisersData); // rename if you want (e.g., setRaisers)
   };
 
   useEffect(() => {
-    fetchLivestock();
+    fetchRaisersWithLivestock();
   }, []);
 
   // Save new or edited livestock
@@ -83,7 +89,7 @@ const LivestockInventory = () => {
         );
       }
 
-      fetchLivestock();
+      fetchRaisersWithLivestock();
       setOpen(false);
     } catch (error) {
       console.error("Error saving livestock:", error);
@@ -106,7 +112,7 @@ const LivestockInventory = () => {
     if (confirm.isConfirmed) {
       await deleteDoc(doc(db, "livestock", livestock.id));
       Swal.fire("Deleted!", "Livestock has been removed.", "success");
-      fetchLivestock();
+      fetchRaisersWithLivestock();
     }
   };
 
@@ -122,12 +128,12 @@ const LivestockInventory = () => {
   };
 
   // Search filter
-  const filteredLivestock = livestocks.filter((l) => {
+  const filteredLivestock = livestocks.filter((r) => {
     const term = searchTerm.toLowerCase();
     return (
-      (l.livestockName?.toLowerCase() || "").includes(term) ||
-      (l.breed?.toLowerCase() || "").includes(term) ||
-      (l.ownerName?.toLowerCase() || "").includes(term)
+      r.raiserName.toLowerCase().includes(term) ||
+      r.address.toLowerCase().includes(term) ||
+      r.livestockList.join(", ").toLowerCase().includes(term)
     );
   });
 
@@ -139,14 +145,14 @@ const LivestockInventory = () => {
         <div className="sticky top-14 flex flex-col md:flex-row items-start md:items-center justify-between p-1 m-2">
           <Headerr title="Livestock Information" />
 
-          <button
+          {/* <button
             // onClick={handleAdd}
             className="mt-2 md:mt-0 bg-green-600 text-white text-sm py-2 px-3 rounded-lg
                          flex items-center gap-1"
           >
             <AddCircleOutlineRounded fontSize="small" />
             Add Livestock
-          </button>
+          </button> */}
         </div>
 
         {/* Main Body */}
@@ -171,53 +177,68 @@ const LivestockInventory = () => {
             <table cclassName="min-w-[500px] w-full text-center">
               <thead className="h-6 bg-primary uppercase sticky top-0 text-white text-sm">
                 <tr>
-                  <th className="w-[50px]">NO</th>
-                  <th className="w-[300px]">Raiser Name</th>
-                  <th className="w-[250px]">Barangay</th>
-                  <th className="w-[350px]">List of Livestocks</th>
-                  <th className="w-[350px]">No of Livestocks</th>
-                  <th className="w-[250px]">Registration Status</th>
-                  <th className="w-[150px]">Action</th>
+                  <th className="w-[50px] text-center">NO</th>
+                  <th className="w-[300px] text-center">Raiser Name</th>
+                  <th className="w-[250px] text-center">Barangay</th>
+                  <th className="w-[350px] text-center">List of Livestocks</th>
+                  <th className="w-[350px] text-center">No of Livestocks</th>
+                  <th className="w-[250px] text-center">Registration Status</th>
+                  <th className="w-[150px] text-center">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredLivestock.length > 0 ? (
-                  filteredLivestock.map((l, index) => (
+                  filteredLivestock.map((r, index) => (
                     <tr
-                      key={l.id}
-                      className="border-b hover:bg-green-50 text-center transition text-gray-700"
+                      key={r.id}
+                      className="border-b hover:bg-green-50 text-gray-700"
                     >
-                      <td className="p-3">{index + 1}</td>
-                      <td className="p-3 whitespace-nowrap">{l.ownerName}</td>
-                      <td className="p-3 whitespace-nowrap">{l.barangay}</td>
-                      <td className="p-3 whitespace-nowrap">
-                        {l.healthCondition}
+                      <td className="p-3 text-center">{index + 1}</td>
+
+                      <td className="p-3 text-center">{r.raiserName}</td>
+
+                      <td className="p-3 text-center">{r.address}</td>
+
+                      <td className="p-3 text-center">
+                        {r.livestockList.length > 0 ? (
+                          <ul className="inline-block text-left list-disc list-inside">
+                            {r.livestockList.map((type, i) => (
+                              <li key={i}>{type}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <span className="text-gray-400">No Livestock</span>
+                        )}
                       </td>
-                      <td className="p-3 whitespace-nowrap">{l.status}</td>
+
+                      <td className="p-3 text-center">{r.livestockCount}</td>
+
+                      <td className="p-3 text-center">{r.registrationStatus}</td>
+
                       <td>
                         <div className="flex justify-center space-x-1">
-                          <IconButton
-                            aria-label="edit"
-                            onClick={() => handleView(l)}
-                          >
+                          <IconButton aria-label="view details"
+                           onClick={() => handleView(r)}>
                             <VisibilityRounded
                               sx={{ color: "#e2c018ff", fontSize: 16 }}
                             />
                           </IconButton>
 
-                          <IconButton
-                            aria-label="edit"
-                            onClick={() => handleEdit(l)}
-                          >
+                          <IconButton 
+                          aria-label="add livestock" >
+                            <AddCircleOutlineRounded
+                              sx={{ color: "#220577ff", fontSize: 16 }}
+                            />
+                          </IconButton>
+
+                          <IconButton aria-label="edit livestock" >
                             <EditRounded
                               sx={{ color: "#266b0f", fontSize: 16 }}
                             />
                           </IconButton>
 
-                          <IconButton
-                            aria-label="delete"
-                            nClick={() => handleDelete(l)}
-                          >
+                          <IconButton aria-label="delete livestock"
+                           >
                             <DeleteRounded
                               sx={{ color: "#a30808", fontSize: 16 }}
                             />
@@ -228,10 +249,7 @@ const LivestockInventory = () => {
                   ))
                 ) : (
                   <tr>
-                    <td
-                      colSpan={Rows.length}
-                      className="text-center py-6 text-gray-500"
-                    >
+                    <td colSpan={7} className="text-center py-6 text-gray-500">
                       No livestock records found.
                     </td>
                   </tr>

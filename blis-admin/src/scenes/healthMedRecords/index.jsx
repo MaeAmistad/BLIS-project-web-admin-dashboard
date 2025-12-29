@@ -1,11 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Topbar from "../global/Topbar";
 import Sidebarr from "../global/Sidebar";
-import TreatmentRecordModal from "../../components/TreatmentRecordModal";
-import ArtificialInseminationModal from "../../components/ArtificialInseminationModal";
-import LivestockHealthListModal from "../../components/LivestockHealthListModal";
-import VaccinationRecordModal from "../../components/VaccinationModal";
-import DewormingRecordModal from "../../components/DewormingRecord";
 import HealingIcon from "@mui/icons-material/Healing";
 import VaccinesIcon from "@mui/icons-material/Vaccines";
 import MedicationIcon from "@mui/icons-material/Medication";
@@ -13,14 +8,81 @@ import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import BiotechIcon from "@mui/icons-material/Biotech";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import Headerr from "../../components/Headerr";
+import { collection, getDocs, collectionGroup } from "firebase/firestore";
+import { db } from "../../firebase";
 
 const HealthandMedical = () => {
   const [activeTable, setActiveTable] = useState(null);
-  const [showTreatmentModal, setShowTreatmentModal] = useState(false);
-  const [showAIModal, setShowAIModal] = useState(false);
-  const [showHealthModal, setShowHealthModal] = useState(false);
-  const [showVaccinationModal, setShowVaccinationModal] = useState(false);
-  const [showDewormingModal, setShowDewormingModal] = useState(false);
+  const [raisers, setRaisers] = useState([]);
+  const [healthRecords, setHealthRecords] = useState([]);
+  const [livestock, setLivestock] = useState([]);
+
+  useEffect(() => {
+    const fetchAllHealthRecords = async () => {
+      const snap = await getDocs(collectionGroup(db, "healthRecords"));
+
+      const records = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        livestockId: doc.ref.parent.parent.id,
+        raiserId: doc.ref.parent.parent.parent.parent.id,
+      }));
+
+      setHealthRecords(records);
+    };
+
+    fetchAllHealthRecords();
+  }, []);
+
+  useEffect(() => {
+    const fetchRaisers = async () => {
+      const snap = await getDocs(collection(db, "raisers"));
+      const data = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setRaisers(data);
+    };
+
+    fetchRaisers();
+  }, []);
+
+  useEffect(() => {
+    const fetchLivestock = async () => {
+      const snap = await getDocs(collectionGroup(db, "livestock"));
+      const data = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        raiserId: doc.ref.parent.parent.id,
+      }));
+      setLivestock(data);
+    };
+
+    fetchLivestock();
+  }, []);
+
+  const joinedRecords = useMemo(() => {
+    if (!healthRecords || !livestock || !raisers) return [];
+
+    return healthRecords.map((record) => {
+      const animal = livestock.find((l) => l.id === record.livestockId);
+      const raiser = raisers.find((r) => r.id === record.raiserId);
+
+      return {
+        ...record,
+        livestockTag: animal?.tag || "—",
+        livestockType: animal?.type || "—",
+        raiserName: raiser ? `${raiser.firstName} ${raiser.lastName}` : "—",
+      };
+    });
+  }, [healthRecords, livestock, raisers]);
+
+  const filteredRecords = useMemo(() => {
+    if (!activeTable) return [];
+    return joinedRecords.filter(
+      (r) => r.type === activeTable // vaccination, deworming, etc.
+    );
+  }, [activeTable, joinedRecords]);
 
   const handleButtonClick = (tableName) => {
     // Toggle visibility
@@ -90,125 +152,82 @@ const HealthandMedical = () => {
 
           {/* Conditional Tables */}
 
-          {activeTable === "healthList" && (
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h2 className="text-lg font-semibold mb-3">
-                Livestock Health List
-              </h2>
-              <table className="w-full text-left border">
-                <thead className="bg-green-100">
-                  <tr>
-                    <th className="p-2 border">Livestock Name/Tag</th>
-                    <th className="p-2 border">Type/Breed</th>
-                    <th className="p-2 border">Owner/Raiser</th>
-                    <th className="p-2 border">Health Status</th>
-                    <th className="p-2 border">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr></tr>
-                </tbody>
-              </table>
-            </div>
-          )}
+          {/* CONDITIONAL TABLES */}
+          <div className="mt-6">
+            {/* VACCINATION */}
+            {activeTable === "vaccination" && (
+              <div className="bg-white p-4 rounded-lg shadow">
+                <h2 className="text-lg font-semibold mb-3">
+                  Vaccination Records
+                </h2>
 
-          {activeTable === "vaccination" && (
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h2 className="text-lg font-semibold mb-3">Vaccination Record</h2>
-              <table className="w-full text-left border">
-                <thead className="bg-blue-100">
-                  <tr>
-                    <th className="p-2 border">Livestock Name/Tag</th>
-                    <th className="p-2 border">Vaccination Name</th>
-                    <th className="p-2 border">Date of Vaccination</th>
-                    <th className="p-2 border">Administered By</th>
-                    <th className="p-2 border">Dosage</th>
-                    <th className="p-2 border">Remarks</th>
-                    <th className="p-2 border">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr></tr>
-                </tbody>
-              </table>
-            </div>
-          )}
+                <table className="w-full text-left border">
+                  <thead className="bg-blue-100">
+                    <tr>
+                      <th className="p-2 border">Raiser</th>
+                      <th className="p-2 border">Livestock Tag</th>
+                      <th className="p-2 border">Vaccine</th>
+                      <th className="p-2 border">Date</th>
+                      <th className="p-2 border">Dosage</th>
+                      <th className="p-2 border">Administered By</th>
+                    </tr>
+                  </thead>
 
-          {activeTable === "deworming" && (
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h2 className="text-lg font-semibold mb-3">Deworming Record</h2>
-              <table className="w-full text-left border">
-                <thead className="bg-purple-100">
-                  <tr>
-                    <th className="p-2 border">Livestock Name/Tag</th>
-                    <th className="p-2 border">Type of Dewormer</th>
-                    <th className="p-2 border">Date Administered </th>
-                    <th className="p-2 border">Next Schedule</th>
-                    <th className="p-2 border">Administered By</th>
-                    <th className="p-2 border">Dosage</th>
-                    <th className="p-2 border">Remarks</th>
-                    <th className="p-2 border">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr></tr>
-                </tbody>
-              </table>
-            </div>
-          )}
+                  <tbody>
+                    <tbody>
+                      {filteredRecords && filteredRecords.length > 0 ? (
+                        filteredRecords.map((r) => (
+                          <tr key={r.id}>
+                            <td>{r.raiserName}</td>
+                            <td>{r.livestockTag}</td>
+                            <td>{r.vaccineName}</td>
+                            <td>{r.date}</td>
+                            <td>{r.dosage}</td>
+                            <td>{r.administeredBy}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={6} className="text-center p-2">
+                            No records found.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </tbody>
+                </table>
+              </div>
+            )}
 
-          {activeTable === "treatment" && (
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h2 className="text-lg font-semibold mb-3">Treatment Record</h2>
-              <table className="w-full text-left border">
-                <thead className="bg-red-100">
-                  <tr>
-                    <th className="p-2 border">Livestock Name/Tag Number</th>
-                    <th className="p-2 border">Type of Illness</th>
-                    <th className="p-2 border">Medication</th>
-                    <th className="p-2 border">Date Started</th>
-                    <th className="p-2 border">Date Completed</th>
-                    <th className="p-2 border">Administered By</th>
-                    <th className="p-2 border">Dosage/Frequency</th>
-                    <th className="p-2 border">Result</th>
-                    <th className="p-2 border">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr></tr>
-                </tbody>
-              </table>
-            </div>
-          )}
+            {/* DEWORMING */}
+            {activeTable === "deworming" && (
+              <div className="bg-white p-4 rounded-lg shadow">
+                <h2 className="text-lg font-semibold mb-3">
+                  Deworming Records
+                </h2>
 
-          {activeTable === "ai" && (
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h2 className="text-lg font-semibold mb-3">
-                Artificial Insemination Record
-              </h2>
-              <table className="w-full text-left border">
-                <thead className="bg-amber-100">
-                  <tr>
-                    <th className="p-2 border">Livestock Name/Tag Number</th>
-                    <th className="p-2 border">Type of Animal</th>
-                    <th className="p-2 border">Date of Insemenation</th>
-                    <th className="p-2 border">Time</th>
-                    <th className="p-2 border">Type of Semen</th>
-                    <th className="p-2 border">AI Specialist Name</th>
-                    <th className="p-2 border">Status</th>
-                    <th className="p-2 border">Date of Calving</th>
-                    <th className="p-2 border">Remarks</th>
-                    <th className="p-2 border">Technician</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr></tr>
-                </tbody>
-              </table>
-            </div>
-          )}
+                <table className="w-full text-left border">
+                  <thead className="bg-purple-100">
+                    <tr>
+                      <th className="p-2 border">Raiser</th>
+                      <th className="p-2 border">Livestock Tag</th>
+                      <th className="p-2 border">Dewormer</th>
+                      <th className="p-2 border">Date</th>
+                      <th className="p-2 border">Dosage</th>
+                      <th className="p-2 border">Next Schedule</th>
+                    </tr>
+                  </thead>
 
-          {activeTable === "summary" && (
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Add Treatment / AI the same way */}
+          </div>
+
+          {/* {activeTable === "summary" && (
             <div className="bg-white p-4 rounded-lg shadow">
               <h2 className="text-lg font-semibold mb-3">
                 Health Summary Report
@@ -217,45 +236,13 @@ const HealthandMedical = () => {
                 This section will display summarized livestock health analytics.
               </p>
             </div>
-          )}
+          )} */}
         </div>
-
-        {showTreatmentModal && (
-          <TreatmentRecordModal
-            open={true}
-            onClose={() => setShowTreatmentModal(false)}
-          />
-        )}
-
-        {showAIModal && (
-          <ArtificialInseminationModal
-            open={true}
-            onClose={() => setShowAIModal(false)}
-          />
-        )}
-        {showHealthModal && (
-          <LivestockHealthListModal
-            open={true}
-            onClose={() => setShowHealthModal(false)}
-          />
-        )}
-        {showVaccinationModal && (
-          <VaccinationRecordModal
-            open={true}
-            onClose={() => setShowVaccinationModal(false)}
-          />
-        )}
-        {showDewormingModal && (
-          <DewormingRecordModal
-            open={true}
-            onClose={() => setShowDewormingModal(false)}
-          />
-        )}
 
         {/* Main Body */}
         <div className="m-1 flex-grow overflow-y-auto bg-white-main shadow-md rounded-md">
           {/* Search Filters */}
-          <div className="p-1">
+          {/* <div className="p-1">
             <div>
               <div className="flex my-1 mx-1 space-x-1">
                 <input
@@ -265,7 +252,7 @@ const HealthandMedical = () => {
                 />
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Table */}
           <div className="relative overflow-y-auto h-[550px] border border-gray-300 rounded-md">
