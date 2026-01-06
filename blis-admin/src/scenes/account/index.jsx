@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  sendPasswordResetEmail,
+} from "firebase/auth";
 import {
   doc,
   setDoc,
@@ -7,6 +12,7 @@ import {
   collection,
   updateDoc,
 } from "firebase/firestore";
+
 import { db } from "../../firebase";
 import Swal from "sweetalert2";
 import Topbar from "../global/Topbar";
@@ -29,6 +35,7 @@ const Account = () => {
     email: "",
     password: "",
   });
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
   const [selectedUser, setSelectedUser] = useState(null);
@@ -53,19 +60,18 @@ const Account = () => {
     fetchData();
   }, []);
 
- const handleInput = (e, transform) => {
-  const { name, value } = e.target;
+  const handleInput = (e, transform) => {
+    const { name, value } = e.target;
 
-  if (name === "password") {
-    setPasswordError("");
-  }
+    if (name === "password") {
+      setPasswordError("");
+    }
 
-  setData((prev) => ({
-    ...prev,
-    [name]: transform ? transform(value) : value,
-  }));
-};
-
+    setData((prev) => ({
+      ...prev,
+      [name]: transform ? transform(value) : value,
+    }));
+  };
 
   const handleSelectChange = (e) => {
     const { name, value } = e.target;
@@ -112,6 +118,18 @@ const Account = () => {
       return; // ❌ Stop submission
     }
 
+    if (mode === "add") {
+      if (data.password.length < 8) {
+        setPasswordError("Password must be at least 8 characters.");
+        return;
+      }
+
+      if (data.password !== confirmPassword) {
+        setPasswordError("Passwords do not match.");
+        return;
+      }
+    }
+
     try {
       const auth = getAuth();
 
@@ -122,23 +140,33 @@ const Account = () => {
           password
         );
 
-        const uid = userCredential.user.uid;
+        const user = userCredential.user;
+        const uid = user.uid;
 
-        // Firestore doc ID === Auth UID
+        // 🔹 Save user to Firestore
         await setDoc(doc(db, "users", uid), {
           uid,
           role,
           name,
           email,
-          status: "active",
+          status: "ACTIVE",
+          createdAt: new Date(),
         });
 
+        // 🔹 Send verification email
+        await sendEmailVerification(user);
+
+        // 🔹 Notify admin
         Swal.fire({
           icon: "success",
-          title: "User Account Created!",
-          text: "The new user has been added successfully.",
-          timer: 1500,
-          showConfirmButton: false,
+          title: "User Account Created",
+          html: `
+      <p>The user account has been created successfully.</p>
+      <p class="mt-2 text-sm text-gray-600">
+        📧 A verification email has been sent to <b>${email}</b>.
+      </p>
+    `,
+          confirmButtonColor: "#106013ff",
         });
       }
 
@@ -178,7 +206,7 @@ const Account = () => {
           ...doc.data(),
         }))
       );
-      window.location.reload()
+      window.location.reload();
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -249,6 +277,26 @@ const Account = () => {
     setData({ name: "", remarks: "" });
   };
 
+  const handleResetPassword = async () => {
+    try {
+      const auth = getAuth();
+
+      await sendPasswordResetEmail(auth, data.email);
+
+      Swal.fire({
+        icon: "success",
+        title: "Password Reset Email Sent",
+        text: `A password reset link was sent to ${data.email}.`,
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Reset Failed",
+        text: error.message,
+      });
+    }
+  };
+
   return (
     <div className="app flex flex-col md:flex-row">
       <Sidebarr />
@@ -286,8 +334,8 @@ const Account = () => {
 
           {/* TABLE SECTION */}
           <div className="flex flex-row space-x-5 mt-3 mx-2.5">
-            <div className="relative overflow-auto h-[400px] border w-full border-gray-300 rounded-md">
-              <table className="min-w-[300px] w-full text-center">
+            <div className="relative overflow-y-auto h-[500px] border w-full border-gray-300 rounded-md scroll-smooth">
+              <table className="min-w-[400px] w-full text-center">
                 <thead className="h-6 bg-primary uppercase sticky top-0 text-white text-sm">
                   <tr>
                     <th>No</th>
@@ -298,37 +346,45 @@ const Account = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredUsers.map((user, index) => (
-                    <tr
-                      key={user.id}
-                      className="border-b hover:bg-green-50 text-center"
-                    >
-                      <td>{index + 1}</td>
-                      <td className="p-3">{user.role}</td>
-                      <td className="p-3">{user.name}</td>
-                      <td className="p-3">{user.email}</td>
-                      <td>
-                        <div className="flex justify-center space-x-1.5">
-                          <IconButton
-                            aria-label="edit"
-                            onClick={() => handleEditClick(user)}
-                          >
-                            <EditRounded
-                              sx={{ color: "#266b0f", fontSize: 16 }}
-                            />
-                          </IconButton>
-                          <IconButton
-                            aria-label="edit"
-                            onClick={() => handleDelete(user)}
-                          >
-                            <DeleteRounded
-                              sx={{ color: "#a30808", fontSize: 16 }}
-                            />
-                          </IconButton>
-                        </div>
+                  {filteredUsers.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="p-4 text-gray-500 text-center">
+                        No users found
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredUsers.map((user, index) => (
+                      <tr
+                        key={user.id}
+                        className="border-b hover:bg-green-50 text-center"
+                      >
+                        <td className="w-[50px]">{index + 1}</td>
+                        <td className="p-3 w-[150px]">{user.role}</td>
+                        <td className="p-3 w-[250px]">{user.name}</td>
+                        <td className="p-3 w-[250px]">{user.email}</td>
+                        <td>
+                          <div className="flex justify-center space-x-1.5">
+                            <IconButton
+                              aria-label="edit"
+                              onClick={() => handleEditClick(user)}
+                            >
+                              <EditRounded
+                                sx={{ color: "#266b0f", fontSize: 16 }}
+                              />
+                            </IconButton>
+                            <IconButton
+                              aria-label="edit"
+                              onClick={() => handleDelete(user)}
+                            >
+                              <DeleteRounded
+                                sx={{ color: "#a30808", fontSize: 16 }}
+                              />
+                            </IconButton>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -383,31 +439,58 @@ const Account = () => {
                     />
                   </div>
 
-                  <div className="mt-1">
-                    <p className="text-base">Password</p>
+                  {mode === "add" && (
+                    <>
+                      <div className="mt-1">
+                        <p className="text-base">Password</p>
+                        <input
+                          type="password"
+                          name="password"
+                          value={data.password}
+                          onChange={handleInput}
+                          className={`w-full h-10 border p-1 text-sm rounded-xl
+          ${passwordError ? "border-red-500" : "border-current"}
+        `}
+                        />
+                      </div>
 
-                    <input
-                      type="password"
-                      name="password"
-                      value={data.password}
-                      onChange={handleInput}
-                      className={`w-full h-10 border p-1 text-sm rounded-xl
-      ${passwordError ? "border-red-500" : "border-current"}
-    `}
-                    />
+                      <div className="mt-1">
+                        <p className="text-base">Confirm Password</p>
+                        <input
+                          type="password"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          className={`w-full h-10 border p-1 text-sm rounded-xl
+          ${passwordError ? "border-red-500" : "border-current"}
+        `}
+                        />
+                      </div>
 
-                    {passwordError && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {passwordError}
-                      </p>
-                    )}
-                  </div>
+                      {passwordError && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {passwordError}
+                        </p>
+                      )}
+                    </>
+                  )}
+
+                  {mode === "edit" && (
+                    <div className="mt-3 flex justify-center">
+                      <button
+                        type="button"
+                        onClick={handleResetPassword}
+                        className="bg-yellow-500 text-white px-4 py-2 rounded-xl text-sm hover:bg-yellow-600"
+                      >
+                        Send Password Reset Email
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex justify-center items-center m-2">
                   <button
                     type="submit"
-                    className="bg-primary w-28 h-10 rounded-3xl text-white text-sm my-5 cursor-pointer hover:bg-lighter-blue m-1 flex items-center justify-center"
+                    className="bg-primary w-28 h-10 rounded-3xl text-white text-sm my-3 cursor-pointer hover:bg-lighter-blue m-1 flex items-center justify-center"
                   >
                     <SaveAltRounded className="mr-1" />
                     {mode === "add" ? "Add" : "Update"}
@@ -417,7 +500,7 @@ const Account = () => {
                     <button
                       type="button"
                       onClick={handleCancel}
-                      className="bg-gray-300 w-28 h-10 rounded-3xl text-sm text-black my-5 cursor-pointer hover:bg-lighter-blue m-1 flex items-center justify-center"
+                      className="bg-gray-300 w-28 h-10 rounded-3xl text-sm text-black my-3 cursor-pointer hover:bg-lighter-blue m-1 flex items-center justify-center"
                     >
                       <CancelRounded className="mr-1 text-black" />
                       Cancel

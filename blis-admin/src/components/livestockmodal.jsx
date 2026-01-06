@@ -304,7 +304,7 @@ export default function LivestockModal({
 
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-medium text-gray-600">
-                    Date
+                    Date Acquired
                   </label>
                   <input
                     type="date"

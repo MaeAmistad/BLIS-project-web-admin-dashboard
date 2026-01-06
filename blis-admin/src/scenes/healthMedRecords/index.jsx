@@ -141,13 +141,13 @@ const HealthandMedical = () => {
               Artificial Insemination Record
             </button>
 
-            <button
+            {/* <button
               onClick={() => handleButtonClick("summary")}
               className="flex items-center gap-2 bg-gray-700 text-white px-5 py-3 rounded-xl shadow hover:bg-gray-800 transition"
             >
               <AssessmentIcon />
               Health Summary Report
-            </button>
+            </button> */}
           </div>
 
           {/* Conditional Tables */}

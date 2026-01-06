@@ -28,7 +28,7 @@ const Sidebarr = () => {
       icon: <SpaceDashboardRoundedIcon />,
     },
     {
-      title: "User Management",
+      title: "Account Management",
       path: "/account",
       icon: <AccountCircleRoundedIcon />,
     },

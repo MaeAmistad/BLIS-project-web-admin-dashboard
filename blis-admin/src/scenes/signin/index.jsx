@@ -46,47 +46,84 @@ const Login = () => {
 
   const auth = getAuth();
 
-const handleClick = async () => {
-  if (!validateInputs()) return;
+  const handleClick = async () => {
+    if (!validateInputs()) return;
 
-  try {
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
-    const firebaseUser = userCredential.user;
+      const firebaseUser = userCredential.user;
 
-    const userRef = doc(db, "users", firebaseUser.uid);
-    const userSnap = await getDoc(userRef);
+      // ✅ 1. Check email verification
+      if (!firebaseUser.emailVerified) {
+        await Swal.fire({
+          icon: "warning",
+          title: "Email Not Verified",
+          text: "Please verify your email first before logging in.",
+        });
 
-    if (!userSnap.exists()) {
-      throw new Error("User record not found");
+        // Optional: sign out unverified user
+        auth.signOut();
+        return;
+      }
+
+      // ✅ 2. Read user document from Firestore
+      const userRef = doc(db, "users", firebaseUser.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        throw new Error("User record not found.");
+      }
+
+      const userData = userSnap.data();
+
+      const status = (userData.status || "").toUpperCase();
+      const role = (userData.role || "").toUpperCase();
+
+      if (status !== "ACTIVE") {
+        await Swal.fire({
+          icon: "error",
+          title: "Account Inactive",
+          text: "Your account is inactive. Please contact the administrator.",
+        });
+
+        auth.signOut();
+        return;
+      }
+
+      // ✅ 4. Check role
+      if (role !== "ADMIN") {
+        await Swal.fire({
+          icon: "error",
+          title: "Unauthorized",
+          text: "You are not authorized to access this system.",
+        });
+
+        auth.signOut();
+        return;
+      }
+
+      // ✅ Success
+      Swal.fire({
+        icon: "success",
+        title: `Welcome, ${userData.name}!`,
+        showConfirmButton: false,
+        timer: 1500,
+      });
+
+      navigate("/dashboard");
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text: error.message,
+      });
     }
-
-    if (userSnap.data().role !== "ADMIN") {
-      throw new Error("Unauthorized access");
-    }
-
-    Swal.fire({
-      icon: "success",
-      title: `Welcome, ${userSnap.data().name}!`,
-      showConfirmButton: false,
-      timer: 1500,
-    });
-
-    navigate("/dashboard");
-
-  } catch (error) {
-    Swal.fire({
-      icon: "error",
-      title: "Login Failed",
-      text: error.message,
-    });
-  }
-};
-
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-900 via-green-700 to-green-400 px-4">

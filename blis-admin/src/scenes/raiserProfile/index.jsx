@@ -24,6 +24,7 @@ import {
 } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import RaiserEdit from "../../components/RaiserEdit";
+import RaiserView from "../../components/RaiserView";
 
 const RaiserProfile = () => {
   const [raisers, setRaisers] = useState([]);
@@ -33,7 +34,7 @@ const RaiserProfile = () => {
   const [viewOpen, setViewOpen] = useState(false);
   const [selectedRaiser, setSelectedRaiser] = useState(null);
   const [showEdit, setShowEdit] = useState(false);
-
+  const [showRaiser, setShowRaiser] = useState(false);
   const [wizardStep, setWizardStep] = useState(0);
   // 0 = closed, 1 = Raiser, 2 = Livestock, 3 = Health Records, 4 = Confirmation
 
@@ -75,6 +76,13 @@ const RaiserProfile = () => {
     setShowEdit(true);
     setSelectedRaiser(raiserId);
   };
+
+  const handleRaiserClick = (raiser) => {
+  console.log("Clicked row data:", raiser);
+  setShowRaiser(true)
+  setSelectedRaiser(raiser);
+};
+
 
   const handleDelete = async (raiser) => {
     const confirm = await Swal.fire({
@@ -302,7 +310,7 @@ const RaiserProfile = () => {
                   <th className="w-[150px]">Email</th>
                   <th className="w-[150px]">Gender</th>
                   <th className="w-[120px]">Contact No.</th>
-                  <th className="w-[220px]">Address</th>
+                  <th className="w-[220px]">Barangay</th>
                   <th className="w-[150px]">Type of Raiser</th>
                   <th className="w-[150px]">Registration Status</th>
                   <th className="w-[150px]">Action</th>
@@ -317,7 +325,8 @@ const RaiserProfile = () => {
                       className="border-b hover:bg-green-50 text-center"
                     >
                       <td className="p-3">{index + 1}</td>
-                      <td className="p-3">{`${raiser.lastName}, ${
+                      <td className="p-3 cursor-pointer" 
+                      onClick={() => handleRaiserClick(raiser)}>{`${raiser.lastName}, ${
                         raiser.firstName
                       } ${raiser.middleInitial || ""}`}</td>
                       <td>{raiser.email}</td>
@@ -421,6 +430,13 @@ const RaiserProfile = () => {
           open={showEdit}
           onClose={() => setShowEdit(false)}
           raiserData={selectedRaiser}
+        />
+      )}
+      {showRaiser && (
+        <RaiserView
+          visible={showRaiser}
+          onClose={() => setShowRaiser(false)}
+          raiserInfo={selectedRaiser}
         />
       )}
     </div>
