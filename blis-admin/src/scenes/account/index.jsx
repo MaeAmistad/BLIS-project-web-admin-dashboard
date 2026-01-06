@@ -90,7 +90,7 @@ const Account = () => {
   // Filtered users list based on selection
   const filteredUsers = users.filter(
     (user) =>
-      user.status === "active" &&
+      user.status === "ACTIVE" &&
       (selectedUserFilter ? user.name === selectedUserFilter : true)
   );
 
