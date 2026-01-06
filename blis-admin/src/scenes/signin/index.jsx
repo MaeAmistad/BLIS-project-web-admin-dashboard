@@ -3,7 +3,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import photo from "../../assets/logo1.jpg";
 import { db } from "../../firebase";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 
 const Login = () => {
@@ -60,14 +64,27 @@ const Login = () => {
 
       // ✅ 1. Check email verification
       if (!firebaseUser.emailVerified) {
-        await Swal.fire({
+        const result = await Swal.fire({
           icon: "warning",
           title: "Email Not Verified",
-          text: "Please verify your email first before logging in.",
+          text: "Your email is not verified. Would you like us to resend the verification email?",
+          confirmButtonText: "Resend Email",
+          cancelButtonText: "Cancel",
+          showCancelButton: true,
         });
 
-        // Optional: sign out unverified user
-        auth.signOut();
+        if (result.isConfirmed) {
+          await sendEmailVerification(firebaseUser);
+
+          await Swal.fire({
+            icon: "success",
+            title: "Verification Email Sent",
+            text: "Please check your inbox (and spam folder).",
+          });
+        }
+
+        // Always sign out unverified users
+        await auth.signOut();
         return;
       }
 

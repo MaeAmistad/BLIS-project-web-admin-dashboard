@@ -163,10 +163,11 @@ const Account = () => {
           html: `
       <p>The user account has been created successfully.</p>
       <p class="mt-2 text-sm text-gray-600">
-        📧 A verification email has been sent to <b>${email}</b>.
+        A verification email has been sent to <b>${email}</b>.
       </p>
     `,
           confirmButtonColor: "#106013ff",
+          confirmButtonText: "Ok",
         });
       }
 
@@ -182,7 +183,6 @@ const Account = () => {
           icon: "success",
           title: "User Updated!",
           text: "The user information has been updated.",
-          confirmButtonColor: "#4CAF50",
           timer: 2000,
           showConfirmButton: false,
         });
