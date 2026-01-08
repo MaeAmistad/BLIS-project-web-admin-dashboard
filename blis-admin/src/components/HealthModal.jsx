@@ -7,14 +7,13 @@ export default function HealthRecordsModal({
   onSubmit,
   onPrevious,
   initialData = {
-  vaccinations: [],
-  dewormings: [],
-  treatments: [],
-  aiRecords: [],
-}, // array of arrays: health records per livestock
+    vaccinations: [],
+    dewormings: [],
+    treatments: [],
+    aiRecords: [],
+  }, // array of arrays: health records per livestock
   livestockList = [], // array of livestock objects
 }) {
-
   const [openSection, setOpenSection] = useState(null);
 
   const emptyVaccination = {
@@ -283,7 +282,9 @@ export default function HealthRecordsModal({
               />
               <Textarea
                 label="Remarks"
-                className="md:col-span-3"
+                rows={1}
+                className={`${baseInputClass} resize-none overflow-hidden`}
+                style={{ height: "38px" }}
                 value={vaccinationForm.remarks}
                 onChange={(e) =>
                   setVaccinationForm({
@@ -401,7 +402,9 @@ export default function HealthRecordsModal({
               />
               <Textarea
                 label="Remarks"
-                className="md:col-span-3"
+                rows={1}
+                className={`${baseInputClass} resize-none overflow-hidden`}
+                style={{ height: "38px" }}
                 value={dewormingForm.remarks}
                 onChange={(e) =>
                   setDewormingForm({
@@ -546,7 +549,9 @@ export default function HealthRecordsModal({
               />
               <Textarea
                 label="Remarks"
-                className="md:col-span-3"
+                rows={1}
+                className={`${baseInputClass} resize-none overflow-hidden`}
+                style={{ height: "38px" }}
                 value={treatmentForm.remarks}
                 onChange={(e) =>
                   setTreatmentForm({
@@ -661,8 +666,9 @@ export default function HealthRecordsModal({
               />
               <Textarea
                 label="Remarks"
-                className="md:col-span-3"
-                value={aiForm.remarks}
+                rows={2}
+                className={`${baseInputClass} resize-none overflow-hidden`}
+                style={{ height: "38px" }}
                 onChange={(e) =>
                   setAiForm({
                     ...aiForm,
@@ -731,27 +737,23 @@ export default function HealthRecordsModal({
   );
 }
 
+const baseInputClass =
+  "w-full border rounded px-3 py-2 text-sm " +
+  "focus:outline-none focus:ring-2 focus:ring-green-600";
+
 const Input = ({ label, type = "text", ...props }) => (
   <div>
     <label className="block text-sm font-medium mb-1">{label}</label>
-    <input
-      type={type}
-      className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-600"
-      {...props}
-    />
+    <input type={type} className={baseInputClass} {...props} />
   </div>
 );
 
 const Textarea = ({ label, ...props }) => (
   <div>
     <label className="block text-sm font-medium mb-1">{label}</label>
-    <textarea
-      className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-600 resize-none leading-normal"
-      {...props}
-    />
+    <textarea className={`${baseInputClass} resize-none`} {...props} />
   </div>
 );
-
 
 const Select = ({ label, options, ...props }) => (
   <div>

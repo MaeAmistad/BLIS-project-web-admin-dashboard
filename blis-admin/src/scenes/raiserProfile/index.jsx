@@ -29,6 +29,8 @@ import RaiserView from "../../components/RaiserView";
 const RaiserProfile = () => {
   const [raisers, setRaisers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedAddress, setSelectedAddress] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
 
   // View Details Modal
   const [viewOpen, setViewOpen] = useState(false);
@@ -43,9 +45,6 @@ const RaiserProfile = () => {
     livestock: [],
   });
 
-  // ---------------------------------------------------------------------------
-  // FETCH DATA
-  // ---------------------------------------------------------------------------
   useEffect(() => {
     fetchData();
   }, []);
@@ -56,9 +55,6 @@ const RaiserProfile = () => {
     setRaisers(data);
   };
 
-  // ---------------------------------------------------------------------------
-  // HANDLERS
-  // ---------------------------------------------------------------------------
   const handleView = (raiser) => {
     setSelectedRaiser(raiser);
     setViewOpen(true);
@@ -78,11 +74,10 @@ const RaiserProfile = () => {
   };
 
   const handleRaiserClick = (raiser) => {
-  console.log("Clicked row data:", raiser);
-  setShowRaiser(true)
-  setSelectedRaiser(raiser);
-};
-
+    console.log("Clicked row data:", raiser);
+    setShowRaiser(true);
+    setSelectedRaiser(raiser);
+  };
 
   const handleDelete = async (raiser) => {
     const confirm = await Swal.fire({
@@ -240,6 +235,7 @@ const RaiserProfile = () => {
 
       fetchData();
       resetWizard();
+      window.location.reload()
     } catch (error) {
       console.error(error);
       Swal.fire({
@@ -250,17 +246,35 @@ const RaiserProfile = () => {
     }
   };
 
+  const uniqueStatuses = [
+    ...new Set(raisers.map((r) => r.registrationStatus).filter(Boolean)),
+  ];
+
+  const uniqueAddresses = [
+    ...new Set(
+      raisers.map((r) => r.address).filter(Boolean) // remove null/undefined
+    ),
+  ];
+
   const filteredRaisers = raisers.filter((raiser) => {
     const term = searchTerm.toLowerCase();
+
     const fullName = `${raiser.firstName || ""} ${raiser.middleInitial || ""} ${
       raiser.lastName || ""
     }`.toLowerCase();
 
-    return (
+    const matchesSearch =
       fullName.includes(term) ||
       (raiser.address?.toLowerCase() || "").includes(term) ||
-      (raiser.typeOfRaiser?.toLowerCase() || "").includes(term)
-    );
+      (raiser.typeOfRaiser?.toLowerCase() || "").includes(term);
+
+    const matchesAddress =
+      selectedAddress === "" || raiser.address === selectedAddress;
+
+    const matchesStatus =
+      selectedStatus === "" || raiser.registrationStatus === selectedStatus;
+
+    return matchesSearch && matchesAddress && matchesStatus;
   });
 
   return (
@@ -287,21 +301,48 @@ const RaiserProfile = () => {
         <div className="m-1 mt-1 flex-grow overflow-y-auto bg-white-main shadow-md rounded-md">
           {/* SEARCH FILTERINGS */}
           <div className="p-1">
-            <div>
-              <div className="flex my-1 mx-1 space-x-1">
-                <input
-                  type="text"
-                  placeholder="Search Bar"
-                  className="w-full sm:max-w-xs border border-green-400 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-sm text-gray-700 placeholder-gray-400"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+            <div className="flex flex-col sm:flex-row gap-2 my-1 mx-1">
+              {/* Address Filter */}
+              <select
+                className="w-full sm:max-w-xs border border-green-400 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-sm text-gray-700"
+                value={selectedAddress}
+                onChange={(e) => setSelectedAddress(e.target.value)}
+              >
+                <option value="">Barangay</option>
+                {uniqueAddresses.map((address) => (
+                  <option key={address} value={address}>
+                    {address}
+                  </option>
+                ))}
+              </select>
+
+              {/* Registration Status Filter */}
+              <select
+                className="w-full sm:max-w-xs border border-green-400 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-sm text-gray-700"
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+              >
+                <option value="">Registration Status</option>
+                {uniqueStatuses.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+
+              {/* Search Bar */}
+              <input
+                type="text"
+                placeholder="Search Bar"
+                className="w-full sm:max-w-xs border border-green-400 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-sm text-gray-700 placeholder-gray-400"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
           </div>
 
           {/* TABLE */}
-          <div className="relative overflow-y-auto h-[550px] border border-gray-300 rounded-md">
+          <div className="relative overflow-y-auto h-[550px] mt-1 border border-gray-300 rounded-md">
             <table className="min-w-[500px] w-full text-center">
               <thead className="h-6 bg-primary uppercase sticky top-0 text-white text-sm">
                 <tr>
@@ -322,22 +363,24 @@ const RaiserProfile = () => {
                   filteredRaisers.map((raiser, index) => (
                     <tr
                       key={raiser.id}
-                      className="border-b hover:bg-green-50 text-center"
+                      className="border-b hover:bg-green-100 text-center"
                     >
-                      <td className="p-3">{index + 1}</td>
-                      <td className="p-3 cursor-pointer" 
-                      onClick={() => handleRaiserClick(raiser)}>{`${raiser.lastName}, ${
-                        raiser.firstName
-                      } ${raiser.middleInitial || ""}`}</td>
-                      <td>{raiser.email}</td>
-                      <td>{raiser.gender}</td>
-                      <td>{raiser.contactNumber}</td>
-                      <td>{raiser.address}</td>
-                      <td>{raiser.typeOfRaiser}</td>
+                      <td className="p-2 text-center border border-gray-400">{index + 1}</td>
+                      <td
+                        className="p-2 text-center border border-gray-400 cursor-pointer"
+                        onClick={() => handleRaiserClick(raiser)}
+                      >{`${raiser.lastName}, ${raiser.firstName} ${
+                        raiser.middleInitial || ""
+                      }`}</td>
+                      <td className="p-2 text-center border border-gray-400">{raiser.email}</td>
+                      <td className="p-2 text-center border border-gray-400">{raiser.gender}</td>
+                      <td className="p-2 text-center border border-gray-400">{raiser.contactNumber}</td>
+                      <td className="p-2 text-center border border-gray-400">{raiser.address}</td>
+                      <td className="p-2 text-center border border-gray-400">{raiser.typeOfRaiser}</td>
 
-                      <td>{raiser.registrationStatus}</td>
+                      <td className="p-2 text-center border border-gray-400">{raiser.registrationStatus}</td>
 
-                      <td>
+                      <td className="p-2 text-center border border-gray-400">
                         <div className="flex justify-center space-x-1">
                           <IconButton
                             aria-label="edit"

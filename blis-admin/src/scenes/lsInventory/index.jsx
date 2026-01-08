@@ -32,7 +32,6 @@ const LivestockInventory = () => {
   const [selectedLivestock, setSelectedLivestock] = useState(null);
   const [editData, setEditData] = useState(null);
 
-
   // Fetch all livestock data
   const fetchRaisersWithLivestock = async () => {
     const raisersSnapshot = await getDocs(collection(db, "raisers"));
@@ -163,7 +162,7 @@ const LivestockInventory = () => {
               <div className="flex my-1 mx-1 space-x-1">
                 <input
                   type="text"
-                  placeholder="Search Bar"
+                  placeholder="Search"
                   className="w-full sm:max-w-sm border border-green-400 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-sm text-gray-700 placeholder-gray-400"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -191,54 +190,64 @@ const LivestockInventory = () => {
                   filteredLivestock.map((r, index) => (
                     <tr
                       key={r.id}
-                      className="border-b hover:bg-green-50 text-gray-700"
+                      className="border hover:bg-green-100 text-gray-700"
                     >
-                      <td className="p-3 text-center">{index + 1}</td>
+                      <td className="p-2 text-center border border-gray-400">
+                        {index + 1}
+                      </td>
 
-                      <td className="p-3 text-center">{r.raiserName}</td>
+                      <td className="p-2 text-center border border-gray-400">
+                        {r.raiserName}
+                      </td>
 
-                      <td className="p-3 text-center">{r.address}</td>
+                      <td className="p-2 text-center border border-gray-400">
+                        {r.address}
+                      </td>
 
-                      <td className="p-3 text-center">
+                      <td className="p-2 text-center border border-gray-400">
                         {r.livestockList.length > 0 ? (
-                          <ul className="inline-block text-left list-disc list-inside">
-                            {r.livestockList.map((type, i) => (
-                              <li key={i}>{type}</li>
-                            ))}
-                          </ul>
+                          <span className="text-gray-700"
+                          title={r.livestockList.join(", ")}>
+                            {r.livestockList.slice(0, 3).join(", ")}
+                            {r.livestockList.length > 3 && "..."}
+                          </span>
                         ) : (
                           <span className="text-gray-400">No Livestock</span>
                         )}
                       </td>
 
-                      <td className="p-3 text-center">{r.livestockCount}</td>
+                      <td className="p-2 text-center border border-gray-400">
+                        {r.livestockCount}
+                      </td>
 
-                      <td className="p-3 text-center">{r.registrationStatus}</td>
+                      <td className="p-2 text-center border border-gray-400">
+                        {r.registrationStatus}
+                      </td>
 
-                      <td>
-                        <div className="flex justify-center space-x-1">
-                          <IconButton aria-label="view details"
-                           onClick={() => handleView(r)}>
+                      <td className="text-center border border-gray-400">
+                        <div className="flex justify-center">
+                          <IconButton
+                            aria-label="view details"
+                            onClick={() => handleView(r)}
+                          >
                             <VisibilityRounded
                               sx={{ color: "#e2c018ff", fontSize: 16 }}
                             />
                           </IconButton>
 
-                          <IconButton 
-                          aria-label="add livestock" >
+                          <IconButton aria-label="add livestock">
                             <AddCircleOutlineRounded
                               sx={{ color: "#220577ff", fontSize: 16 }}
                             />
                           </IconButton>
 
-                          <IconButton aria-label="edit livestock" >
+                          <IconButton aria-label="edit livestock">
                             <EditRounded
                               sx={{ color: "#266b0f", fontSize: 16 }}
                             />
                           </IconButton>
 
-                          <IconButton aria-label="delete livestock"
-                           >
+                          <IconButton aria-label="delete livestock">
                             <DeleteRounded
                               sx={{ color: "#a30808", fontSize: 16 }}
                             />

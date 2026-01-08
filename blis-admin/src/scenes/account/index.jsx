@@ -88,11 +88,16 @@ const Account = () => {
   };
 
   // Filtered users list based on selection
-  const filteredUsers = users.filter(
-    (user) =>
-      user.status === "ACTIVE" &&
-      (selectedUserFilter ? user.name === selectedUserFilter : true)
-  );
+  const filteredUsers = users.filter((user) => {
+    // Always require ACTIVE status
+    if (user.status?.toUpperCase() !== "ACTIVE") return false;
+
+    // If no dropdown selection, show all ACTIVE users
+    if (!selectedUserFilter) return true;
+
+    // If dropdown selected, match the user
+    return user.name === selectedUserFilter;
+  });
 
   // Add/Edit new user
   const handleSubmit = async (event) => {
@@ -161,14 +166,15 @@ const Account = () => {
           icon: "success",
           title: "User Account Created",
           html: `
-      <p>The user account has been created successfully.</p>
-      <p class="mt-2 text-sm text-gray-600">
-        A verification email has been sent to <b>${email}</b>.
-      </p>
-    `,
+            <p>The user account has been created successfully.</p>
+            <p class="mt-2 text-sm text-gray-600">
+              A verification email has been sent to <b>${email}</b>.
+            </p>
+          `,
           confirmButtonColor: "#106013ff",
           confirmButtonText: "Ok",
         });
+        
       }
 
       if (mode === "edit" && selectedUser) {
@@ -249,6 +255,7 @@ const Account = () => {
       setUsers((prev) =>
         prev.map((u) => (u.id === user.id ? { ...u, status: "inactive" } : u))
       );
+      window.location.reload()
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -287,12 +294,16 @@ const Account = () => {
         icon: "success",
         title: "Password Reset Email Sent",
         text: `A password reset link was sent to ${data.email}.`,
+        confirmButtonText:"Ok",
+        confirmButtonColor:"##2E7D32"
       });
+      window.location.reload()
     } catch (error) {
       Swal.fire({
         icon: "error",
         title: "Reset Failed",
         text: error.message,
+        confirmButtonText:"Close"
       });
     }
   };
@@ -313,20 +324,19 @@ const Account = () => {
             <div className="h-10">
               <div className="flex my-1 mx-1 space-x-1">
                 <select
-                  className="w-60 h-10 rounded-xl p-1 border border-current text-sm p-2"
+                  className="w-full sm:max-w-xs border border-green-600 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-sm text-gray-700 placeholder-gray-400"
                   value={selectedUserFilter}
                   onChange={handleUserFilterChange}
                 >
-                  <option value=" ">User Name</option>
-                  {users && users !== undefined
-                    ? users.map((user) => {
-                        return (
-                          <option key={user.id} value={user.name}>
-                            {user.name}
-                          </option>
-                        );
-                      })
-                    : "Select Name"}
+                  <option value="">User Name</option>
+
+                  {users
+                    ?.filter((user) => user.status?.toUpperCase() === "ACTIVE")
+                    .map((user) => (
+                      <option key={user.id} value={user.id}>
+                        {user.name}
+                      </option>
+                    ))}
                 </select>
               </div>
             </div>
@@ -358,12 +368,12 @@ const Account = () => {
                         key={user.id}
                         className="border-b hover:bg-green-50 text-center"
                       >
-                        <td className="w-[50px]">{index + 1}</td>
-                        <td className="p-3 w-[150px]">{user.role}</td>
-                        <td className="p-3 w-[250px]">{user.name}</td>
-                        <td className="p-3 w-[250px]">{user.email}</td>
-                        <td>
-                          <div className="flex justify-center space-x-1.5">
+                        <td className="p-2 text-center border border-gray-400">{index + 1}</td>
+                        <td className="p-2 text-center border border-gray-400">{user.role}</td>
+                        <td className="p-2 text-center border border-gray-400">{user.name}</td>
+                        <td className="p-2 text-center border border-gray-400">{user.email}</td>
+                        <td className="p-2 text-center border border-gray-400">
+                          <div className="flex justify-center space-x-1">
                             <IconButton
                               aria-label="edit"
                               onClick={() => handleEditClick(user)}

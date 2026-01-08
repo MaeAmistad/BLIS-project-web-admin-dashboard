@@ -92,6 +92,18 @@ export default function ConfirmationModal({
   //   }
   // };
 
+  const handleConfirm = async () => {
+    // Prevent double click
+    if (loading) return;
+
+    try {
+      setLoading(true);
+      await onConfirm(); // submit to server
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const renderObject = (obj) => (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
       {Object.entries(obj).map(([key, value]) => (
@@ -211,8 +223,13 @@ export default function ConfirmationModal({
             Cancel
           </button>
           <button
-            onClick={onConfirm}
-            className="px-4 py-2 rounded-lg bg-primary text-white hover:bg-green-700 transition"
+            onClick={handleConfirm}
+            className={`px-4 py-2 rounded-lg text-white transition
+        ${
+          loading
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-primary hover:bg-green-700"
+        }`}
             disabled={loading}
           >
             {loading ? "Saving..." : "Confirm & Save"}

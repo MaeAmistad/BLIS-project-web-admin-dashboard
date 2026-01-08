@@ -126,15 +126,15 @@ const InventoryandSupplies = () => {
               <thead className="h-6 bg-primary uppercase sticky top-0 text-white text-sm">
                 <tr>
                   <th className="w-[50px]">NO</th>
-                  <th className="w-[300px]">Item Name</th>
+                  <th className="w-[200px]">Item Name</th>
                   <th className="w-[120px]">Category</th>
                   <th className="w-[100px]">Quantity Available</th>
                   <th className="w-[100px]">Unit</th>
-                  <th className="w-[250px]">Supplier</th>
-                  <th className="w-[250px]">Storage Location</th>
-                  <th className="w-[100px]">Acquired Date</th>
-                  <th className="w-[100px]">Expiration Date</th>
-                  <th className="w-[150px]">Action</th>
+                  <th className="w-[220px]">Supplier</th>
+                  <th className="w-[180px]">Storage Location</th>
+                  <th className="w-[120px]">Acquired Date</th>
+                  <th className="w-[120px]">Expiration Date</th>
+                  <th className="w-[100px]">Action</th>
                 </tr>
               </thead>
 
@@ -149,37 +149,37 @@ const InventoryandSupplies = () => {
                   inventories.map((item, index) => (
                     <tr
                       key={item.id}
-                      className="border-b hover:bg-gray-50 text-sm"
+                      className="border-b hover:bg-green-100 text-sm"
                     >
-                      <td className="py-2">{index + 1}</td>
+                      <td className="p-2 text-center border border-gray-400">{index + 1}</td>
 
-                      <td className="px-3">{item.itemName}</td>
+                      <td className="p-2 text-center border border-gray-400">{item.itemName}</td>
 
-                      <td>{item.category ?? "-"}</td>
+                      <td className="p-2 text-center border border-gray-400">{item.category ?? "-"}</td>
 
-                      <td>{item.quantity ?? "-"}</td>
+                      <td className="p-2 text-center border border-gray-400">{item.quantity ?? "-"}</td>
 
-                      <td>{item.unit ?? "-"}</td>
+                      <td className="p-2 text-center border border-gray-400">{item.unit ?? "-"}</td>
 
-                      <td>{item.supplier ?? "-"}</td>
+                      <td className="p-2 text-center border border-gray-400">{item.supplier ?? "-"}</td>
 
-                      <td>{item.storageLocation ?? "-"}</td>
+                      <td className="p-2 text-center border border-gray-400">{item.storageLocation ?? "-"}</td>
 
-                      <td>
+                      <td className="p-2 text-center border border-gray-400">
                         {item.dateAcquired
                           ? new Date(item.dateAcquired).toLocaleDateString()
                           : "-"}
                       </td>
 
-                      <td>
+                      <td className="p-2 text-center border border-gray-400">
                         {item.expirationDate
                           ? new Date(item.expirationDate).toLocaleDateString()
                           : "-"}
                       </td>
 
                       {/* Actions */}
-                      <td>
-                        <div className="flex justify-center space-x-1">
+                      <td className="p-2 text-center border border-gray-400">
+                        <div className="flex justify-center">
                           <IconButton
                             aria-label="edit"
                             onClick={() => handleView(item)}

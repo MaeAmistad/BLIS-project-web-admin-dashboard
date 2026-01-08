@@ -10,46 +10,82 @@ const defaultForm = {
   farmName: "",
   gender: "",
   lastName: "",
-  firstName:"",
+  firstName: "",
   middleInitial: "",
   numberOfWorkers: "",
   registrationStatus: "",
-  dateOfRegistration:"",
+  dateOfRegistration: "",
   typeOfRaiser: "",
 };
 
+const barangayOptions = [
+  "Aggay",
+  "An-annam",
+  "Balaleng",
+  "Banaoang",
+  "Bulag",
+  "Buquig",
+  "Cabalanggan",
+  "Cabaroan",
+  "Cabusligan",
+  "Capangdanan",
+  "Guimod",
+  "Lingsat",
+  "Malingeb",
+  "Mira",
+  "Naguiddayan",
+  "Ora",
+  "Paing",
+  "Puspus",
+  "Quimmarayan",
+  "Sagneb",
+  "Sagpat",
+  "San Mariano",
+  "San Isidro",
+  "San Julian",
+  "Sinabaan",
+  "Taguiporo",
+  "Taleb",
+  "Tay-ac",
+  "Barangay 1 (Poblacion)",
+  "Barangay 2 (Poblacion)",
+  "Barangay 3 (Poblacion)",
+  "Barangay 4 (Poblacion)",
+  "Barangay 5 (Poblacion)",
+  "Barangay 6 (Poblacion)",
+];
+
 const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
-  const [formData, setFormData] = useState( defaultForm );
+  const [formData, setFormData] = useState(defaultForm);
 
   useEffect(() => {
-  if (open && Object.keys(initialData || {}).length > 0) {
-    setFormData(initialData);
-  }
-}, [open, initialData]);
-
+    if (open && Object.keys(initialData || {}).length > 0) {
+      setFormData(initialData);
+    }
+  }, [open, initialData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if(!name) return
+    if (!name) return;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
   const validateForm = () => {
     if (!formData.lastName || !formData.firstName) {
       Swal.fire({
-  title: "Missing Info",
-  text: "Please complete required fields.",
-  icon: "warning"
-});
+        title: "Missing Info",
+        text: "Please complete required fields.",
+        icon: "warning",
+      });
 
       return false;
     }
 
     if (!formData.gender || !formData.typeOfRaiser) {
       Swal.fire({
-  title: "Missing Info",
-  text: "Please complete required fields.",
-  icon: "warning"
-});
+        title: "Missing Info",
+        text: "Please complete required fields.",
+        icon: "warning",
+      });
 
       return false;
     }
@@ -82,7 +118,7 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
     });
 
     if (confirm.isConfirmed) {
-      onCancel()
+      onCancel();
     }
   };
 
@@ -117,10 +153,7 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
             </p>
           </div>
 
-          <button
-            onClick={onClose}
-            className="text-red-500 text-xl"
-          >
+          <button onClick={onClose} className="text-red-500 text-xl">
             ✕
           </button>
         </div>
@@ -173,11 +206,12 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
                 value={formData.contactNumber || ""}
                 onChange={handleChange}
               />
-              <Input
+              <Select
                 label="Barangay"
                 name="address"
                 value={formData.address || ""}
                 onChange={handleChange}
+                options={barangayOptions}
               />
 
               <Select
@@ -278,10 +312,7 @@ export default RaiserModal;
 
 const Input = ({ label, name, value, onChange, type = "text" }) => (
   <div className="flex flex-col gap-1">
-    <label
-      htmlFor={name}
-      className="text-xs font-medium text-gray-600"
-    >
+    <label htmlFor={name} className="text-xs font-medium text-gray-600">
       {label}
     </label>
 
@@ -296,13 +327,9 @@ const Input = ({ label, name, value, onChange, type = "text" }) => (
   </div>
 );
 
-
 const Select = ({ label, name, value, onChange, options }) => (
   <div className="flex flex-col gap-1">
-    <label
-      htmlFor={name}
-      className="text-xs font-medium text-gray-600"
-    >
+    <label htmlFor={name} className="text-xs font-medium text-gray-600">
       {label}
     </label>
 
@@ -313,7 +340,7 @@ const Select = ({ label, name, value, onChange, options }) => (
       onChange={onChange}
       className="w-full border rounded-xl p-2 bg-white focus:ring-2 focus:ring-green-400 focus:outline-none"
     >
-      <option value="" disabled>
+      <option value="">
         Select {label}
       </option>
       {options.map((opt) => (

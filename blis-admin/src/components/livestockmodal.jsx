@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import HealthRecordsModal from "./HealthModal";
+import { AddCircleOutlineRounded, DeleteRounded } from "@mui/icons-material";
 
 export default function LivestockModal({
   open,
@@ -175,8 +176,9 @@ export default function LivestockModal({
                       setActiveLivestockIndex(idx);
                       setHealthOpen(true);
                     }}
-                    className="text-sm text-green-600 hover:text-green-800 font-medium"
+                    className="text-xs bg-primary text-white p-1 rounded rounded-md font-medium"
                   >
+                  <AddCircleOutlineRounded fontSize="small" />
                     Add Health Records
                   </button>
 
@@ -185,7 +187,7 @@ export default function LivestockModal({
                       onClick={() => removeLivestock(idx)}
                       className="text-sm text-red-600 hover:text-red-800 font-medium"
                     >
-                      Remove
+                      <DeleteRounded fontSize="small" />
                     </button>
                   )}
                 </div>
