@@ -14,17 +14,20 @@ import { db } from "../../firebase";
 const tableColumns = {
   healthList: [
     { label: "Raiser Name", key: "raiserName" },
-    { label: "Barangay", key: "barangay" },
+    { label: "Barangay", key: "address" },
     { label: "Livestock Type", key: "livestockType" },
     { label: "Health Condition", key: "healthCondition" },
     { label: "Record Type", key: "recordType" },
   ],
 
   vaccination: [
-    { label: "Vaccine", key: "vaccine" },
+    { label: "Name of Owner", key: "raiserName" },
+    { label: "Contact No", key: "contactNumber" },
+    { label: "Species", key: "typeOfAnimal" },
+    { label: "Pet Name", key: "livestockName" },
+    { label: "Age", key: "age" },
+    { label: "Vaccine Used", key: "vaccine" },
     { label: "Date", key: "date" },
-    { label: "Administered By", key: "administeredBy" },
-    { label: "Dosage", key: "dosage" },
     { label: "Remarks", key: "remarks" },
   ],
 
@@ -129,9 +132,12 @@ const HealthandMedical = () => {
         recordData: record, // full health record
 
         raiserName: raiser ? `${raiser.firstName} ${raiser.lastName}` : "—",
-        barangay: raiser?.address || "—",
+        address: raiser?.address || "—",
+        contactNumber: raiser?.contactNumber || "—",
 
-        livestockType: animal?.typeOfAnimal || "—",
+        typeOfAnimal: animal?.typeOfAnimal || "—",
+        livestockName: animal?.livestockName || "-",
+        age: animal?.age || "-",
         healthCondition: animal?.healthCondition || "—",
       };
     });
@@ -151,8 +157,8 @@ const HealthandMedical = () => {
       // Fields always available
       const baseFields = [
         row.raiserName,
-        row.barangay,
-        row.livestockType,
+        row.address,
+        row.typeOfAnimal,
         row.healthCondition,
         row.recordType,
       ];
@@ -232,7 +238,6 @@ const HealthandMedical = () => {
               Health Summary Report
             </button> */}
           </div>
-
         </div>
 
         {/* Main Body */}
@@ -246,7 +251,7 @@ const HealthandMedical = () => {
               className="w-full sm:max-w-xs ml-2 mb-1 border border-green-600 focus:ring-1 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-sm text-gray-700 placeholder-gray-400"
             />
           </div>
-          
+
           {/* Table */}
           <div className="relative overflow-y-auto h-[550px] mt-1 rounded-md">
             <table className="min-w-[500px] w-full text-center border border-gray-300">
@@ -265,14 +270,37 @@ const HealthandMedical = () => {
               <tbody>
                 {displayedRecords.length > 0 ? (
                   displayedRecords.map((row, index) => (
-                    <tr key={row.id} className="odd:bg-gray-50 hover:bg-green-100">
-                      <td className="p-2 border border-gray-400 ">{index + 1}</td>
+                    <tr
+                      key={row.id}
+                      className="odd:bg-gray-50 hover:bg-green-100"
+                    >
+                      <td className="p-2 border border-gray-400 ">
+                        {index + 1}
+                      </td>
 
                       {tableColumns[activeTable].map((col) => (
-                        <td key={col.key} className="p-2 border border-gray-400">
-                          {activeTable === "healthList"
-                            ? row[col.key]
-                            : row.recordData[col.key] || "—"}
+                        <td
+                          key={col.key}
+                          className="p-2 border border-gray-400"
+                        >
+                          {activeTable === "healthList" && row[col.key]}
+
+                          {activeTable === "vaccination" &&
+                            ([
+                              "raiserName",
+                              "contactNumber",
+                              "typeOfAnimal",
+                              "livestockName",
+                              "age",
+                            ].includes(col.key)
+                              ? row[col.key]
+                              : row.recordData[col.key])}
+
+                          {["deworming", "treatment", "ai"].includes(
+                            activeTable
+                          ) && row.recordData[col.key]}
+
+                          {!row[col.key] && !row.recordData[col.key] && "—"}
                         </td>
                       ))}
                     </tr>

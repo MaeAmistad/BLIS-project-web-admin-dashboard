@@ -98,11 +98,11 @@ const AlertsPanel = ({ lowStock, aiPending }) => (
           ⚠ {lowStock} inventory items are low on stock
         </li>
       ) : (
-        <li className="text-green-600">✔ Inventory levels are healthy</li>
+        <li className="text-green-600">Inventory levels are healthy</li>
       )}
 
       {aiPending > 0 && (
-        <li className="text-orange-600">⏳ {aiPending} AI records pending</li>
+        <li className="text-orange-600">{aiPending} AI records pending</li>
       )}
     </ul>
   </div>

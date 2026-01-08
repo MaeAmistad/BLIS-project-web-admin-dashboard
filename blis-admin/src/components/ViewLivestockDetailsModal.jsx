@@ -1,12 +1,56 @@
-import React from "react";
+import { useState, useEffect } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../firebase";
 
-const ViewLivestockDetailsModal = ({ open, onClose, livestock }) => {
-  if (!open || !livestock) return null; // Don't render if closed
+const ViewLivestockDetailsModal = ({ open, onClose, raiser }) => {
+  const [livestockWithCounts, setLivestockWithCounts] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  console.log("Raiser Details: ", raiser);
+
+  useEffect(() => {
+    if (!open || !raiser?.id) return;
+
+    const fetchHealthCounts = async () => {
+      setLoading(true);
+
+      const livestockSnapshot = await getDocs(
+        collection(db, "raisers", raiser.id, "livestock")
+      );
+
+      const data = await Promise.all(
+        livestockSnapshot.docs.map(async (livestockDoc) => {
+          const healthSnap = await getDocs(
+            collection(
+              db,
+              "raisers",
+              raiser.id,
+              "livestock",
+              livestockDoc.id,
+              "healthRecords"
+            )
+          );
+
+          return {
+            id: livestockDoc.id,
+            ...livestockDoc.data(),
+            healthRecordsCount: healthSnap.size,
+          };
+        })
+      );
+
+      setLivestockWithCounts(data);
+      setLoading(false);
+    };
+
+    fetchHealthCounts();
+  }, [open, raiser]);
+
+  if (!open || !raiser) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl shadow-lg w-full max-w-3xl mx-4 p-6 relative overflow-y-auto max-h-[90vh]">
-        
         {/* Close button */}
         <button
           onClick={onClose}
@@ -14,88 +58,72 @@ const ViewLivestockDetailsModal = ({ open, onClose, livestock }) => {
         >
           ✕
         </button>
-
         <h2 className="text-2xl font-semibold text-green-700 mb-4 text-center">
           Livestock Details
         </h2>
-
-        {/* Location Details */}
-        <h3 className="text-lg font-semibold text-gray-800 mb-2 border-b pb-1">
-          Location Details
-        </h3>
-        <div className="grid grid-cols-2 gap-4 text-sm text-gray-700 mb-6">
-          <div>
-            <p className="font-medium text-gray-900">Farm Name (if any)</p>
-            <p>{livestock.farmName || "—"}</p>
-          </div>
-          <div>
-            <p className="font-medium text-gray-900">Barangay / Municipality</p>
-            <p>{livestock.barangay || "—"}</p>
-          </div>
-        </div>
-
         {/* Ownership Details */}
         <h3 className="text-lg font-semibold text-gray-800 mb-2 border-b pb-1">
+
           Ownership Details
         </h3>
         <div className="grid grid-cols-2 gap-4 text-sm text-gray-700 mb-6">
           <div>
-            <p className="font-medium text-gray-900">Owner’s Full Name</p>
-            <p>{livestock.ownerName || "—"}</p>
+            <p className="font-medium text-gray-900">Raiser's Name</p>
+            <p>{raiser.raiserName || "—"}</p>
+          </div>
+          <div>
+            <p className="font-medium text-gray-900">Farm Name</p>
+            <p>{raiser.farmName || "—"}</p>
+          </div>
+          <div>
+            <p className="font-medium text-gray-900">Farm Location</p>
+            <p>{raiser.farmLocation || "—"}</p>
+          </div>
+          <div>
+            <p className="font-medium text-gray-900">Raiser's Barangay</p>
+            <p>{raiser.address || "—"}</p>
           </div>
           <div>
             <p className="font-medium text-gray-900">Contact Number</p>
-            <p>{livestock.contactNumber || "—"}</p>
+            <p>{raiser.contactNumber || "—"}</p>
           </div>
           <div>
             <p className="font-medium text-gray-900">Type of Raiser</p>
-            <p>{livestock.typeOfRaiser || "—"}</p>
+            <p>{raiser.typeOfRaiser || "—"}</p>
           </div>
         </div>
-
         {/* Livestock Information */}
         <h3 className="text-lg font-semibold text-gray-800 mb-2 border-b pb-1">
           Livestock Information
         </h3>
-        <div className="grid grid-cols-2 gap-4 text-sm text-gray-700 mb-6">
-          <div>
-            <p className="font-medium text-gray-900">Livestock Name</p>
-            <p>{livestock.livestockName || "—"}</p>
-          </div>
-          <div>
-            <p className="font-medium text-gray-900">Type of Animal (Swine, etc.)</p>
-            <p>{livestock.typeOfAnimal || "—"}</p>
-          </div>
-          <div>
-            <p className="font-medium text-gray-900">Breed</p>
-            <p>{livestock.breed || "—"}</p>
-          </div>
-          <div>
-            <p className="font-medium text-gray-900">Gender</p>
-            <p>{livestock.gender || "—"}</p>
-          </div>
-          <div>
-            <p className="font-medium text-gray-900">Age / Date of Birth</p>
-            <p>{livestock.age || livestock.dateOfBirth || "—"}</p>
-          </div>
-          <div>
-            <p className="font-medium text-gray-900">Color / Markings</p>
-            <p>{livestock.colorMarkings || "—"}</p>
-          </div>
-          <div>
-            <p className="font-medium text-gray-900">Health Condition</p>
-            <p>{livestock.healthCondition || "—"}</p>
-          </div>
-          <div>
-            <p className="font-medium text-gray-900">Weight (optional)</p>
-            <p>{livestock.weight || "—"}</p>
-          </div>
-          <div>
-            <p className="font-medium text-gray-900">Status</p>
-            <p>{livestock.status || "—"}</p>
-          </div>
-        </div>
+        {loading ? (
+          <p className="text-center text-gray-500">Loading livestock...</p>
+        ) : (
+          <div className="space-y-4">
+            {livestockWithCounts.map((l) => (
+              <div key={l.id} className="border rounded-xl p-4 bg-gray-50">
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <p>
+                    <strong>Name:</strong> {l.livestockName}
+                  </p>
+                  <p>
+                    <strong>Type:</strong> {l.typeOfAnimal}
+                  </p>
+                  <p>
+                    <strong>Breed:</strong> {l.breed}
+                  </p>
+                  <p>
+                    <strong>Status:</strong> {l.status}
+                  </p>
+                </div>
 
+                <div className="mt-3 text-green-700 font-medium">
+                  Health Records: {l.healthRecordsCount}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
         {/* Footer */}
         <div className="flex justify-center mt-8">
           <button

@@ -40,29 +40,52 @@ const LivestockInventory = () => {
       raisersSnapshot.docs.map(async (raiserDoc) => {
         const raiserData = raiserDoc.data();
 
-        // fetch livestock subcollection
         const livestockSnapshot = await getDocs(
           collection(db, "raisers", raiserDoc.id, "livestock")
         );
 
-        const livestockList = livestockSnapshot.docs.map(
-          (doc) => doc.data().typeOfAnimal
+        const livestockList = await Promise.all(
+          livestockSnapshot.docs.map(async (livestockDoc) => {
+            const livestockData = livestockDoc.data();
+
+            // 🔥 fetch healthRecords count
+            const healthRecordsSnapshot = await getDocs(
+              collection(
+                db,
+                "raisers",
+                raiserDoc.id,
+                "livestock",
+                livestockDoc.id,
+                "healthRecords"
+              )
+            );
+
+            return {
+              id: livestockDoc.id,
+              ...livestockData,
+              healthRecordsCount: healthRecordsSnapshot.size,
+            };
+          })
         );
 
         return {
           id: raiserDoc.id,
           raiserName: `${raiserData.firstName} ${raiserData.lastName}`,
           address: raiserData.address,
-          registrationStatus: raiserData.registrationStatus,
+          contactNumber: raiserData.contactNumber,
+          typeOfRaiser: raiserData.typeOfRaiser,
+          farmName: raiserData.farmName,
+          farmLocation: raiserData.farmLocation,
           livestockList,
           livestockCount: livestockList.length,
         };
       })
     );
 
-    setLivestocks(raisersData); // rename if you want (e.g., setRaisers)
+    setLivestocks(raisersData);
   };
 
+  
   useEffect(() => {
     fetchRaisersWithLivestock();
   }, []);
@@ -206,9 +229,17 @@ const LivestockInventory = () => {
 
                       <td className="p-2 text-center border border-gray-400">
                         {r.livestockList.length > 0 ? (
-                          <span className="text-gray-700"
-                          title={r.livestockList.join(", ")}>
-                            {r.livestockList.slice(0, 3).join(", ")}
+                          
+                          <span
+                            className="text-gray-700"
+                            title={r.livestockList
+                              .map((l) => l.typeOfAnimal)
+                              .join(", ")}
+                          >
+                            {r.livestockList
+                              .map((l) => l.typeOfAnimal)
+                              .slice(0, 3)
+                              .join(", ")}
                             {r.livestockList.length > 3 && "..."}
                           </span>
                         ) : (
@@ -235,17 +266,17 @@ const LivestockInventory = () => {
                             />
                           </IconButton>
 
-                          <IconButton aria-label="add livestock">
+                          {/* <IconButton aria-label="add livestock">
                             <AddCircleOutlineRounded
                               sx={{ color: "#220577ff", fontSize: 16 }}
                             />
-                          </IconButton>
+                          </IconButton> */}
 
-                          <IconButton aria-label="edit livestock">
+                          {/* <IconButton aria-label="edit livestock">
                             <EditRounded
                               sx={{ color: "#266b0f", fontSize: 16 }}
                             />
-                          </IconButton>
+                          </IconButton> */}
 
                           <IconButton aria-label="delete livestock">
                             <DeleteRounded
@@ -279,7 +310,7 @@ const LivestockInventory = () => {
       <ViewLivestockDetailsModal
         open={viewOpen}
         onClose={() => setViewOpen(false)}
-        livestock={selectedLivestock}
+        raiser={selectedLivestock}
       />
     </div>
   );
