@@ -6,16 +6,19 @@ import VaccinesIcon from "@mui/icons-material/Vaccines";
 import MedicationIcon from "@mui/icons-material/Medication";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import BiotechIcon from "@mui/icons-material/Biotech";
-import AssessmentIcon from "@mui/icons-material/Assessment";
 import Headerr from "../../components/Headerr";
 import { collection, getDocs, collectionGroup } from "firebase/firestore";
 import { db } from "../../firebase";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 const tableColumns = {
   healthList: [
     { label: "Raiser Name", key: "raiserName" },
     { label: "Barangay", key: "address" },
-    { label: "Livestock Type", key: "livestockType" },
+    { label: "Livestock Type", key: "typeOfAnima" },
     { label: "Health Condition", key: "healthCondition" },
     { label: "Record Type", key: "recordType" },
   ],
@@ -178,6 +181,84 @@ const HealthandMedical = () => {
     setActiveTable(tableName);
   };
 
+  const handleExportPDF = () => {
+    if (!displayedRecords.length) return;
+
+    const doc = new jsPDF({ orientation: "landscape" });
+
+    const titleMap = {
+      healthList: "Livestock Health List",
+      vaccination: "Vaccination Records",
+      deworming: "Deworming Records",
+      treatment: "Treatment Records",
+      ai: "Artificial Insemination Records",
+    };
+
+    doc.setFontSize(14);
+    doc.text(titleMap[activeTable], 14, 15);
+
+    doc.setFontSize(9);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 22);
+
+    const columns = tableColumns[activeTable].map((col) => col.label);
+
+    const rows = displayedRecords.map((row) =>
+      tableColumns[activeTable].map((col) =>
+        activeTable === "healthList"
+          ? row[col.key] ?? "—"
+          : row.recordData[col.key] ?? "—"
+      )
+    );
+
+    autoTable(doc, {
+      startY: 26,
+      head: [columns],
+      body: rows,
+      styles: {
+        fontSize: 9,
+        cellPadding: 3,
+      },
+      headStyles: {
+        fillColor: [22, 163, 74], // green
+      },
+    });
+
+    doc.save(`${activeTable}-report.pdf`);
+  };
+
+  const handleExportExcel = () => {
+    if (!displayedRecords.length) return;
+
+    const data = displayedRecords.map((row) => {
+      const result = {};
+
+      tableColumns[activeTable].forEach((col) => {
+        result[col.label] =
+          activeTable === "healthList"
+            ? row[col.key] ?? ""
+            : row.recordData[col.key] ?? "";
+      });
+
+      return result;
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, activeTable);
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    saveAs(blob, `${activeTable}-report.xlsx`);
+  };
+
   return (
     <div className="app flex flex-col md:flex-row">
       <Sidebarr />
@@ -241,15 +322,36 @@ const HealthandMedical = () => {
         </div>
 
         {/* Main Body */}
-        <div className="m-1 flex-grow overflow-y-auto bg-white-main shadow-md rounded-md">
-          <div className="mt-4 flex justify-start">
+        <div className="m-1 mb-3 px-2 flex-grow overflow-y-auto bg-white-main shadow-md rounded-md">
+          <div className="mt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <input
               type="text"
-              placeholder="Search Records..."
+              placeholder="Search records..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full sm:max-w-xs ml-2 mb-1 border border-green-600 focus:ring-1 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-sm text-gray-700 placeholder-gray-400"
+              className="w-full md:w-96 px-4 py-2 border border-gray-300 rounded-lg shadow-sm
+               focus:outline-none focus:ring-2 focus:ring-primary"
             />
+
+            <div className="flex gap-2">
+              <button
+                onClick={handleExportPDF}
+                disabled={!displayedRecords.length}
+                className="px-4 py-2 rounded-lg bg-red-600 text-white
+                 hover:bg-red-700 disabled:opacity-50"
+              >
+                Download Report PDF
+              </button>
+
+              <button
+                onClick={handleExportExcel}
+                disabled={!displayedRecords.length}
+                className="px-4 py-2 rounded-lg bg-green-600 text-white
+                 hover:bg-green-700 disabled:opacity-50"
+              >
+                Download Report Excel
+              </button>
+            </div>
           </div>
 
           {/* Table */}

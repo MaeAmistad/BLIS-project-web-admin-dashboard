@@ -4,6 +4,7 @@ import {
   getDocs,
   collection,
   deleteDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../../firebase";
 
@@ -218,7 +219,7 @@ const RaiserProfile = () => {
               cleanObject({
                 ...record,
                 type,
-                createdAt: new Date(),
+                createdAt: serverTimestamp(),
               })
             );
           }

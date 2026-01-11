@@ -11,6 +11,7 @@ import {
   getDocs,
   collection,
   updateDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 
 import { db } from "../../firebase";
@@ -155,7 +156,7 @@ const Account = () => {
           name,
           email,
           status: "ACTIVE",
-          createdAt: new Date(),
+          createdAt: serverTimestamp(),
         });
 
         // 🔹 Send verification email
@@ -182,7 +183,7 @@ const Account = () => {
           role,
           name,
           email,
-          updatedAt: new Date(),
+          updatedAt: serverTimestamp(),
         });
 
         Swal.fire({
@@ -240,7 +241,7 @@ const Account = () => {
     try {
       await updateDoc(doc(db, "users", user.id), {
         status: "inactive",
-        updatedAt: new Date(),
+        updatedAt: serverTimestamp(),
       });
 
       Swal.fire({

@@ -81,7 +81,9 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
 
     if (!result.isConfirmed) return;
 
+
     try {
+      setLoading(true);
       if (mode === "add") {
         // ADD
         await addDoc(collection(db, "inventories"), {
@@ -121,6 +123,7 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
     } catch (error) {
       console.error("Firestore error:", error);
       Swal.fire("Error", "Something went wrong. Please try again.", "error");
+      setLoading(false);
     }
   };
 

@@ -5,8 +5,9 @@ import {
   getDocs,
   query,
   where,
-  orderBy,
+  onSnapshot,
   limit,
+  orderBy,
 } from "firebase/firestore";
 import { db } from "../../firebase";
 
@@ -45,9 +46,6 @@ const BAR_COLORS = [
   "#F97316", // orange
 ];
 
-/* =========================
-   STAT CARD COMPONENT
-========================= */
 const StatCard = ({ title, value, icon: Icon, color }) => (
   <div
     className={`rounded-2xl shadow p-4 text-white ${color} hover:scale-[1.02] transition`}
@@ -60,11 +58,8 @@ const StatCard = ({ title, value, icon: Icon, color }) => (
   </div>
 );
 
-/* =========================
-   ACTIVITY LOG COMPONENT
-========================= */
 const ActivityLog = ({ logs }) => (
-  <div className="bg-white rounded-2xl shadow p-4 max-h-4xl overflow-y-auto">
+  <div className="bg-white rounded-2xl shadow p-4 max-h-96 overflow-y-auto">
     <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
       <Activity size={18} /> Recent Activity
     </h3>
@@ -73,14 +68,21 @@ const ActivityLog = ({ logs }) => (
       <p className="text-sm text-gray-500">No recent activity</p>
     ) : (
       <ul className="space-y-4">
-        {logs.map((log, index) => (
-          <li key={index} className="border-l-4 border-blue-500 pl-3 text-sm">
-            <p className="font-medium">{log.message}</p>
-            <p className="text-xs text-gray-500">
-              {new Date(log.timestamp).toLocaleString()}
-            </p>
-          </li>
-        ))}
+        {logs.map((log) => {
+          const date = log.createdAt?.toDate() || log.updatedAt?.toDate();
+
+          return (
+            <li
+              key={log.id}
+              className="border-l-4 border-blue-500 pl-3 text-sm"
+            >
+              <p className="font-medium">{log.message}</p>
+              <p className="text-xs text-gray-500">
+                {date ? date.toLocaleString() : "Just now"}
+              </p>
+            </li>
+          );
+        })}
       </ul>
     )}
   </div>
@@ -129,6 +131,36 @@ const Dashboard = () => {
   const [raisersByAddress, setRaisersByAddress] = useState([]);
   const [activityLogs, setActivityLogs] = useState([]);
   const [loading, setLoading] = useState(true);
+
+
+  useEffect(() => {
+    const q = query(
+      collection(db, "activityLogs"),
+      orderBy("createdAt", "desc"),
+      limit(10)
+    );
+
+    onSnapshot(q, (snapshot) => {
+      setActivityLogs(
+        snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+      );
+    });
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const logs = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setActivityLogs(logs);
+    });
+
+    // Cleanup listener when component unmounts
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -190,25 +222,6 @@ const Dashboard = () => {
           const item = doc.data();
           if (item.quantity <= item.threshold) lowStockCount++;
         });
-
-        /* =========================
-           ACTIVITY LOGS (OPTIONAL)
-           Replace with real collection later
-        ========================= */
-        setActivityLogs([
-          {
-            message: "Vaccination added for Cow #A102",
-            timestamp: Date.now() - 1000 * 60 * 30,
-          },
-          {
-            message: "Inventory updated: Dewormer",
-            timestamp: Date.now() - 1000 * 60 * 90,
-          },
-          {
-            message: "AI scheduled for Raiser Juan Dela Cruz",
-            timestamp: Date.now() - 1000 * 60 * 180,
-          },
-        ]);
 
         setStats({
           raisers: raisersSnap.size,
