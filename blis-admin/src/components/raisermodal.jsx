@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
+import { useAuth } from "../components/AuthContext";
 
 const defaultForm = {
   address: "",
@@ -16,6 +17,7 @@ const defaultForm = {
   registrationStatus: "",
   dateOfRegistration: "",
   typeOfRaiser: "",
+  uid:""
 };
 
 const barangayOptions = [
@@ -57,6 +59,8 @@ const barangayOptions = [
 
 const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
   const [formData, setFormData] = useState(defaultForm);
+
+   const { user } = useAuth();
 
   useEffect(() => {
     if (open && Object.keys(initialData || {}).length > 0) {
@@ -101,6 +105,7 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
 
     const data = {
       ...formData,
+      uid: user.uid
     };
 
     onSave(data);

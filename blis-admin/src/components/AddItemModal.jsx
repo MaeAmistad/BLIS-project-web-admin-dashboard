@@ -8,9 +8,12 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../firebase"; // adjust path
+import { useAuth } from "./AuthContext";
 
 const AddItemModal = ({ open, onClose, mode, inventory }) => {
   const [loading, setLoading] = useState(false);
+
+   const { user } = useAuth();
 
   const [formData, setFormData] = useState({
     itemName: "",
@@ -23,6 +26,7 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
     expirationDate: "",
     storageLocation: "",
     remarks: "",
+    uid: "",
   });
 
   useEffect(() => {
@@ -90,6 +94,7 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
           ...formData,
           quantity: Number(formData.quantity),
           createdAt: serverTimestamp(),
+          uid: user.id
         });
 
         Swal.fire({

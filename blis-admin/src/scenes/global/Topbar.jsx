@@ -7,7 +7,7 @@ import {
   where,
   writeBatch,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { db } from "../../firebase";
 import { Bell } from "lucide-react";
@@ -25,43 +25,54 @@ const Topbar = () => {
 
   const { user } = useAuth();
 
-  useEffect(() => {
-    if (!user?.uid) return;
+  // const notificationsQuery = useMemo(() => {
+  //   if (!user?.uid) return null;
 
-    const q = query(
-      collection(db, "notifications"),
-      where("userId", "==", user.uid),
-      orderBy("createdAt", "desc")
-    );
+  //   return query(
+  //     collection(db, "notifications"),
+  //     where("userId", "==", user.uid),
+  //     orderBy("createdAt", "desc")
+  //   );
+  // }, [user?.uid]);
 
-    const unsub = onSnapshot(q, (snap) => {
-      const data = snap.docs.map((d) => ({
-        id: d.id,
-        ...d.data(),
-      }));
+  // useEffect(() => {
+  //   if (!notificationsQuery) return;
 
-      setNotifications(data);
-      setUnreadCount(data.filter((n) => !n.read).length);
-    });
+  //   let active = true;
 
-    return unsub;
-  }, [user?.uid]);
+  //   const unsub = onSnapshot(notificationsQuery, (snap) => {
+  //     if (!active) return;
 
-  const markAsRead = async (id) => {
-    await updateDoc(doc(db, "notifications", id), { read: true });
-  };
+  //     const data = snap.docs.map((d) => ({
+  //       id: d.id,
+  //       ...d.data(),
+  //     }));
 
-  const markAllAsRead = async () => {
-    const batch = writeBatch(db);
+  //     setNotifications(data);
+  //     setUnreadCount(data.filter((n) => !n.read).length);
+  //   });
 
-    notifications
-      .filter((n) => !n.read)
-      .forEach((n) =>
-        batch.update(doc(db, "notifications", n.id), { read: true })
-      );
+  //   return () => {
+  //     active = false;
+  //     unsub();
+  //   };
+  // }, [notificationsQuery]);
 
-    await batch.commit();
-  };
+  // const markAsRead = async (id) => {
+  //   await updateDoc(doc(db, "notifications", id), { read: true });
+  // };
+
+  // const markAllAsRead = async () => {
+  //   const batch = writeBatch(db);
+
+  //   notifications
+  //     .filter((n) => !n.read)
+  //     .forEach((n) =>
+  //       batch.update(doc(db, "notifications", n.id), { read: true })
+  //     );
+
+  //   await batch.commit();
+  // };
 
   return (
     <div className="sticky top-0 z-10 flex items-center justify-between px-2 py-3 bg-white border-b">
@@ -120,7 +131,7 @@ const Topbar = () => {
             <div className="flex justify-between items-center px-4 py-2 border-b">
               <p className="font-semibold">Notifications</p>
               <button
-                onClick={markAllAsRead}
+                // onClick={markAllAsRead}
                 className="text-xs text-blue-600 hover:underline"
               >
                 Mark all as read
@@ -134,7 +145,7 @@ const Topbar = () => {
                 notifications.map((n) => (
                   <li
                     key={n.id}
-                    onClick={() => markAsRead(n.id)}
+                    // onClick={() => markAsRead(n.id)}
                     className={`px-4 py-3 cursor-pointer border-b
               ${!n.read ? "bg-blue-50 hover:bg-blue-100" : "hover:bg-gray-50"}
             `}

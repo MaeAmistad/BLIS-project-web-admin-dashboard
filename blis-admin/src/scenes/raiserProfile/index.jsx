@@ -26,8 +26,11 @@ import {
 import { IconButton } from "@mui/material";
 import RaiserEdit from "../../components/RaiserEdit";
 import RaiserView from "../../components/RaiserView";
+import { useAuth } from "../../components/AuthContext";
 
 const RaiserProfile = () => {
+   const { user } = useAuth();
+
   const [raisers, setRaisers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAddress, setSelectedAddress] = useState("");
@@ -219,6 +222,7 @@ const RaiserProfile = () => {
               cleanObject({
                 ...record,
                 type,
+                uid: user.id,
                 createdAt: serverTimestamp(),
               })
             );

@@ -23,6 +23,8 @@ const InventoryandSupplies = () => {
   const [inventories, setInventories] = useState([]);
   const [viewOpen, setViewOpen] = useState(false);
 
+  
+
 
   useEffect(() => {
     const q = query(collection(db, "inventories"));
