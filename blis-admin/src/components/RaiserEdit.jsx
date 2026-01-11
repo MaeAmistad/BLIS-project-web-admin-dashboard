@@ -17,7 +17,6 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
     middleInitial: "",
     numberOfWorkers: "",
     registrationStatus: "",
-    dateOfRegistration: "",
     typeOfRaiser: "",
   });
 
@@ -38,7 +37,6 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
         middleInitial: raiserData?.middleInitial,
         numberOfWorkers: raiserData?.numberOfWorkers,
         registrationStatus: raiserData?.registrationStatus,
-        dateOfRegistration: raiserData?.dateOfRegistration,
         typeOfRaiser: raiserData?.typeOfRaiser,
       });
     }
@@ -67,7 +65,6 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
       middleInitial: formData.middleInitial,
       numberOfWorkers: formData.numberOfWorkers,
       registrationStatus: formData.registrationStatus,
-      dateOfRegistration: formData.dateOfRegistration,
       typeOfRaiser: formData.typeOfRaiser,
     });
 
@@ -202,7 +199,7 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
                 onChange={handleChange}
               />
 
-              <div className="flex flex-col gap-1">
+              {/* <div className="flex flex-col gap-1">
                 <label className="text-xs font-medium text-gray-600">
                   Date of Registration
                 </label>
@@ -212,7 +209,7 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
                   value={formData.dateOfRegistration}
                   onChange={handleChange}
                 />
-              </div>
+              </div> */}
               <Select
                 label="Registration Status"
                 name="registrationStatus"

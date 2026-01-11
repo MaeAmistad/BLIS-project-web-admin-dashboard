@@ -17,7 +17,6 @@ const defaultForm = {
   registrationStatus: "",
   dateOfRegistration: "",
   typeOfRaiser: "",
-  uid:""
 };
 
 const barangayOptions = [
@@ -105,7 +104,6 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
 
     const data = {
       ...formData,
-      uid: user.uid
     };
 
     onSave(data);

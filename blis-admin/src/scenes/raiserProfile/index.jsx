@@ -134,6 +134,7 @@ const RaiserProfile = () => {
         showConfirmButton: false,
       });
       fetchData();
+      window.location.reload()
     } catch (error) {
       console.error(error);
       Swal.fire({
@@ -222,7 +223,7 @@ const RaiserProfile = () => {
               cleanObject({
                 ...record,
                 type,
-                uid: user.id,
+                uid: user.uid,
                 createdAt: serverTimestamp(),
               })
             );

@@ -10,7 +10,13 @@ import {
   EditRounded,
   VisibilityRounded,
 } from "@mui/icons-material";
-import { collection, deleteDoc, doc, onSnapshot, query } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  query,
+} from "firebase/firestore";
 import { db } from "../../firebase";
 import { IconButton } from "@mui/material";
 import ViewInventory from "../../components/ViewInventory";
@@ -23,8 +29,9 @@ const InventoryandSupplies = () => {
   const [inventories, setInventories] = useState([]);
   const [viewOpen, setViewOpen] = useState(false);
 
-  
-
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     const q = query(collection(db, "inventories"));
@@ -36,6 +43,12 @@ const InventoryandSupplies = () => {
       }));
 
       setInventories(data);
+
+      // Extract unique categories dynamically
+      const uniqueCategories = [
+        ...new Set(data.map((item) => item.category).filter(Boolean)),
+      ];
+      setCategories(uniqueCategories);
     });
 
     return () => unsubscribe();
@@ -59,33 +72,47 @@ const InventoryandSupplies = () => {
   };
 
   const handleDelete = async (id) => {
-  const result = await Swal.fire({
-    title: "Delete Item?",
-    text: "This action cannot be undone.",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#6b7280",
-    confirmButtonText: "Yes, delete it",
-  });
-
-  if (!result.isConfirmed) return;
-
-  try {
-    await deleteDoc(doc(db, "inventories", id));
-
-    Swal.fire({
-      title: "Deleted!",
-      text: "Item has been deleted successfully.",
-      icon: "success",
-      timer: 1500,
-      showConfirmButton: false,
+    const result = await Swal.fire({
+      title: "Delete Item?",
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, delete it",
     });
-  } catch (error) {
-    console.error("Delete error:", error);
-    Swal.fire("Error", "Failed to delete item.", "error");
-  }
-};
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await deleteDoc(doc(db, "inventories", id));
+
+      Swal.fire({
+        title: "Deleted!",
+        text: "Item has been deleted successfully.",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error("Delete error:", error);
+      Swal.fire("Error", "Failed to delete item.", "error");
+    }
+  };
+
+  const filteredInventories = inventories.filter((item) => {
+    // Check if itemName matches the search term (case-insensitive)
+    const matchesSearch = item.itemName
+      ?.toLowerCase()
+      .includes(searchTerm.toLowerCase());
+
+    // Check if category matches the selectedCategory (or show all if none selected)
+    const matchesCategory =
+      selectedCategory === "" || item.category === selectedCategory;
+
+    // Only include items that satisfy BOTH filters
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="app flex flex-col md:flex-row">
@@ -109,16 +136,27 @@ const InventoryandSupplies = () => {
         <div className="m-1 mt-1 flex-grow overflow-y-auto bg-white-main shadow-md rounded-md">
           {/* SEARCH FILTERINGS */}
           <div className="p-1">
-            <div>
-              <div className="flex my-1 mx-1 space-x-1">
-                <input
-                  type="text"
-                  placeholder="Search Inventory"
-                  className="w-full sm:max-w-xs border border-green-400 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-sm text-gray-700 placeholder-gray-400"
-                  // value={searchTerm}
-                  // onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+            <div className="flex flex-col sm:flex-row gap-2 my-1 mx-1">
+              <input
+                type="text"
+                placeholder="Search Inventory"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full sm:max-w-xs border border-green-400 rounded-lg px-3 py-2 text-sm"
+              />
+
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full sm:max-w-xs border border-green-400 rounded-lg px-3 py-2 text-sm"
+              >
+                <option value="" className="text-sm">All Categories</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -141,44 +179,49 @@ const InventoryandSupplies = () => {
               </thead>
 
               <tbody>
-                {inventories.length === 0 ? (
+                {filteredInventories.length === 0 ? (
                   <tr>
-                    <td colSpan="8" className="py-6 text-gray-500">
+                    <td colSpan="10" className="py-6 text-gray-500 text-center">
                       No inventory items found
                     </td>
                   </tr>
                 ) : (
-                  inventories.map((item, index) => (
+                  filteredInventories.map((item, index) => (
                     <tr
                       key={item.id}
                       className="border-b hover:bg-green-100 text-sm"
                     >
-                      <td className="p-2 text-center border border-gray-400">{index + 1}</td>
-
-                      <td className="p-2 text-center border border-gray-400">{item.itemName}</td>
-
-                      <td className="p-2 text-center border border-gray-400">{item.category ?? "-"}</td>
-
-                      <td className="p-2 text-center border border-gray-400">{item.quantity ?? "-"}</td>
-
-                      <td className="p-2 text-center border border-gray-400">{item.unit ?? "-"}</td>
-
-                      <td className="p-2 text-center border border-gray-400">{item.supplier ?? "-"}</td>
-
-                      <td className="p-2 text-center border border-gray-400">{item.storageLocation ?? "-"}</td>
-
+                      <td className="p-2 text-center border border-gray-400">
+                        {index + 1}
+                      </td>
+                      <td className="p-2 text-center border border-gray-400">
+                        {item.itemName}
+                      </td>
+                      <td className="p-2 text-center border border-gray-400">
+                        {item.category ?? "-"}
+                      </td>
+                      <td className="p-2 text-center border border-gray-400">
+                        {item.quantity ?? "-"}
+                      </td>
+                      <td className="p-2 text-center border border-gray-400">
+                        {item.unit ?? "-"}
+                      </td>
+                      <td className="p-2 text-center border border-gray-400">
+                        {item.supplier ?? "-"}
+                      </td>
+                      <td className="p-2 text-center border border-gray-400">
+                        {item.storageLocation ?? "-"}
+                      </td>
                       <td className="p-2 text-center border border-gray-400">
                         {item.dateAcquired
                           ? new Date(item.dateAcquired).toLocaleDateString()
                           : "-"}
                       </td>
-
                       <td className="p-2 text-center border border-gray-400">
                         {item.expirationDate
                           ? new Date(item.expirationDate).toLocaleDateString()
                           : "-"}
                       </td>
-
                       {/* Actions */}
                       <td className="p-2 text-center border border-gray-400">
                         <div className="flex justify-center">
@@ -190,7 +233,6 @@ const InventoryandSupplies = () => {
                               sx={{ color: "#e2c018ff", fontSize: 16 }}
                             />
                           </IconButton>
-
                           <IconButton
                             aria-label="edit"
                             onClick={() => handleEdit(item)}
@@ -199,7 +241,6 @@ const InventoryandSupplies = () => {
                               sx={{ color: "#266b0f", fontSize: 16 }}
                             />
                           </IconButton>
-
                           <IconButton
                             aria-label="delete"
                             onClick={() => handleDelete(item.id)}

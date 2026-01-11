@@ -18,7 +18,7 @@ const tableColumns = {
   healthList: [
     { label: "Raiser Name", key: "raiserName" },
     { label: "Barangay", key: "address" },
-    { label: "Livestock Type", key: "typeOfAnima" },
+    { label: "Livestock Type", key: "typeOfAnimal" },
     { label: "Health Condition", key: "healthCondition" },
     { label: "Record Type", key: "recordType" },
   ],

@@ -13,7 +13,7 @@ import { useAuth } from "./AuthContext";
 const AddItemModal = ({ open, onClose, mode, inventory }) => {
   const [loading, setLoading] = useState(false);
 
-   const { user } = useAuth();
+  const { user } = useAuth();
 
   const [formData, setFormData] = useState({
     itemName: "",
@@ -26,7 +26,6 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
     expirationDate: "",
     storageLocation: "",
     remarks: "",
-    uid: "",
   });
 
   useEffect(() => {
@@ -69,6 +68,11 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
   };
 
   const handleSave = async () => {
+    if (!user) {
+      Swal.fire("Error", "User not authenticated", "error");
+      return;
+    }
+
     if (loading) return;
     const result = await Swal.fire({
       title: mode === "edit" ? "Update Item?" : "Add Item?",
@@ -85,7 +89,6 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
 
     if (!result.isConfirmed) return;
 
-
     try {
       setLoading(true);
       if (mode === "add") {
@@ -94,7 +97,7 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
           ...formData,
           quantity: Number(formData.quantity),
           createdAt: serverTimestamp(),
-          uid: user.id
+          uid: user.uid,
         });
 
         Swal.fire({
@@ -105,6 +108,7 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
           showConfirmButton: false,
         });
         onClose();
+        window.location.reload()
       } else if (mode === "edit" && inventory?.id) {
         // UPDATE
         const docRef = doc(db, "inventories", inventory.id);
@@ -125,6 +129,7 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
       }
 
       onClose();
+      window.location.reload()
     } catch (error) {
       console.error("Firestore error:", error);
       Swal.fire("Error", "Something went wrong. Please try again.", "error");
