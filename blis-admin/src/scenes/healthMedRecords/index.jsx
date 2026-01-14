@@ -14,6 +14,12 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import logo1 from "../../../src/assets/bantaylogo.jpg";
+import logo2 from "../../../src/assets/duras.jpg";
+import logo3 from "../../../src/assets/mao.jpg";
+import logo4 from "../../../src/assets/pilipins.png";
+
+const ROWS_PER_PAGE = 20;
 
 const tableColumns = {
   healthList: [
@@ -298,6 +304,176 @@ const HealthandMedical = () => {
     doc.save(`${activeTable}-report.pdf`);
   };
 
+  const handleExportVaccinationPDF = () => {
+    const doc = new jsPDF({
+      orientation: "landscape",
+      unit: "mm",
+      format: "a4",
+    });
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    /* ================= HEADER ================= */
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+
+    const centerX = pageWidth / 2;
+    const headerY = 20;
+
+    doc.text("REPUBLIC OF THE PHILIPPINES", centerX, headerY, {
+      align: "center",
+    });
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.text("MUNICIPALITY OF BANTAY", centerX, headerY + 5, {
+      align: "center",
+    });
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.text("Bantay, Ilocos Sur", centerX, headerY + 10, {
+      align: "center",
+    });
+
+    // --- IMAGES ---
+    const imgSize = 18; // 👈 bigger logos
+    const imgY = headerY - 8; // 👈 vertically aligned with first line
+    const imgGap = 6;
+
+    // Left side logos
+    doc.addImage(logo4, "PNG", centerX - 90, imgY, imgSize, imgSize);
+    doc.addImage(
+      logo1,
+      "PNG",
+      centerX - 90 + imgSize + imgGap,
+      imgY,
+      imgSize,
+      imgSize
+    );
+
+    // Right side logos
+    doc.addImage(
+      logo3,
+      "PNG",
+      centerX + 90 - imgSize * 2 - imgGap,
+      imgY,
+      imgSize,
+      imgSize
+    );
+    doc.addImage(logo2, "PNG", centerX + 90 - imgSize, imgY, imgSize, imgSize);
+
+    doc.setFontSize(14);
+    doc.text("VACCINATION REPORT", pageWidth / 2, 42, { align: "center" });
+
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    const infoStartY = 45; // 👈 increase this to move everything lower
+
+    doc.text("Province: ________________________", 14, infoStartY);
+    doc.text("Municipality: ____________________", 14, infoStartY + 5);
+    doc.text("Barangay: ________________________", 14, infoStartY + 10);
+
+    doc.text(
+      "Livestock Inspector: ____________________",
+      pageWidth - 90,
+      infoStartY
+    );
+    doc.text("Date: ____________________", pageWidth - 90, infoStartY + 5);
+
+    /* ================= TABLE ================= */
+    const startY = 56;
+
+    const columns = [
+      "No.",
+      "Name of Owner",
+      "Contact No.",
+      "Species",
+      "Pet Name",
+      "Sex",
+      "Age",
+      "Vaccine Used",
+      "Lot #",
+      "Signature",
+      "Remarks",
+    ];
+
+    // Create exactly 20 rows (like the form)
+    const rows = Array.from({ length: 17 }).map((_, i) => {
+      const record = displayedRecords[i];
+
+      if (!record) {
+        return [i + 1, "", "", "", "", "", "", "", "", "", ""];
+      }
+
+      return [
+        i + 1,
+        record.raiserName || "",
+        record.contactNumber || "",
+        record.typeOfAnimal || "",
+        record.livestockName || "",
+        record.recordData?.sex || "",
+        record.age || "",
+        record.recordData?.vaccine || "",
+        record.recordData?.lotNumber || "",
+        "",
+        record.recordData?.remarks || "",
+      ];
+    });
+
+    autoTable(doc, {
+      startY,
+      head: [columns],
+      body: rows,
+      theme: "grid",
+      styles: {
+        fontSize: 8,
+        cellPadding: 2,
+        lineWidth: 0.3,
+        lineColor: [0, 0, 0],
+        textColor: [0, 0, 0],
+        font: "helvetica",
+        valign: "middle",
+      },
+      headStyles: {
+        fillColor: [255, 255, 255],
+        textColor: 0,
+        fontStyle: "bold",
+      },
+      columnStyles: {
+        0: { cellWidth: 10 }, // No.
+        1: { cellWidth: 45 }, // Owner
+        2: { cellWidth: 30 }, // Contact
+        3: { cellWidth: 18 }, // Species
+        4: { cellWidth: 25 }, // Pet Name
+        5: { cellWidth: 12 }, // Sex
+        6: { cellWidth: 12 }, // Age
+        7: { cellWidth: 28 }, // Vaccine
+        8: { cellWidth: 18 }, // Lot #
+        9: { cellWidth: 30 }, // Signature
+        10: { cellWidth: 35 }, // Remarks
+      },
+    });
+
+    /* ================= FOOTER ================= */
+    const finalY = doc.lastAutoTable.finalY + 10;
+
+    doc.text("Submitted by: ____________________", 14, finalY);
+    doc.text("Noted by: ____________________", pageWidth - 90, finalY);
+
+    doc.save("vaccination-report.pdf");
+  };
+
+  const handleDownloadPDF = () => {
+    if (!displayedRecords.length) return;
+
+    if (activeTable === "vaccination") {
+      handleExportVaccinationPDF();
+    } else {
+      handleExportPDF();
+    }
+  };
+
   const handleExportExcel = () => {
     if (!displayedRecords.length) return;
 
@@ -415,22 +591,22 @@ const HealthandMedical = () => {
 
             <div className="flex gap-2">
               <button
-                onClick={handleExportPDF}
+                onClick={handleDownloadPDF}
                 disabled={!displayedRecords.length}
                 className="px-4 py-2 rounded-lg bg-red-600 text-white
-                 hover:bg-red-700 disabled:opacity-50 disabled:cursor-no-drop"
+   hover:bg-red-700 disabled:opacity-50 disabled:cursor-no-drop"
               >
                 Download Report PDF
               </button>
 
-              <button
+              {/* <button
                 onClick={handleExportExcel}
                 disabled={!displayedRecords.length}
                 className="px-4 py-2 rounded-lg bg-green-600 text-white cursor-pointer
                  hover:bg-green-700 disabled:opacity-50 disabled:cursor-no-drop"
               >
                 Download Report Excel
-              </button>
+              </button> */}
             </div>
           </div>
 
