@@ -27,9 +27,10 @@ import { IconButton } from "@mui/material";
 import RaiserEdit from "../../components/RaiserEdit";
 import RaiserView from "../../components/RaiserView";
 import { useAuth } from "../../components/AuthContext";
+import { notifyAllUsers } from "../../components/NotifyAllUsers";
 
 const RaiserProfile = () => {
-   const { user } = useAuth();
+  const { user } = useAuth();
 
   const [raisers, setRaisers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -126,6 +127,12 @@ const RaiserProfile = () => {
       // 5️⃣ Delete raiser
       await deleteDoc(doc(db, "raisers", raiser.id));
 
+      await notifyAllUsers({
+        title: "Raiser Profile Deleted",
+        message: `Raiser ${raiser.firstName} ${raiser.lastName} and its livestock record was removed.`,
+        type: "delete",
+      });
+
       Swal.fire({
         title: "Deleted!",
         text: "Raiser and all related data were deleted.",
@@ -134,7 +141,7 @@ const RaiserProfile = () => {
         showConfirmButton: false,
       });
       fetchData();
-      window.location.reload()
+      window.location.reload();
     } catch (error) {
       console.error(error);
       Swal.fire({
@@ -223,13 +230,18 @@ const RaiserProfile = () => {
               cleanObject({
                 ...record,
                 type,
-                uid: user.uid,
                 createdAt: serverTimestamp(),
               })
             );
           }
         }
       }
+
+      await notifyAllUsers({
+        title: "New Raiser Profile",
+        message: `Record for Raiser ${raisers.firstName} and its livestock records has been created`,
+        type: "add",
+      });
 
       Swal.fire({
         title: "Saved!",
@@ -241,7 +253,7 @@ const RaiserProfile = () => {
 
       fetchData();
       resetWizard();
-      window.location.reload()
+      window.location.reload();
     } catch (error) {
       console.error(error);
       Swal.fire({
@@ -371,20 +383,34 @@ const RaiserProfile = () => {
                       key={raiser.id}
                       className="border-b hover:bg-green-100 text-center"
                     >
-                      <td className="p-2 text-center border border-gray-400">{index + 1}</td>
+                      <td className="p-2 text-center border border-gray-400">
+                        {index + 1}
+                      </td>
                       <td
                         className="p-2 text-center border border-gray-400 cursor-pointer"
                         onClick={() => handleRaiserClick(raiser)}
                       >{`${raiser.lastName}, ${raiser.firstName} ${
                         raiser.middleInitial || ""
                       }`}</td>
-                      <td className="p-2 text-center border border-gray-400">{raiser.email}</td>
-                      <td className="p-2 text-center border border-gray-400">{raiser.gender}</td>
-                      <td className="p-2 text-center border border-gray-400">{raiser.contactNumber}</td>
-                      <td className="p-2 text-center border border-gray-400">{raiser.address}</td>
-                      <td className="p-2 text-center border border-gray-400">{raiser.typeOfRaiser}</td>
+                      <td className="p-2 text-center border border-gray-400">
+                        {raiser.email}
+                      </td>
+                      <td className="p-2 text-center border border-gray-400">
+                        {raiser.gender}
+                      </td>
+                      <td className="p-2 text-center border border-gray-400">
+                        {raiser.contactNumber}
+                      </td>
+                      <td className="p-2 text-center border border-gray-400">
+                        {raiser.address}
+                      </td>
+                      <td className="p-2 text-center border border-gray-400">
+                        {raiser.typeOfRaiser}
+                      </td>
 
-                      <td className="p-2 text-center border border-gray-400">{raiser.registrationStatus}</td>
+                      <td className="p-2 text-center border border-gray-400">
+                        {raiser.registrationStatus}
+                      </td>
 
                       <td className="p-2 text-center border border-gray-400">
                         <div className="flex justify-center space-x-1">

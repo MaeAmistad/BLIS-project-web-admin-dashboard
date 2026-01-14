@@ -9,6 +9,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase"; // adjust path
 import { useAuth } from "./AuthContext";
+import { notifyAllUsers } from "./NotifyAllUsers";
 
 const AddItemModal = ({ open, onClose, mode, inventory }) => {
   const [loading, setLoading] = useState(false);
@@ -68,6 +69,7 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
   };
 
   const handleSave = async () => {
+    if (!user || loading) return;
     if (!user) {
       Swal.fire("Error", "User not authenticated", "error");
       return;
@@ -97,7 +99,12 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
           ...formData,
           quantity: Number(formData.quantity),
           createdAt: serverTimestamp(),
-          uid: user.uid,
+        });
+
+        await notifyAllUsers({
+          title: "Inventory Added",
+          message: `A new item was added: ${formData.itemName}.`,
+          type: "add",
         });
 
         Swal.fire({
@@ -108,7 +115,6 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
           showConfirmButton: false,
         });
         onClose();
-        window.location.reload()
       } else if (mode === "edit" && inventory?.id) {
         // UPDATE
         const docRef = doc(db, "inventories", inventory.id);
@@ -117,6 +123,12 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
           ...formData,
           quantity: Number(formData.quantity),
           updatedAt: serverTimestamp(),
+        });
+
+        await notifyAllUsers({
+          title: "Inventory Updated",
+          message: `Item ${formData.itemName} was updated.`,
+          type: "edit",
         });
 
         Swal.fire({
@@ -129,7 +141,6 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
       }
 
       onClose();
-      window.location.reload()
     } catch (error) {
       console.error("Firestore error:", error);
       Swal.fire("Error", "Something went wrong. Please try again.", "error");

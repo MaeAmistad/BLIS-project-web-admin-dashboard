@@ -26,6 +26,7 @@ import {
 } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import Headerr from "../../components/Headerr";
+import { notifyAllUsers } from "../../components/NotifyAllUsers";
 
 const Account = () => {
   const [users, setUsers] = useState([]);
@@ -162,6 +163,12 @@ const Account = () => {
         // 🔹 Send verification email
         await sendEmailVerification(user);
 
+        await notifyAllUsers({
+          title: "User Added",
+          message: `A new user account was created: ${data.role} ${data.name}.`,
+          type: "add",
+        });
+
         // 🔹 Notify admin
         Swal.fire({
           icon: "success",
@@ -175,7 +182,6 @@ const Account = () => {
           confirmButtonColor: "#106013ff",
           confirmButtonText: "Ok",
         });
-        
       }
 
       if (mode === "edit" && selectedUser) {
@@ -184,6 +190,12 @@ const Account = () => {
           name,
           email,
           updatedAt: serverTimestamp(),
+        });
+
+        await notifyAllUsers({
+          title: "User Information Updated",
+          message: `Information for user ${data.email} has been updated.`,
+          type: "add",
         });
 
         Swal.fire({
@@ -244,6 +256,12 @@ const Account = () => {
         updatedAt: serverTimestamp(),
       });
 
+      await notifyAllUsers({
+        title: "Inventory Updated",
+        message: `User account ${data.email}" was deactivated.`,
+        type: "delete",
+      });
+
       Swal.fire({
         icon: "success",
         title: "User Deactivated",
@@ -256,7 +274,7 @@ const Account = () => {
       setUsers((prev) =>
         prev.map((u) => (u.id === user.id ? { ...u, status: "inactive" } : u))
       );
-      window.location.reload()
+      window.location.reload();
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -295,16 +313,16 @@ const Account = () => {
         icon: "success",
         title: "Password Reset Email Sent",
         text: `A password reset link was sent to ${data.email}.`,
-        confirmButtonText:"Ok",
-        confirmButtonColor:"##2E7D32"
+        confirmButtonText: "Ok",
+        confirmButtonColor: "##2E7D32",
       });
-      window.location.reload()
+      window.location.reload();
     } catch (error) {
       Swal.fire({
         icon: "error",
         title: "Reset Failed",
         text: error.message,
-        confirmButtonText:"Close"
+        confirmButtonText: "Close",
       });
     }
   };
@@ -369,10 +387,18 @@ const Account = () => {
                         key={user.id}
                         className="border-b hover:bg-green-50 text-center"
                       >
-                        <td className="p-2 text-center border border-gray-400">{index + 1}</td>
-                        <td className="p-2 text-center border border-gray-400">{user.role}</td>
-                        <td className="p-2 text-center border border-gray-400">{user.name}</td>
-                        <td className="p-2 text-center border border-gray-400">{user.email}</td>
+                        <td className="p-2 text-center border border-gray-400">
+                          {index + 1}
+                        </td>
+                        <td className="p-2 text-center border border-gray-400">
+                          {user.role}
+                        </td>
+                        <td className="p-2 text-center border border-gray-400">
+                          {user.name}
+                        </td>
+                        <td className="p-2 text-center border border-gray-400">
+                          {user.email}
+                        </td>
                         <td className="p-2 text-center border border-gray-400">
                           <div className="flex justify-center space-x-1">
                             <IconButton

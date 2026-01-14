@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import Swal from "sweetalert2";
+import { notifyAllUsers } from "./NotifyAllUsers";
 
 const RaiserEdit = ({ open, onClose, raiserData }) => {
   const [formData, setFormData] = useState({
@@ -13,14 +14,14 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
     farmName: "",
     gender: "",
     lastName: "",
-    firstName:"",
+    firstName: "",
     middleInitial: "",
     numberOfWorkers: "",
     registrationStatus: "",
     typeOfRaiser: "",
   });
 
-  console.log("Passed Raiser Data: ", raiserData)
+  console.log("Passed Raiser Data: ", raiserData);
 
   useEffect(() => {
     if (raiserData) {
@@ -42,38 +43,57 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
     }
   }, [raiserData]);
 
-   const handleChange = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const raiserRef = doc(db, "raisers", raiserData.id);
+    try {
+      const raiserRef = doc(db, "raisers", raiserData.id);
 
-    await updateDoc(raiserRef, {
-      address: formData.address,
-      contactNumber: formData.contactNumber,
-      email: formData.email,
-      farmLocation: formData.farmLocation,
-      farmSize: formData.farmSize,
-      farmName: formData.farmName,
-      gender: formData.gender,
-      lastName: formData.lastName,
-      middleInitial: formData.middleInitial,
-      numberOfWorkers: formData.numberOfWorkers,
-      registrationStatus: formData.registrationStatus,
-      typeOfRaiser: formData.typeOfRaiser,
-    });
+      await updateDoc(raiserRef, {
+        address: formData.address,
+        contactNumber: formData.contactNumber,
+        email: formData.email,
+        farmLocation: formData.farmLocation,
+        farmSize: formData.farmSize,
+        farmName: formData.farmName,
+        gender: formData.gender,
+        lastName: formData.lastName,
+        middleInitial: formData.middleInitial,
+        numberOfWorkers: formData.numberOfWorkers,
+        registrationStatus: formData.registrationStatus,
+        typeOfRaiser: formData.typeOfRaiser,
+      });
 
-    onClose();
-  } catch (error) {
-    console.error("Error updating raiser:", error);
-    Swal.fire("Error!", "Something went wrong while saving. ", error, "error");
-  }
-};
+      await notifyAllUsers({
+        title: "Raiser Information Updated",
+        message: `Record for Raiser ${formData.firstName} has been updated`,
+        type: "edit",
+      });
+
+      Swal.fire({
+        title: "Updated!",
+        text: "Raiser info has been updated successfully.",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      onClose();
+    } catch (error) {
+      console.error("Error updating raiser:", error);
+      Swal.fire(
+        "Error!",
+        "Something went wrong while saving. ",
+        error,
+        "error"
+      );
+    }
+  };
   if (!open) return null;
 
   return (
@@ -87,119 +107,119 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
                  bg-white rounded-2xl shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-      <form onSubmit={handleSubmit}>
-        {/* HEADER */}
-        <div className="flex items-center justify-between px-6 py-4 border-b">
-          <div>
-            <h1 className="text-xl font-semibold text-gray-800">
-              Edit Raiser Information
-            </h1>
-          </div>
-
-          <button onClick={onClose} className="text-red-500 text-xl">
-            ✕
-          </button>
-        </div>
-
-        {/* CONTENT */}
-        <div className="p-6 space-y-6">
-          {/* ROW 1 — PERSONAL INFO */}
-          <div className="bg-gray-50 rounded-xl p-5">
-            <h2 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wide">
-              Personal Information
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <Input
-                label="Last Name"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-              />
-              <Input
-                label="First Name"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-              />
-              <Input
-                label="Middle Initial"
-                name="middleInitial"
-                value={formData.middleInitial}
-                onChange={handleChange}
-              />
-
-              <Input
-                label="Email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-              />
-
-              <Select
-                label="Gender"
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                options={["Male", "Female"]}
-              />
-              <Input
-                label="Contact No."
-                name="contactNumber"
-                value={formData.contactNumber}
-                onChange={handleChange}
-              />
-              <Input
-                label="Barangay"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-              />
-
-              <Select
-                label="Type of Raiser"
-                name="typeOfRaiser"
-                value={formData.typeOfRaiser}
-                onChange={handleChange}
-                options={["Backyard", "Commercial"]}
-              />
+        <form onSubmit={handleSubmit}>
+          {/* HEADER */}
+          <div className="flex items-center justify-between px-6 py-4 border-b">
+            <div>
+              <h1 className="text-xl font-semibold text-gray-800">
+                Edit Raiser Information
+              </h1>
             </div>
+
+            <button onClick={onClose} className="text-red-500 text-xl">
+              ✕
+            </button>
           </div>
 
-          {/* ROW 2 — FARM INFO */}
-          <div className="bg-gray-50 rounded-xl p-5">
-            <h2 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wide">
-              Farm Information
-            </h2>
+          {/* CONTENT */}
+          <div className="p-6 space-y-6">
+            {/* ROW 1 — PERSONAL INFO */}
+            <div className="bg-gray-50 rounded-xl p-5">
+              <h2 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wide">
+                Personal Information
+              </h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <Input
-                label="Farm Name"
-                name="farmName"
-                value={formData.farmName}
-                onChange={handleChange}
-              />
-              <Input
-                label="Farm Location"
-                name="farmLocation"
-                value={formData.farmLocation}
-                onChange={handleChange}
-              />
-              <Input
-                label="Farm Size"
-                name="farmSize"
-                value={formData.farmSize}
-                onChange={handleChange}
-              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Input
+                  label="Last Name"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                />
+                <Input
+                  label="First Name"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                />
+                <Input
+                  label="Middle Initial"
+                  name="middleInitial"
+                  value={formData.middleInitial}
+                  onChange={handleChange}
+                />
 
-              <Input
-                label="Number of Workers"
-                name="numberOfWorkers"
-                value={formData.numberOfWorkers}
-                onChange={handleChange}
-              />
+                <Input
+                  label="Email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
 
-              {/* <div className="flex flex-col gap-1">
+                <Select
+                  label="Gender"
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  options={["Male", "Female"]}
+                />
+                <Input
+                  label="Contact No."
+                  name="contactNumber"
+                  value={formData.contactNumber}
+                  onChange={handleChange}
+                />
+                <Input
+                  label="Barangay"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                />
+
+                <Select
+                  label="Type of Raiser"
+                  name="typeOfRaiser"
+                  value={formData.typeOfRaiser}
+                  onChange={handleChange}
+                  options={["Backyard", "Commercial"]}
+                />
+              </div>
+            </div>
+
+            {/* ROW 2 — FARM INFO */}
+            <div className="bg-gray-50 rounded-xl p-5">
+              <h2 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wide">
+                Farm Information
+              </h2>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Input
+                  label="Farm Name"
+                  name="farmName"
+                  value={formData.farmName}
+                  onChange={handleChange}
+                />
+                <Input
+                  label="Farm Location"
+                  name="farmLocation"
+                  value={formData.farmLocation}
+                  onChange={handleChange}
+                />
+                <Input
+                  label="Farm Size"
+                  name="farmSize"
+                  value={formData.farmSize}
+                  onChange={handleChange}
+                />
+
+                <Input
+                  label="Number of Workers"
+                  name="numberOfWorkers"
+                  value={formData.numberOfWorkers}
+                  onChange={handleChange}
+                />
+
+                {/* <div className="flex flex-col gap-1">
                 <label className="text-xs font-medium text-gray-600">
                   Date of Registration
                 </label>
@@ -210,31 +230,31 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
                   onChange={handleChange}
                 />
               </div> */}
-              <Select
-                label="Registration Status"
-                name="registrationStatus"
-                value={formData.registrationStatus}
-                onChange={handleChange}
-                options={["Active", "Inactive"]}
-              />
+                <Select
+                  label="Registration Status"
+                  name="registrationStatus"
+                  value={formData.registrationStatus}
+                  onChange={handleChange}
+                  options={["Active", "Inactive"]}
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* FOOTER */}
-        <div className="flex justify-between items-center px-6 py-4 border-t bg-gray-50">
-          <button className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100">
-            Cancel
-          </button>
+          {/* FOOTER */}
+          <div className="flex justify-between items-center px-6 py-4 border-t bg-gray-50">
+            <button className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100">
+              Cancel
+            </button>
 
-          <button type="submit"
-            className="px-6 py-2 rounded-lg text-white bg-green-600
+            <button
+              type="submit"
+              className="px-6 py-2 rounded-lg text-white bg-green-600
              hover:bg-green-700 shadow-sm disabled:opacity-50"
-          >
-            Update Raiser
-          </button>
-        </div>
-
+            >
+              Update Raiser
+            </button>
+          </div>
         </form>
       </div>
     </div>

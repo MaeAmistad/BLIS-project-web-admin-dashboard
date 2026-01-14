@@ -6,6 +6,7 @@ import VaccinesIcon from "@mui/icons-material/Vaccines";
 import MedicationIcon from "@mui/icons-material/Medication";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import BiotechIcon from "@mui/icons-material/Biotech";
+import MedicationLiquidRoundedIcon from "@mui/icons-material/MedicationLiquidRounded";
 import Headerr from "../../components/Headerr";
 import { collection, getDocs, collectionGroup } from "firebase/firestore";
 import { db } from "../../firebase";
@@ -62,6 +63,19 @@ const tableColumns = {
     { label: "Specialist", key: "specialist" },
     { label: "Status", key: "status" },
     { label: "Calving Date", key: "calvingDate" },
+    { label: "Remarks", key: "remarks" },
+  ],
+  unvaccinated: [
+    { label: "Name of Owner", key: "raiserName" },
+    { label: "Contact No", key: "contactNumber" },
+    { label: "No of Dogs", key: "dogCount" },
+    { label: "No of Cats", key: "catCount" },
+
+    // reasons (flattened for now)
+    { label: "Awan Tao", key: "reasonAwanTao" },
+    { label: "Below 3 Months", key: "reasonBelow3Months" },
+    { label: "Pregnant", key: "reasonPregnant" },
+
     { label: "Remarks", key: "remarks" },
   ],
 };
@@ -121,6 +135,73 @@ const HealthandMedical = () => {
     setSearchTerm("");
   }, [activeTable]);
 
+  const normalizeAnimal = (typeOfAnimal = "") => {
+    const t = typeOfAnimal.toLowerCase();
+    if (t === "dog" || t === "dogs") return "dog";
+    if (t === "cat" || t === "cats") return "cat";
+    return null;
+  };
+
+  const unvaccinatedRecords = useMemo(() => {
+    if (!healthRecords.length || !livestock.length || !raisers.length)
+      return [];
+
+    // only unvaccinated records
+    const unvaccinated = healthRecords.filter((r) => r.type === "unvaccinated");
+
+    const map = {};
+
+    unvaccinated.forEach((record) => {
+      const animal = livestock.find((l) => l.id === record.livestockId);
+      const raiser = raisers.find((r) => r.id === record.raiserId);
+      if (!raiser || !animal) return;
+
+      const key = raiser.id;
+      const animalType = normalizeAnimal(animal.typeOfAnimal);
+
+      if (!map[key]) {
+        map[key] = {
+          id: key,
+          raiserName: `${raiser.firstName} ${raiser.lastName}`,
+          contactNumber: raiser.contactNumber || "—",
+
+          dogCount: 0,
+          catCount: 0,
+
+          reasonAwanTao: 0,
+          reasonBelow3Months: 0,
+          reasonPregnant: 0,
+
+          remarks: "",
+        };
+      }
+
+      // count dogs & cats
+      if (animalType === "dog") map[key].dogCount += 1;
+      if (animalType === "cat") map[key].catCount += 1;
+
+      // count reasons
+      switch (record.reason) {
+        case "Awan Tao":
+          map[key].reasonAwanTao += 1;
+          break;
+        case "Below 3 Months":
+          map[key].reasonBelow3Months += 1;
+          break;
+        case "Pregnant":
+          map[key].reasonPregnant += 1;
+          break;
+        default:
+          break;
+      }
+
+      // optional
+      map[key].remarks = record.remarks || map[key].remarks;
+    });
+
+    return Object.values(map);
+  }, [healthRecords, livestock, raisers]);
+
   const joinedRecords = useMemo(() => {
     if (!healthRecords.length || !livestock.length || !raisers.length)
       return [];
@@ -147,6 +228,10 @@ const HealthandMedical = () => {
   }, [healthRecords, livestock, raisers]);
 
   const displayedRecords = useMemo(() => {
+    if (activeTable === "unvaccinated") {
+      return unvaccinatedRecords;
+    }
+
     let data =
       activeTable === "healthList"
         ? joinedRecords
@@ -156,26 +241,13 @@ const HealthandMedical = () => {
 
     const term = searchTerm.toLowerCase();
 
-    return data.filter((row) => {
-      // Fields always available
-      const baseFields = [
-        row.raiserName,
-        row.address,
-        row.typeOfAnimal,
-        row.healthCondition,
-        row.recordType,
-      ];
-
-      // Dynamic fields based on active table
-      const dynamicFields =
-        activeTable === "healthList" ? [] : Object.values(row.recordData || {});
-
-      return [...baseFields, ...dynamicFields].some(
+    return data.filter((row) =>
+      Object.values(row).some(
         (value) =>
           typeof value === "string" && value.toLowerCase().includes(term)
-      );
-    });
-  }, [activeTable, joinedRecords, searchTerm]);
+      )
+    );
+  }, [activeTable, joinedRecords, unvaccinatedRecords, searchTerm]);
 
   const handleButtonClick = (tableName) => {
     setActiveTable(tableName);
@@ -289,7 +361,7 @@ const HealthandMedical = () => {
 
             <button
               onClick={() => handleButtonClick("deworming")}
-              className="flex items-center gap-2 bg-purple-600 text-white px-5 py-3 rounded-xl shadow hover:bg-purple-700 transition"
+              className="flex items-center gap-2 bg-purple-600 text-white px-5 py-3 rounded-xl shadow hover:bg-purple-800 transition"
             >
               <MedicationIcon />
               Deworming Record
@@ -309,6 +381,14 @@ const HealthandMedical = () => {
             >
               <BiotechIcon />
               Artificial Insemination Record
+            </button>
+
+            <button
+              onClick={() => handleButtonClick("unvaccinated")}
+              className="flex items-center gap-2 bg-sky-700 text-white px-5 py-3 rounded-xl shadow hover:bg-sky-900  transition"
+            >
+              <MedicationLiquidRoundedIcon />
+              Unvaccinated Livestocks
             </button>
 
             {/* <button
@@ -338,7 +418,7 @@ const HealthandMedical = () => {
                 onClick={handleExportPDF}
                 disabled={!displayedRecords.length}
                 className="px-4 py-2 rounded-lg bg-red-600 text-white
-                 hover:bg-red-700 disabled:opacity-50"
+                 hover:bg-red-700 disabled:opacity-50 disabled:cursor-no-drop"
               >
                 Download Report PDF
               </button>
@@ -346,8 +426,8 @@ const HealthandMedical = () => {
               <button
                 onClick={handleExportExcel}
                 disabled={!displayedRecords.length}
-                className="px-4 py-2 rounded-lg bg-green-600 text-white
-                 hover:bg-green-700 disabled:opacity-50"
+                className="px-4 py-2 rounded-lg bg-green-600 text-white cursor-pointer
+                 hover:bg-green-700 disabled:opacity-50 disabled:cursor-no-drop"
               >
                 Download Report Excel
               </button>
