@@ -121,7 +121,7 @@ const StatCard = ({ title, value, icon: Icon, color }) => (
 );
 
 const ActivityLog = ({ logs }) => (
-  <div className="bg-white rounded-2xl shadow p-4 h-[180px] overflow-y-auto border border-gray-300">
+  <div className="bg-white rounded-2xl shadow p-4 h-full overflow-y-auto border border-gray-300 flex flex-col">
     <h3 className="font-semibold text-md mb-4 flex items-center gap-2">
       <Activity size={16} /> Recent Activity
     </h3>
@@ -129,7 +129,7 @@ const ActivityLog = ({ logs }) => (
     {logs.length === 0 ? (
       <p className="text-xs text-gray-500">No recent activity</p>
     ) : (
-      <ul className="space-y-4">
+      <ul className="space-y-4 text-xs overflow-y-auto">
         {logs.map((log) => {
           const date = log.createdAt?.toDate() || log.updatedAt?.toDate();
 
@@ -443,9 +443,9 @@ const Dashboard = () => {
             ) : (
               <>
                 {/* ================= MAIN GRID ================= */}
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-6">
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-6 items-stretch">
                   {/* LEFT CONTENT */}
-                  <div className="xl:col-span-6 space-y-4">
+                  <div className="xl:col-span-6 space-y-4 h-full flex flex-col">
                     {/* ================= KPI CARDS ================= */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-3 place-items-center">
                       <StatCard
@@ -504,8 +504,8 @@ const Dashboard = () => {
                   </div>
 
                   {/* RIGHT CONTENT */}
-                  <div className="xl:col-span-6 h-full grid grid-cols-1 xl:grid-cols-2 gap-2">
-                    {/* LEFT SIDE: Activity + Alerts */}
+                  {/* <div className="xl:col-span-6 h-full grid grid-cols-1 xl:grid-cols-2 gap-2">
+
                     <div className="space-y-2 max-h-[calc(100vh-220px)]">
                       <div className="flex-[5] overflow-hidden">
                         <ActivityLog logs={activityLogs} />
@@ -516,11 +516,21 @@ const Dashboard = () => {
                           lowStock={stats.lowStock}
                           aiPending={stats.aiPending}
                         />
-                      </div>
+                      </div> 
                     </div>
 
-                    {/* RIGHT SIDE: Calendar */}
                     <div className="overflow-y-auto max-h-[calc(100vh-170px)]">
+                      <CalendarPanel />
+                    </div>
+                  </div> */}
+                  <div className="xl:col-span-6 h-full grid grid-cols-1 xl:grid-cols-2 gap-2">
+                    {/* Activity */}
+                    <div className="h-full">
+                      <ActivityLog logs={activityLogs} />
+                    </div>
+
+                    {/* Calendar */}
+                    <div className="h-full overflow-auto">
                       <CalendarPanel />
                     </div>
                   </div>
