@@ -90,7 +90,7 @@ const Sidebarr = () => {
   return (
     <div
       className={`bg-[#2E7D32] h-screen p-2 pt-5 ${
-        open ? "w-72" : "w-20"
+        open ? "w-64" : "w-20"
       } duration-300 relative shadow-lg`}
     >
       {/* Logo */}
@@ -118,7 +118,7 @@ const Sidebarr = () => {
             <li key={index}>
               <Link
                 to={menu.path}
-                className={`flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-all
+                className={`flex items-center gap-3 p-3 rounded-lg text-xs font-medium transition-all
                 ${
                   isActive
                     ? "bg-[#12961A] text-white shadow"
@@ -137,10 +137,10 @@ const Sidebarr = () => {
       <div>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 p-3 rounded-lg font-medium text-white text-sm hover:bg-red-500/70 transition-all w-full"
+          className="flex items-center gap-3 p-3 rounded-lg font-medium text-white text-xs hover:bg-red-500/70 transition-all w-full"
         >
           <LogoutRoundedIcon />
-          <span className={`text-md ${!open && "hidden"}`}>Log out</span>
+          <span className={`text-xs ${!open && "hidden"}`}>Log out</span>
         </button>
       </div>
 

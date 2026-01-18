@@ -9,12 +9,15 @@ import {
   sendEmailVerification,
 } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
+import { VisibilityOffRounded, VisibilityRounded } from "@mui/icons-material";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -57,12 +60,12 @@ const Login = () => {
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
-        password
+        password,
       );
 
       const firebaseUser = userCredential.user;
 
-      // ✅ 1. Check email verification
+      // 1. Check email verification
       if (!firebaseUser.emailVerified) {
         const result = await Swal.fire({
           icon: "warning",
@@ -80,6 +83,8 @@ const Login = () => {
             icon: "success",
             title: "Verification Email Sent",
             text: "Please check your inbox (and spam folder).",
+            confirmButtonText: "Ok",
+            confirmButtonColor: "#08651bfa",
           });
         }
 
@@ -88,7 +93,7 @@ const Login = () => {
         return;
       }
 
-      // ✅ 2. Read user document from Firestore
+      // 2. Read user document from Firestore
       const userRef = doc(db, "users", firebaseUser.uid);
       const userSnap = await getDoc(userRef);
 
@@ -106,25 +111,29 @@ const Login = () => {
           icon: "error",
           title: "Account Inactive",
           text: "Your account is inactive. Please contact the administrator.",
+          confirmButtonText: "Ok",
+          confirmButtonColor: "#08651bfa",
         });
 
         auth.signOut();
         return;
       }
 
-      // ✅ 4. Check role
+      // 4. Check role
       if (role !== "ADMIN") {
         await Swal.fire({
           icon: "error",
           title: "Unauthorized",
           text: "You are not authorized to access this system.",
+          confirmButtonText: "Ok",
+          confirmButtonColor: "#08651bfa",
         });
 
         auth.signOut();
         return;
       }
 
-      // ✅ Success
+      // Success
       Swal.fire({
         icon: "success",
         title: `Welcome, ${userData.name}!`,
@@ -188,17 +197,30 @@ const Login = () => {
             <label className="block text-sm font-semibold text-gray-700 mb-1">
               Password
             </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              className={`w-full h-11 px-2 rounded-xl border text-sm focus:outline-none focus:ring-2 transition-all ${
-                passwordError
-                  ? "border-red-500 focus:ring-red-500"
-                  : "border-gray-300 focus:ring-green-600"
-              }`}
-            />
+            <div className="relative">
+              <input
+                type={isOpen ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={`w-full h-11 px-2 rounded-xl border text-sm focus:outline-none focus:ring-2 transition-all ${passwordError ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-green-600"}`}
+                placeholder="Password"
+              />
+
+              <button
+                type="button"
+                onClick={() => setIsOpen((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2"
+              >
+                {isOpen ? (
+                  <VisibilityRounded sx={{ color: "#959595", fontSize: 14 }} />
+                ) : (
+                  <VisibilityOffRounded
+                    sx={{ color: "#959595", fontSize: 14 }}
+                  />
+                )}
+              </button>
+            </div>
+
             {passwordError && (
               <p className="text-red-500 text-xs mt-1">{passwordError}</p>
             )}

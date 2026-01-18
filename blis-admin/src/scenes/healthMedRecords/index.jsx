@@ -63,12 +63,12 @@ const tableColumns = {
 
   ai: [
     { label: "Animal Type", key: "animalType" },
-    { label: "Date", key: "date" },
+    { label: "Date of Insemination", key: "date" },
     { label: "Time", key: "time" },
     { label: "Semen Type", key: "semenType" },
     { label: "Specialist", key: "specialist" },
     { label: "Status", key: "status" },
-    { label: "Calving Date", key: "calvingDate" },
+    { label: "Re-heat Monitoring", key: "calvingDate" },
     { label: "Remarks", key: "remarks" },
   ],
   unvaccinated: [
@@ -518,10 +518,10 @@ const HealthandMedical = () => {
 
         <div className="p-4">
           {/* Buttons Section */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <button
               onClick={() => handleButtonClick("healthList")}
-              className="flex items-center gap-2 bg-green-600 text-white px-5 py-3 rounded-xl shadow hover:bg-green-700 transition"
+              className="flex items-center gap-2 bg-green-600 text-white px-5 text-xs py-3 rounded-xl shadow hover:bg-green-700 transition"
             >
               <HealingIcon />
               Livestock Health List
@@ -529,7 +529,7 @@ const HealthandMedical = () => {
 
             <button
               onClick={() => handleButtonClick("vaccination")}
-              className="flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl shadow hover:bg-blue-700 transition"
+              className="flex items-center gap-2 bg-blue-600 text-white px-5 text-xs py-3 rounded-xl shadow hover:bg-blue-700 transition"
             >
               <VaccinesIcon />
               Vaccination Record
@@ -537,7 +537,7 @@ const HealthandMedical = () => {
 
             <button
               onClick={() => handleButtonClick("deworming")}
-              className="flex items-center gap-2 bg-purple-600 text-white px-5 py-3 rounded-xl shadow hover:bg-purple-800 transition"
+              className="flex items-center gap-2 bg-purple-600 text-white text-xs px-5 py-3 rounded-xl shadow hover:bg-purple-800 transition"
             >
               <MedicationIcon />
               Deworming Record
@@ -545,7 +545,7 @@ const HealthandMedical = () => {
 
             <button
               onClick={() => handleButtonClick("treatment")}
-              className="flex items-center gap-2 bg-red-600 text-white px-5 py-3 rounded-xl shadow hover:bg-red-700 transition"
+              className="flex items-center gap-2 bg-red-600 text-white text-xs px-5 py-3 rounded-xl shadow hover:bg-red-700 transition"
             >
               <LocalHospitalIcon />
               Treatment Record
@@ -553,15 +553,15 @@ const HealthandMedical = () => {
 
             <button
               onClick={() => handleButtonClick("ai")}
-              className="flex items-center gap-2 bg-amber-600 text-white px-5 py-3 rounded-xl shadow hover:bg-amber-700 transition"
+              className="flex items-center gap-2 bg-amber-600 text-white text-xs px-5 py-3 rounded-xl shadow hover:bg-amber-700 transition"
             >
               <BiotechIcon />
               Artificial Insemination Record
             </button>
 
             <button
-              onClick={() => handleButtonClick("unvaccinated")}
-              className="flex items-center gap-2 bg-sky-700 text-white px-5 py-3 rounded-xl shadow hover:bg-sky-900  transition"
+              onClick={() => handleButtonClick("unvaccinated")} 
+              className="flex items-center gap-2 bg-sky-700 text-white text-xs px-5 py-3 rounded-xl shadow hover:bg-sky-900  transition"
             >
               <MedicationLiquidRoundedIcon />
               Unvaccinated Livestocks
@@ -579,21 +579,21 @@ const HealthandMedical = () => {
 
         {/* Main Body */}
         <div className="m-1 mb-3 px-2 flex-grow overflow-y-auto bg-white-main shadow-md rounded-md">
-          <div className="mt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div className="mt-2 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <input
               type="text"
               placeholder="Search records..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full md:w-96 px-4 py-2 border border-gray-300 rounded-lg shadow-sm
-               focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full md:w-96 px-2 py-2 border border-gray-300 rounded-lg shadow-sm
+               focus:outline-none focus:ring-2 focus:ring-primary text-xs"
             />
 
             <div className="flex gap-2">
               <button
                 onClick={handleDownloadPDF}
                 disabled={!displayedRecords.length}
-                className="px-4 py-2 rounded-lg bg-red-600 text-white
+                className="p-2 rounded-lg bg-red-600 text-white text-xs
    hover:bg-red-700 disabled:opacity-50 disabled:cursor-no-drop"
               >
                 Download Report PDF
@@ -611,9 +611,9 @@ const HealthandMedical = () => {
           </div>
 
           {/* Table */}
-          <div className="relative overflow-y-auto h-[550px] mt-1 rounded-md">
+          <div className="relative overflow-y-auto h-[550px] mt-2 rounded-md">
             <table className="min-w-[500px] w-full text-center border border-gray-300">
-              <thead className="h-6 bg-primary uppercase sticky top-0 text-white text-sm">
+              <thead className="h-8 bg-primary uppercase sticky top-0 text-white text-sm">
                 <tr>
                   <th className="p-2">No</th>
 
@@ -630,7 +630,7 @@ const HealthandMedical = () => {
                   displayedRecords.map((row, index) => (
                     <tr
                       key={row.id}
-                      className="odd:bg-gray-50 hover:bg-green-100"
+                      className="odd:bg-gray-50 hover:bg-green-100 text-xs"
                     >
                       <td className="p-2 border border-gray-400 ">
                         {index + 1}

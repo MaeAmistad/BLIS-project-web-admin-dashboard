@@ -21,6 +21,7 @@ import {
   AddCircleOutlineRounded,
   DeleteRounded,
   EditRounded,
+  Print,
   VisibilityRounded,
 } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
@@ -28,6 +29,12 @@ import RaiserEdit from "../../components/RaiserEdit";
 import RaiserView from "../../components/RaiserView";
 import { useAuth } from "../../components/AuthContext";
 import { notifyAllUsers } from "../../components/NotifyAllUsers";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import logo1 from "../../../src/assets/bantaylogo.jpg";
+import logo2 from "../../../src/assets/duras.jpg";
+import logo3 from "../../../src/assets/mao.jpg";
+import logo4 from "../../../src/assets/pilipins.png";
 
 const RaiserProfile = () => {
   const { user } = useAuth();
@@ -99,7 +106,7 @@ const RaiserProfile = () => {
     try {
       // 1️⃣ Get livestock
       const livestockSnap = await getDocs(
-        collection(db, "raisers", raiser.id, "livestock")
+        collection(db, "raisers", raiser.id, "livestock"),
       );
 
       for (const livestockDoc of livestockSnap.docs) {
@@ -111,8 +118,8 @@ const RaiserProfile = () => {
             raiser.id,
             "livestock",
             livestockDoc.id,
-            "healthRecords"
-          )
+            "healthRecords",
+          ),
         );
 
         // 3️⃣ Delete health records
@@ -141,7 +148,6 @@ const RaiserProfile = () => {
         showConfirmButton: false,
       });
       fetchData();
-      window.location.reload();
     } catch (error) {
       console.error(error);
       Swal.fire({
@@ -182,8 +188,8 @@ const RaiserProfile = () => {
   const cleanObject = (obj) =>
     Object.fromEntries(
       Object.entries(obj).filter(
-        ([key, value]) => key && value !== undefined && value !== ""
-      )
+        ([key, value]) => key && value !== undefined && value !== "",
+      ),
     );
 
   const saveAllData = async (wizardData) => {
@@ -196,7 +202,7 @@ const RaiserProfile = () => {
       // 2️⃣ Create livestock + health records
       for (const animal of wizardData.livestock) {
         const livestockRef = doc(
-          collection(db, "raisers", raiserId, "livestock")
+          collection(db, "raisers", raiserId, "livestock"),
         );
 
         const { healthRecords = {}, ...livestockData } = animal;
@@ -224,14 +230,14 @@ const RaiserProfile = () => {
                   raiserId,
                   "livestock",
                   livestockRef.id,
-                  "healthRecords"
-                )
+                  "healthRecords",
+                ),
               ),
               cleanObject({
                 ...record,
                 type,
                 createdAt: serverTimestamp(),
-              })
+              }),
             );
           }
         }
@@ -270,7 +276,7 @@ const RaiserProfile = () => {
 
   const uniqueAddresses = [
     ...new Set(
-      raisers.map((r) => r.address).filter(Boolean) // remove null/undefined
+      raisers.map((r) => r.address).filter(Boolean), // remove null/undefined
     ),
   ];
 
@@ -295,6 +301,109 @@ const RaiserProfile = () => {
     return matchesSearch && matchesAddress && matchesStatus;
   });
 
+  const handlePrintRaisers = () => {
+    const doc = new jsPDF({
+      orientation: "landscape",
+      unit: "mm",
+      format: "a4",
+    });
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    /* ================= HEADER ================= */
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+
+    const centerX = pageWidth / 2;
+    const headerY = 20;
+
+    doc.text("REPUBLIC OF THE PHILIPPINES", centerX, headerY, {
+      align: "center",
+    });
+
+    doc.setFontSize(10);
+    doc.text("MUNICIPALITY OF BANTAY", centerX, headerY + 5, {
+      align: "center",
+    });
+
+    doc.setFontSize(8);
+    doc.text("Bantay, Ilocos Sur", centerX, headerY + 10, {
+      align: "center",
+    });
+
+    // --- LOGOS ---
+    const imgSize = 18;
+    const imgY = headerY - 8;
+    const imgGap = 6;
+
+    // Left logos
+    doc.addImage(logo4, "PNG", centerX - 90, imgY, imgSize, imgSize);
+    doc.addImage(
+      logo1,
+      "PNG",
+      centerX - 90 + imgSize + imgGap,
+      imgY,
+      imgSize,
+      imgSize,
+    );
+
+    // Right logos
+    doc.addImage(
+      logo3,
+      "PNG",
+      centerX + 90 - imgSize * 2 - imgGap,
+      imgY,
+      imgSize,
+      imgSize,
+    );
+    doc.addImage(logo2, "PNG", centerX + 90 - imgSize, imgY, imgSize, imgSize);
+
+    // TITLE
+    doc.setFontSize(14);
+    doc.text("RAISERS LIST", centerX, 42, { align: "center" });
+
+    const tableColumn = [
+      "No",
+      "Full Name",
+      "Email",
+      "Gender",
+      "Contact No.",
+      "Barangay",
+      "Type of Raiser",
+      "Registration Status",
+    ];
+
+    const tableRows = filteredRaisers.map((raiser, index) => [
+      index + 1,
+      `${raiser.lastName}, ${raiser.firstName} ${raiser.middleInitial || ""}`,
+      raiser.email,
+      raiser.gender,
+      raiser.contactNumber,
+      raiser.address,
+      raiser.typeOfRaiser,
+      raiser.registrationStatus,
+    ]);
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 48,
+      styles: {
+        fontSize: 8,
+        halign: "center",
+        valign: "middle",
+      },
+      headStyles: {
+        fillColor: [34, 139, 34],
+        textColor: 255,
+        fontStyle: "bold",
+      },
+      theme: "grid",
+    });
+
+    doc.save("raisers-list.pdf");
+  };
+
   return (
     <div className="app flex flex-col md:flex-row">
       <Sidebarr />
@@ -303,7 +412,7 @@ const RaiserProfile = () => {
 
         {/* HEADER */}
         <div className="sticky top-14 flex flex-col md:flex-row items-start md:items-center justify-between p-1 m-2">
-          <Headerr title="List of Raiser" />
+          <Headerr title="List of Raisers" />
 
           <button
             onClick={handleAdd}
@@ -318,61 +427,68 @@ const RaiserProfile = () => {
         {/* MAIN BODY */}
         <div className="m-1 mt-1 flex-grow overflow-y-auto bg-white-main shadow-md rounded-md">
           {/* SEARCH FILTERINGS */}
-          <div className="p-1">
-            <div className="flex flex-col sm:flex-row gap-2 my-1 mx-1">
-              {/* Address Filter */}
-              <select
-                className="w-full sm:max-w-xs border border-green-400 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-sm text-gray-700"
-                value={selectedAddress}
-                onChange={(e) => setSelectedAddress(e.target.value)}
-              >
-                <option value="">Barangay</option>
-                {uniqueAddresses.map((address) => (
-                  <option key={address} value={address}>
-                    {address}
-                  </option>
-                ))}
-              </select>
+          <div className="flex flex-col sm:flex-row gap-2 my-1 mx-1">
+            {/* Address Filter */}
+            <select
+              className="w-full sm:max-w-xs border border-green-400 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-2 py-2 text-xs text-gray-700"
+              value={selectedAddress}
+              onChange={(e) => setSelectedAddress(e.target.value)}
+            >
+              <option value="">Barangay</option>
+              {uniqueAddresses.map((address) => (
+                <option key={address} value={address}>
+                  {address}
+                </option>
+              ))}
+            </select>
 
-              {/* Registration Status Filter */}
-              <select
-                className="w-full sm:max-w-xs border border-green-400 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-sm text-gray-700"
-                value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-              >
-                <option value="">Registration Status</option>
-                {uniqueStatuses.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
+            {/* Registration Status Filter */}
+            <select
+              className="w-full sm:max-w-xs border border-green-400 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-2 py-2 text-xs text-gray-700"
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+            >
+              <option value="">Registration Status</option>
+              {uniqueStatuses.map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
 
-              {/* Search Bar */}
-              <input
-                type="text"
-                placeholder="Search Bar"
-                className="w-full sm:max-w-xs border border-green-400 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-sm text-gray-700 placeholder-gray-400"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+            {/* Search Bar */}
+            <input
+              type="text"
+              placeholder="Search Bar"
+              className="w-full sm:max-w-xs border border-green-400 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-2 py-2 text-xs text-gray-700 placeholder-gray-400"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+
+            {/* Button pushed to the right */}
+            <button
+              onClick={handlePrintRaisers}
+              className="ml-auto px-3 py-1.5 text-xs rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-no-drop"
+            >
+              <Print fontSize="extra-small" />
+              Print Raisers
+            </button>
           </div>
 
           {/* TABLE */}
-          <div className="relative overflow-y-auto h-[550px] mt-1 border border-gray-300 rounded-md">
+          <div className="relative overflow-y-auto h-[550px] mt-2 border border-gray-300 rounded-md">
             <table className="min-w-[500px] w-full text-center">
-              <thead className="h-6 bg-primary uppercase sticky top-0 text-white text-sm">
+              <thead className="h-8 bg-primary uppercase sticky top-0 text-white text-sm z-10">
                 <tr>
                   <th className="w-[50px]">NO</th>
-                  <th className="w-[350px]">Full Name</th>
-                  <th className="w-[150px]">Email</th>
+                  <th className="w-[300px]">Full Name</th>
+                  <th className="w-[200px]">Email</th>
                   <th className="w-[150px]">Gender</th>
                   <th className="w-[120px]">Contact No.</th>
                   <th className="w-[220px]">Barangay</th>
                   <th className="w-[150px]">Type of Raiser</th>
                   <th className="w-[150px]">Registration Status</th>
-                  <th className="w-[150px]">Action</th>
+                  <th className="w-[80px]">Action</th>
                 </tr>
               </thead>
 
@@ -381,7 +497,7 @@ const RaiserProfile = () => {
                   filteredRaisers.map((raiser, index) => (
                     <tr
                       key={raiser.id}
-                      className="border-b hover:bg-green-100 text-center"
+                      className="border-b hover:bg-green-100 text-center text-xs"
                     >
                       <td className="p-2 text-center border border-gray-400">
                         {index + 1}
@@ -413,13 +529,13 @@ const RaiserProfile = () => {
                       </td>
 
                       <td className="p-2 text-center border border-gray-400">
-                        <div className="flex justify-center space-x-1">
+                        <div className="flex justify-center">
                           <IconButton
                             aria-label="edit"
                             onClick={() => handleView(raiser)}
                           >
                             <VisibilityRounded
-                              sx={{ color: "#e2c018ff", fontSize: 16 }}
+                              sx={{ color: "#e2c018ff", fontSize: 14 }}
                             />
                           </IconButton>
 
@@ -428,7 +544,7 @@ const RaiserProfile = () => {
                             onClick={() => handleEdit(raiser)}
                           >
                             <EditRounded
-                              sx={{ color: "#266b0f", fontSize: 16 }}
+                              sx={{ color: "#266b0f", fontSize: 14 }}
                             />
                           </IconButton>
 

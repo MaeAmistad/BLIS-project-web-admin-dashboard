@@ -142,13 +142,13 @@ const InventoryandSupplies = () => {
                 placeholder="Search Inventory"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full sm:max-w-xs border border-green-400 rounded-lg px-3 py-2 text-sm"
+                className="w-full sm:max-w-xs border border-green-400 rounded-lg px-3 py-2 text-xs"
               />
 
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full sm:max-w-xs border border-green-400 rounded-lg px-3 py-2 text-sm"
+                className="w-full sm:max-w-xs border border-green-400 rounded-lg px-3 py-2 text-xs"
               >
                 <option value="" className="text-sm">All Categories</option>
                 {categories.map((cat) => (
@@ -163,7 +163,7 @@ const InventoryandSupplies = () => {
           {/* TABLE */}
           <div className="relative overflow-y-auto h-[550px] border border-gray-300 rounded-md">
             <table className="min-w-[500px] w-full text-center">
-              <thead className="h-6 bg-primary uppercase sticky top-0 text-white text-sm">
+              <thead className="h-6 bg-primary uppercase sticky top-0 text-white text-sm z-10">
                 <tr>
                   <th className="w-[50px]">NO</th>
                   <th className="w-[200px]">Item Name</th>
@@ -174,14 +174,14 @@ const InventoryandSupplies = () => {
                   <th className="w-[180px]">Storage Location</th>
                   <th className="w-[120px]">Acquired Date</th>
                   <th className="w-[120px]">Expiration Date</th>
-                  <th className="w-[100px]">Action</th>
+                  <th className="w-[50px]">Action</th>
                 </tr>
               </thead>
 
               <tbody>
                 {filteredInventories.length === 0 ? (
                   <tr>
-                    <td colSpan="10" className="py-6 text-gray-500 text-center">
+                    <td colSpan="10" className="py-6 text-gray-500 text-sm text-center">
                       No inventory items found
                     </td>
                   </tr>
@@ -189,7 +189,7 @@ const InventoryandSupplies = () => {
                   filteredInventories.map((item, index) => (
                     <tr
                       key={item.id}
-                      className="border-b hover:bg-green-100 text-sm"
+                      className="border-b hover:bg-green-100 text-xs"
                     >
                       <td className="p-2 text-center border border-gray-400">
                         {index + 1}
@@ -230,7 +230,7 @@ const InventoryandSupplies = () => {
                             onClick={() => handleView(item)}
                           >
                             <VisibilityRounded
-                              sx={{ color: "#e2c018ff", fontSize: 16 }}
+                              sx={{ color: "#e2c018ff", fontSize: 14 }}
                             />
                           </IconButton>
                           <IconButton
@@ -238,7 +238,7 @@ const InventoryandSupplies = () => {
                             onClick={() => handleEdit(item)}
                           >
                             <EditRounded
-                              sx={{ color: "#266b0f", fontSize: 16 }}
+                              sx={{ color: "#266b0f", fontSize: 14 }}
                             />
                           </IconButton>
                           <IconButton
@@ -246,7 +246,7 @@ const InventoryandSupplies = () => {
                             onClick={() => handleDelete(item.id)}
                           >
                             <DeleteRounded
-                              sx={{ color: "#a30808", fontSize: 16 }}
+                              sx={{ color: "#a30808", fontSize: 14 }}
                             />
                           </IconButton>
                         </div>

@@ -23,6 +23,8 @@ import {
   DeleteRounded,
   EditRounded,
   SaveAltRounded,
+  VisibilityOffRounded,
+  VisibilityRounded,
 } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import Headerr from "../../components/Headerr";
@@ -42,6 +44,7 @@ const Account = () => {
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedUserFilter, setSelectedUserFilter] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
   const role = [
     { key: "1", value: "ADMIN" },
@@ -144,7 +147,7 @@ const Account = () => {
         const userCredential = await createUserWithEmailAndPassword(
           auth,
           email,
-          password
+          password,
         );
 
         const user = userCredential.user;
@@ -223,9 +226,9 @@ const Account = () => {
         querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        }))
+        })),
       );
-      window.location.reload();
+      //window.location.reload();
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -258,7 +261,7 @@ const Account = () => {
 
       await notifyAllUsers({
         title: "Inventory Updated",
-        message: `User account ${data.email}" was deactivated.`,
+        message: `User account ${data.email} was deactivated.`,
         type: "delete",
       });
 
@@ -272,7 +275,7 @@ const Account = () => {
 
       // Update local state
       setUsers((prev) =>
-        prev.map((u) => (u.id === user.id ? { ...u, status: "inactive" } : u))
+        prev.map((u) => (u.id === user.id ? { ...u, status: "inactive" } : u)),
       );
       window.location.reload();
     } catch (error) {
@@ -343,7 +346,7 @@ const Account = () => {
             <div className="h-10">
               <div className="flex my-1 mx-1 space-x-1">
                 <select
-                  className="w-full sm:max-w-xs border border-green-600 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-sm text-gray-700 placeholder-gray-400"
+                  className="w-full sm:max-w-xs border border-green-600 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-xs text-gray-700 placeholder-gray-400"
                   value={selectedUserFilter}
                   onChange={handleUserFilterChange}
                 >
@@ -365,7 +368,7 @@ const Account = () => {
           <div className="flex flex-row space-x-5 mt-3 mx-2.5">
             <div className="relative overflow-y-auto h-[500px] border w-full border-gray-300 rounded-md scroll-smooth">
               <table className="min-w-[400px] w-full text-center">
-                <thead className="h-6 bg-primary uppercase sticky top-0 text-white text-sm">
+                <thead className="h-8 bg-primary uppercase sticky top-0 text-white text-xs z-10">
                   <tr>
                     <th>No</th>
                     <th>Role</th>
@@ -377,7 +380,10 @@ const Account = () => {
                 <tbody>
                   {filteredUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="p-4 text-gray-500 text-center">
+                      <td
+                        colSpan={5}
+                        className="p-4 text-gray-500 text-center text-xs"
+                      >
                         No users found
                       </td>
                     </tr>
@@ -385,7 +391,7 @@ const Account = () => {
                     filteredUsers.map((user, index) => (
                       <tr
                         key={user.id}
-                        className="border-b hover:bg-green-50 text-center"
+                        className="border-b hover:bg-green-50 text-center text-xs"
                       >
                         <td className="p-2 text-center border border-gray-400">
                           {index + 1}
@@ -438,7 +444,7 @@ const Account = () => {
                 {/* USER INFORMATION SECTION */}
                 <div className="mt-1 p-1">
                   <div className="mt-1">
-                    <p className="text-base">Role</p>
+                    <p className="text-sm">Role</p>
                     <select
                       className="w-full h-10 rounded-lg p-1 border border-current"
                       name="role"
@@ -455,10 +461,10 @@ const Account = () => {
                   </div>
 
                   <div className="mt-1">
-                    <p className="text-base">Name</p>
+                    <p className="text-sm">Name</p>
                     <input
                       type="text"
-                      className="w-full h-10 border border-current p-1 text-sm rounded-xl"
+                      className="w-full h-10 border border-current p-1 text-xs rounded-xl"
                       name="name"
                       value={data.name}
                       onChange={handleInput}
@@ -466,10 +472,10 @@ const Account = () => {
                   </div>
 
                   <div className="mt-1">
-                    <p className="text-base">Email</p>
+                    <p className="text-sm">Email</p>
                     <input
                       type="text"
-                      className="w-full h-10 border border-current p-1 text-sm rounded-xl"
+                      className="w-full h-10 border border-current p-1 text-xs rounded-xl"
                       name="email"
                       value={data.email}
                       onChange={handleInput}
@@ -478,29 +484,61 @@ const Account = () => {
 
                   {mode === "add" && (
                     <>
-                      <div className="mt-1">
-                        <p className="text-base">Password</p>
+                      <div className="mt-1 relative">
+                        <p className="text-sm">Password</p>
                         <input
-                          type="password"
+                          type={isOpen ? "text" : "password"}
                           name="password"
                           value={data.password}
                           onChange={handleInput}
-                          className={`w-full h-10 border p-1 text-sm rounded-xl
+                          className={`w-full h-10 border p-1 text-xs rounded-xl
           ${passwordError ? "border-red-500" : "border-current"}
         `}
                         />
+
+                        <button
+                          type="button"
+                          onClick={() => setIsOpen((prev) => !prev)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2"
+                        >
+                          {isOpen ? (
+                            <VisibilityRounded
+                              sx={{ color: "#959595", fontSize: 14 }}
+                            />
+                          ) : (
+                            <VisibilityOffRounded
+                              sx={{ color: "#959595", fontSize: 14 }}
+                            />
+                          )}
+                        </button>
                       </div>
 
-                      <div className="mt-1">
-                        <p className="text-base">Confirm Password</p>
+                      <div className="mt-1 relative">
+                        <p className="text-sm">Confirm Password</p>
                         <input
-                          type="password"
+                          type={isOpen ? "text" : "password"}
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
-                          className={`w-full h-10 border p-1 text-sm rounded-xl
+                          className={`w-full h-10 border p-1 text-xs rounded-xl
           ${passwordError ? "border-red-500" : "border-current"}
         `}
                         />
+
+                        <button
+                          type="button"
+                          onClick={() => setIsOpen((prev) => !prev)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2"
+                        >
+                          {isOpen ? (
+                            <VisibilityRounded
+                              sx={{ color: "#959595", fontSize: 14 }}
+                            />
+                          ) : (
+                            <VisibilityOffRounded
+                              sx={{ color: "#959595", fontSize: 14 }}
+                            />
+                          )}
+                        </button>
                       </div>
 
                       {passwordError && (
@@ -516,7 +554,7 @@ const Account = () => {
                       <button
                         type="button"
                         onClick={handleResetPassword}
-                        className="bg-yellow-500 text-white px-4 py-2 rounded-xl text-sm hover:bg-yellow-600"
+                        className="bg-yellow-500 text-white px-4 py-2 rounded-xl text-xs hover:bg-yellow-600"
                       >
                         Send Password Reset Email
                       </button>
@@ -527,7 +565,7 @@ const Account = () => {
                 <div className="flex justify-center items-center m-2">
                   <button
                     type="submit"
-                    className="bg-primary w-28 h-10 rounded-3xl text-white text-sm my-3 cursor-pointer hover:bg-lighter-blue m-1 flex items-center justify-center"
+                    className="bg-primary w-28 h-10 rounded-3xl text-white text-xs my-3 cursor-pointer hover:bg-lighter-blue m-1 flex items-center justify-center"
                   >
                     <SaveAltRounded className="mr-1" />
                     {mode === "add" ? "Add" : "Update"}
@@ -537,7 +575,7 @@ const Account = () => {
                     <button
                       type="button"
                       onClick={handleCancel}
-                      className="bg-gray-300 w-28 h-10 rounded-3xl text-sm text-black my-3 cursor-pointer hover:bg-lighter-blue m-1 flex items-center justify-center"
+                      className="bg-gray-300 w-28 h-10 rounded-3xl text-xs text-black my-3 cursor-pointer hover:bg-lighter-blue m-1 flex items-center justify-center"
                     >
                       <CancelRounded className="mr-1 text-black" />
                       Cancel

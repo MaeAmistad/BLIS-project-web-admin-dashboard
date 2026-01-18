@@ -25,6 +25,55 @@ body,
   display:flex;
   position:relative; 
 }
+/* Smaller overall font */
+.fc {
+  font-size: 11px;
+  overflow: hidden;
+}
+
+/* Remove grid borders */
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border: none;
+  overflow: hidden;
+}
+
+/* Weekday labels */
+.fc-col-header-cell {
+  padding-bottom: 2px;
+  font-size: 0.55rem;
+  color: #6b7280;
+}
+
+/* Shrink row height */
+.fc-daygrid-day-frame {
+  padding: 0;
+  min-height: 5x;
+}
+
+/* Center day number */
+.fc-daygrid-day-number {
+  width: 20px;
+  height: 18px;
+  margin: auto;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+}
+
+/* Hover */
+.fc-daygrid-day:hover .fc-daygrid-day-number {
+  background: #f3f4f6;
+}
+
+/* Today */
+.fc-day-today .fc-daygrid-day-number {
+  background: #1d6604;
+  color: white;
+}
+
 
 ::-webkit-scrollbar{
   width:10px;
@@ -47,3 +96,14 @@ body,
   background:#555;
 }
 
+/* Remove built-in password reveal icons */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+input[type="password"]::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+  position: absolute;
+  right: 0;
+}

@@ -78,6 +78,20 @@ export default function HealthRecordsModal({
     setAiRecords(initialData.aiRecords || []);
   }, [open, initialData]);
 
+  useEffect(() => {
+    if (!aiForm.date) return;
+
+    const inseminationDate = new Date(aiForm.date);
+    inseminationDate.setDate(inseminationDate.getDate() + 21);
+
+    const calvingDate = inseminationDate.toISOString().split("T")[0];
+
+    setAiForm((prev) => ({
+      ...prev,
+      calvingDate,
+    }));
+  }, [aiForm.date]);
+
   const removeVaccination = (index) => {
     Swal.fire({
       title: "Are you sure?",
@@ -657,7 +671,7 @@ export default function HealthRecordsModal({
                 }
               />
               <Input
-                label="Date of Calving (if applicable)"
+                label="Re-heat Monitoring"
                 type="date"
                 value={aiForm.calvingDate}
                 onChange={(e) =>

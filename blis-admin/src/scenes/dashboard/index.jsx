@@ -25,47 +25,109 @@ import {
   Activity,
   Droplets,
 } from "lucide-react";
-
+import { LineChart as LineChartIcon } from "lucide-react";
 import {
   ResponsiveContainer,
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   Tooltip,
+  Line,
+  CartesianGrid,
+  LineChart,
+  PieChart,
+  Pie,
   Cell,
+  Legend,
 } from "recharts";
+import Card from "@mui/material/Card";
+import CalendarPanel from "../../components/CalendarPanel";
 
-const BAR_COLORS = [
-  "#3B82F6", // blue
+const COLORS = [
+  "#316ccb", // blue
   "#10B981", // green
-  "#F59E0B", // amber
-  "#EF4444", // red
-  "#8B5CF6", // purple
+  "#0b74f5b0", // amber
+  "#9c0d6a", // red
+  "#068865", // purple
   "#06B6D4", // cyan
   "#F97316", // orange
 ];
 
+const renderCustomizedLabel = ({ x, y, name, percentage }) => {
+  return (
+    <text
+      x={x}
+      y={y}
+      textAnchor="middle"
+      dominantBaseline="central"
+      fill="#374151"
+    >
+      <tspan x={x} fontSize="10" fontWeight="600">
+        {name}
+      </tspan>
+      <tspan x={x} dy="1.1em" fontSize="9" fill="#6B7280">
+        {percentage}%
+      </tspan>
+    </text>
+  );
+};
+
+const LivestockPieChart = ({ data }) => (
+  <ResponsiveContainer width="100%" height={300}>
+    <PieChart>
+      <Pie
+        data={data}
+        dataKey="count"
+        nameKey="name"
+        cx="50%"
+        cy="50%"
+        outerRadius={90}
+        label={renderCustomizedLabel}
+        labelLine={false}
+      >
+        {data.map((_, index) => (
+          <Cell key={index} fill={COLORS[index % COLORS.length]} />
+        ))}
+      </Pie>
+      <Tooltip
+        cursor={false}
+        contentStyle={{
+          border: "none",
+          boxShadow: "none",
+          backgroundColor: "rgba(255, 255, 255, 0.95)",
+          padding: "6px 8px",
+        }}
+        itemStyle={{
+          fontSize: "12px",
+          color: "#374151",
+        }}
+      />
+
+      {/* <Legend /> */}
+    </PieChart>
+  </ResponsiveContainer>
+);
+
 const StatCard = ({ title, value, icon: Icon, color }) => (
   <div
-    className={`rounded-2xl shadow p-4 text-white ${color} hover:scale-[1.02] transition`}
+    className={`rounded-xl shadow p-3 text-white ${color}
+                max-w-[260px] w-full`}
   >
     <div className="flex justify-between items-center">
-      <p className="text-sm opacity-90">{title}</p>
-      <Icon className="w-6 h-6 opacity-80" />
+      <p className="text-xs opacity-90">{title}</p>
+      <Icon className="w-5 h-5 opacity-80" />
     </div>
-    <h2 className="text-3xl font-bold mt-2">{value}</h2>
+    <h2 className="text-l font-bold mt-1">{value}</h2>
   </div>
 );
 
 const ActivityLog = ({ logs }) => (
-  <div className="bg-white rounded-2xl shadow p-4 max-h-96 overflow-y-auto">
-    <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-      <Activity size={18} /> Recent Activity
+  <div className="bg-white rounded-2xl shadow p-4 h-[180px] overflow-y-auto border border-gray-300">
+    <h3 className="font-semibold text-md mb-4 flex items-center gap-2">
+      <Activity size={16} /> Recent Activity
     </h3>
 
     {logs.length === 0 ? (
-      <p className="text-sm text-gray-500">No recent activity</p>
+      <p className="text-xs text-gray-500">No recent activity</p>
     ) : (
       <ul className="space-y-4">
         {logs.map((log) => {
@@ -89,12 +151,12 @@ const ActivityLog = ({ logs }) => (
 );
 
 const AlertsPanel = ({ lowStock, aiPending }) => (
-  <div className="bg-white rounded-2xl shadow p-4 mt-6">
-    <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+  <div className="bg-white rounded-2xl shadow p-4 border border-gray-300">
+    <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
       <AlertTriangle size={18} /> Alerts
     </h3>
 
-    <ul className="space-y-2 text-sm">
+    <ul className="space-y-2 text-xs">
       {lowStock > 0 ? (
         <li className="text-red-600">
           ⚠ {lowStock} inventory items are low on stock
@@ -110,9 +172,24 @@ const AlertsPanel = ({ lowStock, aiPending }) => (
   </div>
 );
 
-/* =========================
-   DASHBOARD MAIN
-========================= */
+const EmptyChartState = ({ message }) => (
+  <div className="flex flex-col items-center justify-center h-full text-gray-400">
+    <LineChartIcon className="w-10 h-10 mb-3 opacity-50" />
+    <p className="text-xs">{message}</p>
+  </div>
+);
+
+function isToday(timestamp) {
+  if (!timestamp) return false;
+  const date = timestamp.toDate?.() || new Date(timestamp);
+  const today = new Date();
+  return (
+    date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear()
+  );
+}
+
 const Dashboard = () => {
   const { user } = useAuth();
 
@@ -129,15 +206,15 @@ const Dashboard = () => {
   });
 
   const [raisersByAddress, setRaisersByAddress] = useState([]);
+  const [livestockByType, setLivestockByType] = useState([]);
   const [activityLogs, setActivityLogs] = useState([]);
   const [loading, setLoading] = useState(true);
-
 
   useEffect(() => {
     const q = query(
       collection(db, "activityLogs"),
       orderBy("createdAt", "desc"),
-      limit(10)
+      limit(10),
     );
 
     onSnapshot(q, (snapshot) => {
@@ -145,7 +222,7 @@ const Dashboard = () => {
         snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        }))
+        })),
       );
     });
 
@@ -179,7 +256,7 @@ const Dashboard = () => {
           Object.entries(addressMap).map(([address, count]) => ({
             address,
             count,
-          }))
+          })),
         );
 
         /* =========================
@@ -187,11 +264,34 @@ const Dashboard = () => {
         ========================= */
         const livestockSnap = await getDocs(collectionGroup(db, "livestock"));
 
+        const animalMap = {}; // { COW: 10, PIG: 5 }
+
+        livestockSnap.forEach((doc) => {
+          const { typeOfAnimal } = doc.data();
+          if (!typeOfAnimal) return;
+
+          const key = typeOfAnimal.toUpperCase();
+          animalMap[key] = (animalMap[key] || 0) + 1;
+        });
+
+        // Convert to array + percentage
+        const totalLivestock = livestockSnap.size;
+
+        const livestockTypeData = Object.entries(animalMap).map(
+          ([type, count]) => ({
+            name: type,
+            count,
+            percentage: ((count / totalLivestock) * 100).toFixed(1),
+          }),
+        );
+
+        setLivestockByType(livestockTypeData);
+
         /* =========================
            USERS
         ========================= */
         const activeUsersSnap = await getDocs(
-          query(collection(db, "users"), where("status", "==", "ACTIVE"))
+          query(collection(db, "users"), where("status", "==", "ACTIVE")),
         );
 
         /* =========================
@@ -206,10 +306,17 @@ const Dashboard = () => {
 
         healthSnap.forEach((doc) => {
           const data = doc.data();
-          if (data.type.toUpperCase() === "VACCINATION") vaccinationCount++;
-          if (data.type.toUpperCase() === "TREATMENT") treatmentCount++;
-          if (data.type.toUpperCase() === "AI") aiPendingCount++;
-          if (data.type.toUpperCase() === "DEWORMING") dewormingCount++;
+          const type = data.type?.toUpperCase?.();
+          if (!data.type) {
+            console.warn("Missing type in doc:", doc.id, data);
+          }
+
+          if (typeof type !== "string") return;
+
+          if (type === "VACCINATION") vaccinationCount++;
+          if (type === "TREATMENT") treatmentCount++;
+          if (type === "AI") aiPendingCount++;
+          if (type === "DEWORMING") dewormingCount++;
         });
 
         /* =========================
@@ -243,115 +350,248 @@ const Dashboard = () => {
 
     fetchDashboardData();
   }, []);
+  useEffect(() => {
+    console.log("raisersByAddress:", raisersByAddress);
 
+    if (raisersByAddress.length === 0) {
+      console.warn("raisersByAddress is empty");
+    } else {
+      raisersByAddress.forEach((item, index) => {
+        console.log(
+          `#${index + 1}`,
+          "Address:",
+          item.address,
+          "Count:",
+          item.count,
+        );
+      });
+    }
+  }, [raisersByAddress]);
+
+  function mergeAndSort(prevLogs, newLogs) {
+    const allLogs = [...prevLogs, ...newLogs];
+    allLogs.sort((a, b) => {
+      const aTime = a.createdAt?.toDate?.() || new Date(a.createdAt);
+      const bTime = b.createdAt?.toDate?.() || new Date(b.createdAt);
+      return bTime - aTime; // newest first
+    });
+
+    const filteredLogs = allLogs.filter((log) => isToday(log.createdAt));
+    setActivityLogs(filteredLogs);
+
+    // Optionally, limit to 20 most recent
+    return allLogs.slice(0, 20);
+  }
+  useEffect(() => {
+    // 1️⃣ Top-level "raisers"
+    const raiserQuery = query(
+      collection(db, "raisers"),
+      orderBy("createdAt", "desc"),
+      limit(20),
+    );
+
+    const unsubscribeRaisers = onSnapshot(raiserQuery, (snapshot) => {
+      const logs = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        message: `Raiser added: ${doc.data().firstName + " " + doc.data().lastName}`,
+        createdAt: doc.data().createdAt,
+      }));
+      setActivityLogs((prev) => mergeAndSort(prev, logs));
+    });
+
+    // 2️⃣ Subcollection "healthRecords" across all livestock
+    const healthQuery = query(
+      collectionGroup(db, "healthRecords"),
+      orderBy("createdAt", "desc"),
+      limit(20),
+    );
+
+    const unsubscribeHealth = onSnapshot(healthQuery, (snapshot) => {
+      const logs = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        message: `Health record added for ${doc.data().livestockName || "unknown"}`,
+        createdAt: doc.data().createdAt,
+      }));
+      setActivityLogs((prev) => mergeAndSort(prev, logs));
+    });
+
+    return () => {
+      unsubscribeRaisers();
+      unsubscribeHealth();
+    };
+  }, []);
   return (
-    <div className="app flex">
+    <div className="app flex flex-col md:flex-row">
       <Sidebarr />
 
       <div className="content flex-grow overflow-auto h-screen">
         <Topbar />
 
-        <div className="p-6">
-          <Headerr
-            title="Dashboard"
-            subtitle={`Welcome, ${user?.role} ${user?.name}`}
-          />
+        <div>
+          <div className="top-14 flex flex-col md:flex-row items-start md:items-center justify-between p-1 m-2">
+            <Headerr
+              title="Dashboard"
+              subtitle={`Welcome, ${user?.role} ${user?.name}`}
+            />
+          </div>
 
-          {loading ? (
-            <p className="mt-6">Loading dashboard...</p>
-          ) : (
-            <>
-              {/* ================= MAIN GRID ================= */}
-              <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-6">
-                {/* LEFT CONTENT */}
-                <div className="xl:col-span-9 space-y-6">
-                  {/* ================= KPI CARDS ================= */}
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-                    <StatCard
-                      title="Total Raisers"
-                      value={stats.raisers}
-                      icon={Users}
-                      color="bg-gradient-to-r from-blue-500 to-blue-600"
-                    />
-                    <StatCard
-                      title="Total Livestock"
-                      value={stats.livestock}
-                      icon={Beef}
-                      color="bg-gradient-to-r from-green-500 to-green-600"
-                    />
-                    <StatCard
-                      title="Active Users"
-                      value={stats.activeUsers}
-                      icon={Users}
-                      color="bg-gradient-to-r from-indigo-500 to-indigo-600"
-                    />
-                    <StatCard
-                      title="Inventory Items"
-                      value={stats.inventoryItems}
-                      icon={Boxes}
-                      color="bg-gradient-to-r from-purple-500 to-purple-600"
-                    />
+          <div className="px-4 m-1 mt-1 flex-grow overflow-y-auto bg-white-main shadow-md rounded-md">
+            {loading ? (
+              <p className="mt-6 item-center text-center">
+                Loading dashboard...
+              </p>
+            ) : (
+              <>
+                {/* ================= MAIN GRID ================= */}
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-6">
+                  {/* LEFT CONTENT */}
+                  <div className="xl:col-span-6 space-y-4">
+                    {/* ================= KPI CARDS ================= */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 place-items-center">
+                      <StatCard
+                        title="Total Raisers"
+                        value={stats.raisers}
+                        icon={Users}
+                        color="bg-gradient-to-r from-blue-500 to-blue-600"
+                      />
+                      <StatCard
+                        title="Total Livestock"
+                        value={stats.livestock}
+                        icon={Beef}
+                        color="bg-gradient-to-r from-emerald-600 to-emerald-700"
+                      />
+                      <StatCard
+                        title="Active Users"
+                        value={stats.activeUsers}
+                        icon={Users}
+                        color="bg-gradient-to-r from-indigo-900 to-indigo-950"
+                      />
+                      <StatCard
+                        title="Inventory Items"
+                        value={stats.inventoryItems}
+                        icon={Boxes}
+                        color="bg-gradient-to-r from-teal-600 to-teal-700"
+                      />
+                    </div>
+
+                    {/* HEALTH OVERVIEW */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 place-items-center">
+                      <StatCard
+                        title="Vaccinations"
+                        value={stats.vaccinations}
+                        icon={Syringe}
+                        color="bg-gradient-to-r from-emerald-500 to-emerald-600"
+                      />
+                      <StatCard
+                        title="Deworming"
+                        value={stats.deworming}
+                        icon={Droplets}
+                        color="bg-gradient-to-r from-cyan-600 to-cyan-700"
+                      />
+                      <StatCard
+                        title="Treatments"
+                        value={stats.treatments}
+                        icon={Activity}
+                        color="bg-gradient-to-r from-blue-800 to-blue-900"
+                      />
+                      <StatCard
+                        title="AI Pending"
+                        value={stats.aiPending}
+                        icon={AlertTriangle}
+                        color="bg-gradient-to-r from-violet-800 to-violet-900"
+                      />
+                    </div>
                   </div>
 
-                  {/* HEALTH OVERVIEW */}
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <StatCard
-                      title="Vaccinations"
-                      value={stats.vaccinations}
-                      icon={Syringe}
-                      color="bg-gradient-to-r from-emerald-500 to-emerald-600"
-                    />
-                    <StatCard
-                      title="Deworming"
-                      value={stats.deworming}
-                      icon={Droplets}
-                      color="bg-gradient-to-r from-cyan-500 to-cyan-600"
-                    />
-                    <StatCard
-                      title="Treatments"
-                      value={stats.treatments}
-                      icon={Activity}
-                      color="bg-gradient-to-r from-orange-500 to-orange-600"
-                    />
-                    <StatCard
-                      title="AI Pending"
-                      value={stats.aiPending}
-                      icon={AlertTriangle}
-                      color="bg-gradient-to-r from-red-500 to-red-600"
-                    />
+                  {/* RIGHT CONTENT */}
+                  <div className="xl:col-span-6 h-full grid grid-cols-1 xl:grid-cols-2 gap-2">
+                    {/* LEFT SIDE: Activity + Alerts */}
+                    <div className="space-y-2 max-h-[calc(100vh-220px)]">
+                      <div className="flex-[5] overflow-hidden">
+                        <ActivityLog logs={activityLogs} />
+                      </div>
+
+                      <div className="flex-[5] overflow-hidden">
+                        <AlertsPanel
+                          lowStock={stats.lowStock}
+                          aiPending={stats.aiPending}
+                        />
+                      </div>
+                    </div>
+
+                    {/* RIGHT SIDE: Calendar */}
+                    <div className="overflow-y-auto max-h-[calc(100vh-170px)]">
+                      <CalendarPanel />
+                    </div>
                   </div>
-                  {/* CHART */}
-                  <div className="bg-white rounded-2xl shadow p-4 h-80">
+                </div>
+
+                {/* ================= CHARTS SECTION ================= */}
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-4">
+                  {/* LINE GRAPH (9 columns) */}
+                  <div className="xl:col-span-9 bg-white rounded-2xl shadow p-4 border border-gray-200">
                     <h3 className="font-semibold mb-3">Raisers per Address</h3>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={raisersByAddress}>
-                        <XAxis dataKey="address" />
-                        <YAxis />
-                        <Tooltip />
-                        <Bar dataKey="count">
-                          {raisersByAddress.map((entry, index) => (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={BAR_COLORS[index % BAR_COLORS.length]}
-                            />
-                          ))}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
 
-                {/* RIGHT SIDEBAR */}
-                <div className="xl:col-span-3">
-                  <ActivityLog logs={activityLogs} />
-                  <AlertsPanel
-                    lowStock={stats.lowStock}
-                    aiPending={stats.aiPending}
-                  />
+                    <div className="w-full h-[260px]">
+                      {raisersByAddress.length === 0 ? (
+                        <EmptyChartState message="No raisers data available yet" />
+                      ) : (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart
+                            data={raisersByAddress}
+                            margin={{ top: 10, right: 20, left: 0, bottom: 50 }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" />
+
+                            <XAxis
+                              dataKey="address"
+                              angle={-30}
+                              textAnchor="end"
+                              interval={0}
+                              height={60}
+                              tick={{ fontSize: 12 }}
+                            />
+
+                            <YAxis
+                              allowDecimals={false}
+                              domain={[0, "auto"]}
+                              tick={{ fontSize: 12 }}
+                            />
+
+                            <Tooltip
+                              contentStyle={{ fontSize: "12px" }}
+                              labelStyle={{ fontSize: "12px" }}
+                            />
+
+                            <Line
+                              type="monotone"
+                              dataKey="count"
+                              stroke="#2563eb"
+                              strokeWidth={3}
+                              dot={{ r: 4 }}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* PIE CHART (3 columns – aligned with Calendar) */}
+                  {!loading && livestockByType.length > 0 && (
+                    <div className="xl:col-span-3 bg-white rounded-2xl shadow p-4 flex flex-col border border-gray-200">
+                      <h3 className="font-semibold mb-3 text-center text-sm">
+                        Livestock Distribution by Type
+                      </h3>
+
+                      <div className="flex-1 w-full">
+                        <LivestockPieChart data={livestockByType} />
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            </>
-          )}
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
