@@ -2,26 +2,16 @@ import { useState, useEffect } from "react";
 import {
   collection,
   getDocs,
-  doc,
-  deleteDoc,
-  updateDoc,
-  setDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase";
-import Swal from "sweetalert2";
 import Topbar from "../global/Topbar";
 import Sidebarr from "../global/Sidebar";
-import LivestockModal from "../../components/livestockmodal";
 import ViewLivestockDetailsModal from "../../components/ViewLivestockDetailsModal";
-import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
-import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import Headerr from "../../components/Headerr";
 import LivestockViewInfo from "../../components/LivestockViewInfo";
 import { IconButton } from "@mui/material";
 import {
   AddCircleOutlineRounded,
-  DeleteRounded,
-  EditRounded,
   Print,
   VisibilityRounded,
 } from "@mui/icons-material";
@@ -31,19 +21,21 @@ import logo1 from "../../../src/assets/bantaylogo.jpg";
 import logo2 from "../../../src/assets/duras.jpg";
 import logo3 from "../../../src/assets/mao.jpg";
 import logo4 from "../../../src/assets/pilipins.png";
+import AddLivestock from "../../components/AddLivestock";
 
 const LivestockInventory = () => {
   const [livestocks, setLivestocks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [open, setOpen] = useState(false);
   const [viewOpen, setViewOpen] = useState(false);
   const [selectedLivestock, setSelectedLivestock] = useState(null);
-  const [editData, setEditData] = useState(null);
   const [selectedRaiser, setSelectedRaiser] = useState(null);
   const [showRaiser, setShowRaiser] = useState(false);
+  const [isLoading, setisLoading] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
 
   // Fetch all livestock data
   const fetchRaisersWithLivestock = async () => {
+    setisLoading(true);
     const raisersSnapshot = await getDocs(collection(db, "raisers"));
 
     const raisersData = await Promise.all(
@@ -86,6 +78,7 @@ const LivestockInventory = () => {
           id: raiserDoc.id,
           raiserName: `${raiserData.firstName} ${raiserData.lastName}`,
           address: raiserData.address,
+          email: raiserData.email,
           contactNumber: raiserData.contactNumber,
           typeOfRaiser: raiserData.typeOfRaiser,
           farmName: raiserData.farmName,
@@ -98,6 +91,7 @@ const LivestockInventory = () => {
     );
 
     setLivestocks(raisersData);
+    setisLoading(false);
   };
 
   useEffect(() => {
@@ -105,79 +99,34 @@ const LivestockInventory = () => {
   }, []);
 
   // Save new or edited livestock
-  const handleSave = async (data) => {
-    try {
-      if (editData) {
-        const docRef = doc(db, "livestock", editData.id);
-        await updateDoc(docRef, data);
-        Swal.fire(
-          "Updated!",
-          "Livestock information updated successfully.",
-          "success",
-        );
-      } else {
-        const newDoc = doc(collection(db, "livestock"));
-        await setDoc(newDoc, data);
-        Swal.fire(
-          "Added!",
-          "New livestock record added successfully.",
-          "success",
-        );
-      }
+  // const handleSave = async (data) => {
+  //   try {
+  //     if (editData) {
+  //       const docRef = doc(db, "livestock", editData.id);
+  //       await updateDoc(docRef, data);
+  //       Swal.fire(
+  //         "Updated!",
+  //         "Livestock information updated successfully.",
+  //         "success",
+  //       );
+  //     } else {
+  //       const newDoc = doc(collection(db, "livestock"));
+  //       await setDoc(newDoc, data);
+  //       Swal.fire(
+  //         "Added!",
+  //         "New livestock record added successfully.",
+  //         "success",
+  //       );
+  //     }
 
-      fetchRaisersWithLivestock();
-      setOpen(false);
-    } catch (error) {
-      console.error("Error saving livestock:", error);
-      Swal.fire("Error", "Something went wrong while saving.", "error");
-    }
-  };
+  //     fetchRaisersWithLivestock();
+  //     setOpen(false);
+  //   } catch (error) {
+  //     console.error("Error saving livestock:", error);
+  //     Swal.fire("Error", "Something went wrong while saving.", "error");
+  //   }
+  // };
 
-  // Delete livestock
-  const handleDelete = async (livestock) => {
-    const confirm = await Swal.fire({
-      title: "Delete Livestock?",
-      text: "This action cannot be undone.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Delete",
-    });
-
-    if (!confirm.isConfirmed) return;
-
-    try {
-      const { raiserId, id: livestockId } = livestock;
-
-      // Delete healthRecords first
-      const healthRecordsRef = collection(
-        db,
-        "raisers",
-        raiserId,
-        "livestock",
-        livestockId,
-        "healthRecords",
-      );
-
-      const healthRecordsSnap = await getDocs(healthRecordsRef);
-
-      const deletePromises = healthRecordsSnap.docs.map((docSnap) =>
-        deleteDoc(docSnap.ref),
-      );
-
-      await Promise.all(deletePromises);
-
-      // Delete livestock document
-      await deleteDoc(doc(db, "raisers", raiserId, "livestock", livestockId));
-
-      Swal.fire("Deleted!", "Livestock has been removed.", "success");
-      fetchRaisersWithLivestock();
-    } catch (error) {
-      console.error("Delete failed:", error);
-      Swal.fire("Error", "Failed to delete livestock.", "error");
-    }
-  };
 
   // View livestock details
   const handleView = (livestock) => {
@@ -191,9 +140,10 @@ const LivestockInventory = () => {
     setSelectedRaiser(raiser);
   };
 
-  const handleEdit = (livestock) => {
-    setEditData(livestock);
-    setOpen(true);
+
+  const handleAdd = (raiser) => {
+    setOpenModal(true);
+    setSelectedRaiser(raiser);
   };
 
   // Search filter
@@ -366,7 +316,13 @@ const LivestockInventory = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredLivestock.length > 0 ? (
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-6 text-gray-500">
+                      Loading Livestocks of Raisers...
+                    </td>
+                  </tr>
+                ) : filteredLivestock.length > 0 ? (
                   filteredLivestock.map((r, index) => (
                     <tr
                       key={r.id}
@@ -427,7 +383,8 @@ const LivestockInventory = () => {
                             />
                           </IconButton>
 
-                          <IconButton aria-label="add livestock">
+                          <IconButton aria-label="add livestock"
+                          onClick={() => handleAdd(r)}>
                             <AddCircleOutlineRounded
                               sx={{ color: "#220577ff", fontSize: 16 }}
                             />
@@ -465,12 +422,13 @@ const LivestockInventory = () => {
       </div>
 
       {/* Modals */}
-      <LivestockModal
+      {/* <LivestockModal
         open={open}
         onClose={() => setOpen(false)}
         onSave={handleSave}
         initialData={editData}
-      />
+      /> */}
+
       <ViewLivestockDetailsModal
         open={viewOpen}
         onClose={() => setViewOpen(false)}
@@ -481,6 +439,14 @@ const LivestockInventory = () => {
           visible={showRaiser}
           onClose={() => setShowRaiser(false)}
           raiserInfo={selectedRaiser}
+        />
+      )}
+
+      {openModal && (
+        <AddLivestock
+          open={openModal}
+          onClose={() => setOpenModal(false)}
+          raiserData={selectedRaiser}
         />
       )}
     </div>

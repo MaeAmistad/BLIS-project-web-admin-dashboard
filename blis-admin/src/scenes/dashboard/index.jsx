@@ -123,7 +123,7 @@ const StatCard = ({ title, value, icon: Icon, color }) => (
 const ActivityLog = ({ logs }) => (
   <div className="bg-white rounded-2xl shadow p-4 h-full overflow-y-auto border border-gray-300 flex flex-col">
     <h3 className="font-semibold text-md mb-4 flex items-center gap-2">
-      <Activity size={16} /> Recent Activity
+      <Activity size={14} /> Recent Activity
     </h3>
 
     {logs.length === 0 ? (

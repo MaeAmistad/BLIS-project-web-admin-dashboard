@@ -43,6 +43,7 @@ const RaiserProfile = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAddress, setSelectedAddress] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
+  const [isLoading, setisLoading] = useState(false);
 
   // View Details Modal
   const [viewOpen, setViewOpen] = useState(false);
@@ -62,9 +63,11 @@ const RaiserProfile = () => {
   }, []);
 
   const fetchData = async () => {
+    setisLoading(true);
     const snapshot = await getDocs(collection(db, "raisers"));
     const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     setRaisers(data);
+    setisLoading(false);
   };
 
   const handleView = (raiser) => {
@@ -493,7 +496,13 @@ const RaiserProfile = () => {
               </thead>
 
               <tbody>
-                {filteredRaisers.length > 0 ? (
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-6 text-gray-500">
+                      Loading Raisers List
+                    </td>
+                  </tr>
+                ) : filteredRaisers.length > 0 ? (
                   filteredRaisers.map((raiser, index) => (
                     <tr
                       key={raiser.id}
