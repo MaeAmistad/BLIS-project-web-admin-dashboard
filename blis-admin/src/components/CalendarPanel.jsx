@@ -60,7 +60,7 @@ export default function CalendarPanel() {
               .filter(record => record.type === "ai" && record.calvingDate)
               .map(record => ({
                 id: `${raiserId}-${livestockId}-${record.id}`,
-                title: "Calving",
+                title: "Re-heat",
                 start: record.calvingDate,
                 allDay: true,
                 backgroundColor: "#ef4444", // red
@@ -79,10 +79,10 @@ export default function CalendarPanel() {
   }, []);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 flex flex-col p-3">
+    <div className="bg-white rounded-2xl border border-gray-200 flex flex-col p-3 h-full">
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-2 px-1">
+      <div className="flex items-center justify-between mb-2 px-1 bg-gray-600 text-white rounded reounded-lg">
         <button
           onClick={() => calendarRef.current.getApi().prev()}
           className="p-1 rounded hover:bg-gray-100"
@@ -90,7 +90,7 @@ export default function CalendarPanel() {
           ‹
         </button>
 
-        <h2 className="text-sm font-medium text-gray-800">
+        <h2 className="text-sm font-medium text-white">
           {title}
         </h2>
 
@@ -109,9 +109,9 @@ export default function CalendarPanel() {
           plugins={[dayGridPlugin]}
           initialView="dayGridMonth"
           headerToolbar={false}
-          aspectRatio={1.2}
-          expandRows={false}
-          fixedWeekCount={false}
+          height="100%"
+          expandRows={true}
+          fixedWeekCount={true}
           showNonCurrentDates={true}
           dayHeaders={true}
           datesSet={(arg) => setTitle(arg.view.title)}

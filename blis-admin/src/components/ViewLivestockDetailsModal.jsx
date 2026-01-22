@@ -12,6 +12,7 @@ import { db } from "../firebase";
 import LivestockEdit from "./LivestockEdit";
 import Swal from "sweetalert2";
 import { notifyAllUsers } from "./NotifyAllUsers";
+import { DeleteRounded, EditRounded } from "@mui/icons-material";
 
 const ViewLivestockDetailsModal = ({ open, onClose, raiser }) => {
   const [livestockWithCounts, setLivestockWithCounts] = useState([]);
@@ -124,17 +125,22 @@ const ViewLivestockDetailsModal = ({ open, onClose, raiser }) => {
     healthSnap.forEach((docSnap) => {
       const data = docSnap.data();
 
-      if (data.type && healthRecords[data.type]) {
-        healthRecords[data.type].push({
-          id: docSnap.id, // keep id if needed later
+      let key = data.type;
+
+      if (key === "ai") key = "aiRecords";
+
+      if (healthRecords[key]) {
+        healthRecords[key].push({
+          id: docSnap.id,
           ...data,
         });
       }
     });
 
-    // 2️⃣ Prepare data for modal (SINGLE livestock)
+    // Prepare data for modal (SINGLE livestock)
     setEditLivestockData([
       {
+        id: livestock.id,
         ...livestock,
         healthRecords,
       },
@@ -201,9 +207,9 @@ const ViewLivestockDetailsModal = ({ open, onClose, raiser }) => {
         }
       };
 
-      await upsert(livestock.healthRecords.vaccinations, "vaccinations");
-      await upsert(livestock.healthRecords.dewormings, "dewormings");
-      await upsert(livestock.healthRecords.treatments, "treatments");
+      await upsert(livestock.healthRecords.vaccinations, "vaccination");
+      await upsert(livestock.healthRecords.dewormings, "deworming");
+      await upsert(livestock.healthRecords.treatments, "treatment");
       await upsert(livestock.healthRecords.aiRecords, "ai");
 
       setEditOpen(false);
@@ -214,6 +220,8 @@ const ViewLivestockDetailsModal = ({ open, onClose, raiser }) => {
       setIsSaving(false);
     }
   };
+
+  const show = (v) => (v === null || v === undefined || v === "" ? "-" : v);
 
   if (!open || !raiser) return null;
 
@@ -232,7 +240,7 @@ const ViewLivestockDetailsModal = ({ open, onClose, raiser }) => {
             Livestock Details
           </h2>
           {/* Ownership Details */}
-          <h3 className="text-lg font-semibold text-gray-800 mb-2 border-b pb-1">
+          {/* <h3 className="text-lg font-semibold text-gray-800 mb-2 border-b pb-1">
             Ownership Details
           </h3>
           <div className="grid grid-cols-2 gap-4 text-sm text-gray-700 mb-6">
@@ -260,7 +268,7 @@ const ViewLivestockDetailsModal = ({ open, onClose, raiser }) => {
               <p className="font-medium text-gray-900">Type of Raiser</p>
               <p>{raiser.typeOfRaiser || "—"}</p>
             </div>
-          </div>
+          </div> */}
           {/* Livestock Information */}
           <h3 className="text-lg font-semibold text-gray-800 mb-2 border-b pb-1">
             Livestock Information
@@ -269,45 +277,71 @@ const ViewLivestockDetailsModal = ({ open, onClose, raiser }) => {
             <p className="text-center text-gray-500">Loading livestock...</p>
           ) : (
             <div className="space-y-4">
-              {livestockWithCounts.map((l) => (
+              {livestockWithCounts.map((l, index) => (
                 <div
                   key={l.id}
                   className="border rounded-xl p-4 bg-gray-50 relative"
                 >
-                  {/* Action Icons */}
-                  <div className="absolute top-3 right-3 flex gap-3 text-gray-500">
-                    <button
-                      onClick={() => openEditLivestock(l)}
-                      className="hover:text-blue-600"
-                      title="Edit"
-                    >
-                      ✏️
-                    </button>
-                    <button
-                      onClick={() => handleDelete(l.id)}
-                      className="hover:text-red-600"
-                      title="Delete"
-                    >
-                      🗑️
-                    </button>
+                  {/* Header Row: Index + Actions */}
+                  <div className="flex items-center justify-between mb-3">
+                    {/* Left: Livestock Count */}
+                    <div className="text-green-800 rounded-full text-sm font-semibold">
+                      Livestock #{index + 1}
+                    </div>
+
+                    {/* Right: Action Icons */}
+                    <div className="flex gap-3 text-gray-500">
+                      <button
+                        onClick={() => openEditLivestock(l)}
+                        className="hover:text-blue-600"
+                        title="Edit"
+                      >
+                        <EditRounded sx={{ color: "#266b0f", fontSize: 18 }} />
+                      </button>
+
+                      <button
+                        onClick={() => handleDelete(l.id)}
+                        className="hover:text-red-600"
+                        title="Delete"
+                      >
+                        <DeleteRounded
+                          sx={{ color: "#a30808", fontSize: 18 }}
+                        />
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <p>
-                      <strong>Name:</strong> {l.livestockName}
-                    </p>
-                    <p>
-                      <strong>Type:</strong> {l.typeOfAnimal}
-                    </p>
-                    <p>
-                      <strong>Breed:</strong> {l.breed}
-                    </p>
-                    <p>
-                      <strong>Status:</strong> {l.status}
-                    </p>
+                  <div>
+                    <div className="grid grid-cols-3 gap-6 text-xs">
+                      <p>
+                        <strong>Livestock Name:</strong> {show(l.livestockName)}
+                      </p>
+                      <p>
+                        <strong>Type:</strong> {show(l.typeOfAnimal)}
+                      </p>
+                      <p>
+                        <strong>Breed:</strong> {show(l.breed)}
+                      </p>
+                      <p>
+                        <strong>Gender:</strong> {show(l.gender)}
+                      </p>
+                      <p>
+                        <strong>Date Acquired:</strong> {show(l.dateOfBirth)}
+                      </p>
+                      <p>
+                        <strong>Age:</strong> {show(l.age)}
+                      </p>
+                      <p>
+                        <strong>Health Condition:</strong>{" "}
+                        {show(l.healthCondition)}
+                      </p>
+                      <p>
+                        <strong>Status:</strong> {show(l.status)}
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="mt-3 text-green-700 font-medium">
+                  <div className="mt-3 text-green-700 font-medium text-xs">
                     Health Records: {l.healthRecordsCount}
                   </div>
                 </div>

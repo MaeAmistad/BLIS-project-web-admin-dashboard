@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Swal from "sweetalert2";
 
 export default function HealthRecords({
@@ -16,44 +16,58 @@ export default function HealthRecords({
 }) {
   const [openSection, setOpenSection] = useState(null);
 
-  const emptyVaccination = {
-    vaccine: "",
-    date: "",
-    administeredBy: "",
-    dosage: "",
-    remarks: "",
-  };
+  const emptyVaccination = useMemo(
+    () => ({
+      vaccine: "",
+      date: "",
+      administeredBy: "",
+      dosage: "",
+      remarks: "",
+    }),
+    [],
+  );
 
-  const emptyDeworming = {
-    dewormer: "",
-    dateAdministered: "",
-    nextSchedule: "",
-    administeredBy: "",
-    dosage: "",
-    remarks: "",
-  };
+  const emptyDeworming = useMemo(
+    () => ({
+      dewormer: "",
+      dateAdministered: "",
+      nextSchedule: "",
+      administeredBy: "",
+      dosage: "",
+      remarks: "",
+    }),
+    [],
+  );
 
-  const emptyTreatment = {
-    illness: "",
-    medication: "",
-    dateStarted: "",
-    dateCompleted: "",
-    administeredBy: "",
-    dosageFrequency: "",
-    result: "",
-    remarks: "",
-  };
+  const emptyTreatment = useMemo(
+    () => ({
+      illness: "",
+      medication: "",
+      dateStarted: "",
+      dateCompleted: "",
+      administeredBy: "",
+      dosageFrequency: "",
+      result: "",
+      remarks: "",
+    }),
+    [],
+  );
 
-  const emptyAI = {
-    animalType: "",
-    date: "",
-    time: "",
-    semenType: "",
-    specialist: "",
-    status: "",
-    calvingDate: "",
-    remarks: "",
-  };
+  const emptyAI = useMemo(
+    () => (
+      {
+        animalType: "",
+        date: "",
+        time: "",
+        semenType: "",
+        specialist: "",
+        status: "",
+        calvingDate: "",
+        remarks: "",
+        expectedDelivery: "",
+      }   
+    ),[]
+  );
 
   const [vaccinationForm, setVaccinationForm] = useState(emptyVaccination);
   const [dewormingForm, setDewormingForm] = useState(emptyDeworming);
@@ -77,6 +91,30 @@ export default function HealthRecords({
     setTreatments(initialData.treatments || []);
     setAiRecords(initialData.aiRecords || []);
   }, [open, initialData]);
+
+  useEffect(() => {
+    if (!open) {
+      setVaccinationForm(emptyVaccination);
+      setDewormingForm(emptyDeworming);
+      setTreatmentForm(emptyTreatment);
+      setAiForm(emptyAI);
+      setOpenSection(null);
+    }
+  }, [open, emptyAI, emptyDeworming, emptyTreatment, emptyVaccination]);
+
+  useEffect(() => {
+      if (!aiForm.date) return;
+  
+      const inseminationDate = new Date(aiForm.date);
+      inseminationDate.setDate(inseminationDate.getDate() + 21);
+  
+      const calvingDate = inseminationDate.toISOString().split("T")[0];
+  
+      setAiForm((prev) => ({
+        ...prev,
+        calvingDate,
+      }));
+    }, [aiForm.date]);
 
   const removeVaccination = (index) => {
     Swal.fire({
@@ -297,13 +335,16 @@ export default function HealthRecords({
 
             <ActionButtons
               onSave={() => {
-                setVaccinations([...vaccinations, vaccinationForm]);
+                setVaccinations([
+                  ...vaccinations,
+                  { ...vaccinationForm, id: undefined },
+                ]);
                 setVaccinationForm(emptyVaccination);
               }}
-              onAddAnother={() => {
-                setVaccinations([...vaccinations, vaccinationForm]);
-                setVaccinationForm(emptyVaccination);
-              }}
+              // onAddAnother={() => {
+              //   setVaccinations([...vaccinations, vaccinationForm]);
+              //   setVaccinationForm(emptyVaccination);
+              // }}
             />
             {vaccinations.length > 0 && (
               <div className="mt-4 border-t pt-4 space-y-2">
@@ -317,7 +358,7 @@ export default function HealthRecords({
                     className="flex justify-between items-center bg-gray-50 border rounded-lg p-3"
                   >
                     <div className="text-sm">
-                      <strong>{record.livestock}</strong> – {record.vaccine}
+                      <strong>{record.vaccine}</strong> – {record.dosage}
                       <div className="text-xs text-gray-500">{record.date}</div>
                     </div>
 
@@ -417,13 +458,16 @@ export default function HealthRecords({
 
             <ActionButtons
               onSave={() => {
-                setDewormings([...dewormings, dewormingForm]);
+                setDewormings([
+                  ...dewormings,
+                  { ...dewormingForm, id: undefined },
+                ]);
                 setDewormingForm(emptyDeworming);
               }}
-              onAddAnother={() => {
-                setDewormings([...dewormings, dewormingForm]);
-                setDewormingForm(emptyDeworming);
-              }}
+              // onAddAnother={() => {
+              //   setDewormings([...dewormings, dewormingForm]);
+              //   setDewormingForm(emptyDeworming);
+              // }}
             />
 
             {dewormings.length > 0 && (
@@ -564,11 +608,10 @@ export default function HealthRecords({
 
             <ActionButtons
               onSave={() => {
-                setTreatments([...treatments, treatmentForm]);
-                setTreatmentForm(emptyTreatment);
-              }}
-              onAddAnother={() => {
-                setTreatments([...treatments, treatmentForm]);
+                setTreatments([
+                  ...treatments,
+                  { ...treatmentForm, id: undefined },
+                ]);
                 setTreatmentForm(emptyTreatment);
               }}
             />
@@ -657,7 +700,7 @@ export default function HealthRecords({
                 }
               />
               <Input
-                label="Date of Calving (if applicable)"
+                label="Re-heat Monitoring"
                 type="date"
                 value={aiForm.calvingDate}
                 onChange={(e) =>
@@ -676,15 +719,19 @@ export default function HealthRecords({
                   })
                 }
               />
+              <Input
+                label="Expected Delivery"
+                type="date"
+                value={aiForm.expectedDelivery}
+                onChange={(e) =>
+                  setAiForm({ ...aiForm, expectedDelivery: e.target.value })
+                }
+              />
             </div>
 
             <ActionButtons
               onSave={() => {
-                setAiRecords([...aiRecords, aiForm]);
-                setAiForm(emptyAI);
-              }}
-              onAddAnother={() => {
-                setAiRecords([...aiRecords, aiForm]);
+                setAiRecords([...aiRecords, { ...aiForm, id: undefined }]);
                 setAiForm(emptyAI);
               }}
             />

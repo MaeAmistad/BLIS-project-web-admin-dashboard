@@ -27,7 +27,7 @@ body,
 }
 /* Smaller overall font */
 .fc {
-  font-size: 11px;
+  font-size: 10px;
   overflow: hidden;
 }
 
@@ -42,36 +42,45 @@ body,
 .fc-col-header-cell {
   padding-bottom: 2px;
   font-size: 0.55rem;
-  color: #6b7280;
+  color: #222322;
 }
 
 /* Shrink row height */
 .fc-daygrid-day-frame {
-  padding: 0;
-  min-height: 5x;
+  min-height: 28px; /* safe, not too small */
+  padding: 2px;     /* keeps day number visible */
 }
 
-/* Center day number */
-.fc-daygrid-day-number {
+.fc .fc-daygrid-day-number {
   width: 20px;
-  height: 18px;
+  height: 20px; 
   margin: auto;
-  border-radius: 9999px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 500;
+
+}
+.fc-day-today {
+  background: transparent !important;
 }
 
 /* Hover */
 .fc-daygrid-day:hover .fc-daygrid-day-number {
-  background: #f3f4f6;
+  background: #066b09;
+  border-radius: 50%;
+  color:white
 }
 
 /* Today */
 .fc-day-today .fc-daygrid-day-number {
   background: #1d6604;
   color: white;
+  border-radius: 50%;
+  
+}
+.fc-scrollgrid-section-body td {
+  padding: 0;
 }
 
 

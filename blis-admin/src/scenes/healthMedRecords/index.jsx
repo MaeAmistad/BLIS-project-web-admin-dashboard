@@ -21,13 +21,29 @@ import logo4 from "../../../src/assets/pilipins.png";
 
 const ROWS_PER_PAGE = 20;
 
+const recordTypeFormatter = (value) => {
+  if (!value) return "—";
+
+  const normalized = value.toLowerCase();
+
+  if (normalized === "ai") return "Artificial Insemination";
+
+  return normalized
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (str) => str.toUpperCase());
+};
+
 const tableColumns = {
   healthList: [
     { label: "Raiser Name", key: "raiserName" },
     { label: "Barangay", key: "address" },
     { label: "Livestock Type", key: "typeOfAnimal" },
     { label: "Health Condition", key: "healthCondition" },
-    { label: "Record Type", key: "recordType" },
+    {
+      label: "Record Type",
+      key: "recordType",
+      format: recordTypeFormatter,
+    },
   ],
 
   vaccination: [
@@ -64,11 +80,11 @@ const tableColumns = {
   ai: [
     { label: "Animal Type", key: "animalType" },
     { label: "Date of Insemination", key: "date" },
-    { label: "Time", key: "time" },
     { label: "Semen Type", key: "semenType" },
     { label: "Specialist", key: "specialist" },
     { label: "Status", key: "status" },
     { label: "Re-heat Monitoring", key: "calvingDate" },
+    { label: "Expected Delivery", key: "expectedDelivery" },
     { label: "Remarks", key: "remarks" },
   ],
   unvaccinated: [
@@ -92,9 +108,11 @@ const HealthandMedical = () => {
   const [healthRecords, setHealthRecords] = useState([]);
   const [livestock, setLivestock] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchAllHealthRecords = async () => {
+      setIsLoading(true);
       const snap = await getDocs(collectionGroup(db, "healthRecords"));
 
       const records = snap.docs.map((doc) => ({
@@ -108,6 +126,7 @@ const HealthandMedical = () => {
     };
 
     fetchAllHealthRecords();
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
@@ -142,71 +161,73 @@ const HealthandMedical = () => {
   }, [activeTable]);
 
   const normalizeAnimal = (typeOfAnimal = "") => {
-    const t = typeOfAnimal.toLowerCase();
-    if (t === "dog" || t === "dogs") return "dog";
-    if (t === "cat" || t === "cats") return "cat";
-    return null;
-  };
+  const t = typeOfAnimal.toLowerCase();
+  if (t === "dog" || t === "dogs") return "dog";
+  if (t === "cat" || t === "cats") return "cat";
+  return null;
+};
 
-  const unvaccinatedRecords = useMemo(() => {
-    if (!healthRecords.length || !livestock.length || !raisers.length)
-      return [];
+const unvaccinatedRecords = useMemo(() => {
+  if (!raisers?.length) return [];
 
-    // only unvaccinated records
-    const unvaccinated = healthRecords.filter((r) => r.type === "unvaccinated");
+  const map = {};
 
-    const map = {};
+  raisers.forEach((raiser) => {
+    const raiserId = raiser.id;
+    const livestockList = raiser.livestock || [];
 
-    unvaccinated.forEach((record) => {
-      const animal = livestock.find((l) => l.id === record.livestockId);
-      const raiser = raisers.find((r) => r.id === record.raiserId);
-      if (!raiser || !animal) return;
-
-      const key = raiser.id;
+    livestockList.forEach((animal) => {
       const animalType = normalizeAnimal(animal.typeOfAnimal);
+      if (!animalType) return;
 
-      if (!map[key]) {
-        map[key] = {
-          id: key,
-          raiserName: `${raiser.firstName} ${raiser.lastName}`,
-          contactNumber: raiser.contactNumber || "—",
+      const healthRecords = animal.healthRecords || [];
+      healthRecords.forEach((record) => {
+        // Skip if it's a vaccination record
+        if (record.type === "vaccination" || record.type === "vaccinations") return;
 
-          dogCount: 0,
-          catCount: 0,
+        if (!map[raiserId]) {
+          map[raiserId] = {
+            id: raiserId,
+            raiserName: `${raiser.firstName || "—"} ${raiser.lastName || ""}`.trim(),
+            contactNumber: raiser.contactNumber || "—",
 
-          reasonAwanTao: 0,
-          reasonBelow3Months: 0,
-          reasonPregnant: 0,
+            dogCount: 0,
+            catCount: 0,
 
-          remarks: "",
-        };
-      }
+            reasonAwanTao: 0,
+            reasonBelow3Months: 0,
+            reasonPregnant: 0,
 
-      // count dogs & cats
-      if (animalType === "dog") map[key].dogCount += 1;
-      if (animalType === "cat") map[key].catCount += 1;
+            remarks: "",
+          };
+        }
 
-      // count reasons
-      switch (record.reason) {
-        case "Awan Tao":
-          map[key].reasonAwanTao += 1;
-          break;
-        case "Below 3 Months":
-          map[key].reasonBelow3Months += 1;
-          break;
-        case "Pregnant":
-          map[key].reasonPregnant += 1;
-          break;
-        default:
-          break;
-      }
+        if (animalType === "dog") map[raiserId].dogCount += 1;
+        if (animalType === "cat") map[raiserId].catCount += 1;
 
-      // optional
-      map[key].remarks = record.remarks || map[key].remarks;
+        // switch (record.reason) {
+        //   case "Awan Tao":
+        //     map[raiserId].reasonAwanTao += 1;
+        //     break;
+        //   case "Below 3 Months":
+        //     map[raiserId].reasonBelow3Months += 1;
+        //     break;
+        //   case "Pregnant":
+        //     map[raiserId].reasonPregnant += 1;
+        //     break;
+        //   default:
+        //     map[raiserId].reasonAwanTao += 0;
+        //     map[raiserId].reasonBelow3Months += 0;
+        //     map[raiserId].reasonPregnant += 0;
+        // }
+
+        map[raiserId].remarks = record.remarks || map[raiserId].remarks;
+      });
     });
+  });
 
-    return Object.values(map);
-  }, [healthRecords, livestock, raisers]);
+  return Object.values(map);
+}, [raisers]);
 
   const joinedRecords = useMemo(() => {
     if (!healthRecords.length || !livestock.length || !raisers.length)
@@ -221,7 +242,9 @@ const HealthandMedical = () => {
         recordType: record.type, // vaccination, deworming, etc
         recordData: record, // full health record
 
-        raiserName: raiser ? `${raiser.firstName} ${raiser.lastName}` : "—",
+        raiserName: raiser
+          ? `${raiser.firstName} ${raiser.middleInitial} ${raiser.lastName}`
+          : "—",
         address: raiser?.address || "—",
         contactNumber: raiser?.contactNumber || "—",
 
@@ -250,13 +273,84 @@ const HealthandMedical = () => {
     return data.filter((row) =>
       Object.values(row).some(
         (value) =>
-          typeof value === "string" && value.toLowerCase().includes(term)
-      )
+          typeof value === "string" && value.toLowerCase().includes(term),
+      ),
     );
   }, [activeTable, joinedRecords, unvaccinatedRecords, searchTerm]);
 
   const handleButtonClick = (tableName) => {
     setActiveTable(tableName);
+  };
+
+  const addReportHeader = (doc, title) => {
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const centerX = pageWidth / 2;
+    const headerY = 20;
+
+    /* ===== TEXT HEADER ===== */
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text("REPUBLIC OF THE PHILIPPINES", centerX, headerY, {
+      align: "center",
+    });
+
+    doc.setFontSize(10);
+    doc.text("MUNICIPALITY OF BANTAY", centerX, headerY + 5, {
+      align: "center",
+    });
+
+    doc.setFontSize(8);
+    doc.text("Bantay, Ilocos Sur", centerX, headerY + 10, {
+      align: "center",
+    });
+
+    /* ===== LOGOS ===== */
+    const imgSize = 18;
+    const imgY = headerY - 8;
+    const imgGap = 6;
+
+    // Left logos
+    doc.addImage(logo4, "PNG", centerX - 90, imgY, imgSize, imgSize);
+    doc.addImage(
+      logo1,
+      "PNG",
+      centerX - 90 + imgSize + imgGap,
+      imgY,
+      imgSize,
+      imgSize,
+    );
+
+    const logo2Width = 25;
+    const logo2Height = 18;
+
+    // Right logos
+    doc.addImage(
+      logo3,
+      "PNG",
+      centerX + 90 - imgSize * 2 - imgGap,
+      imgY,
+      imgSize,
+      imgSize,
+    );
+    doc.addImage(
+      logo2,
+      "PNG",
+      centerX + 90 - logo2Width,
+      imgY,
+      logo2Width,
+      logo2Height,
+    );
+
+    /* ===== REPORT TITLE ===== */
+    doc.setFontSize(14);
+    doc.text(title, centerX, 42, { align: "center" });
+
+    /* ===== DATE ===== */
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 48);
+
+    return 52; // 👈 return table start Y
   };
 
   const handleExportPDF = () => {
@@ -272,29 +366,26 @@ const HealthandMedical = () => {
       ai: "Artificial Insemination Records",
     };
 
-    doc.setFontSize(14);
-    doc.text(titleMap[activeTable], 14, 15);
-
-    doc.setFontSize(9);
-    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 22);
-
+    const startY = addReportHeader(doc, titleMap[activeTable]);
     const columns = tableColumns[activeTable].map((col) => col.label);
 
     const rows = displayedRecords.map((row) =>
       tableColumns[activeTable].map((col) =>
         activeTable === "healthList"
-          ? row[col.key] ?? "—"
-          : row.recordData[col.key] ?? "—"
-      )
+          ? (row[col.key] ?? "—")
+          : (row.recordData[col.key] ?? "—"),
+      ),
     );
 
     autoTable(doc, {
-      startY: 26,
+      startY,
       head: [columns],
       body: rows,
       styles: {
         fontSize: 9,
         cellPadding: 3,
+        lineWidth: 0.3, // 👈 thin border
+        lineColor: [22, 163, 74],
       },
       headStyles: {
         fillColor: [22, 163, 74], // green
@@ -349,7 +440,7 @@ const HealthandMedical = () => {
       centerX - 90 + imgSize + imgGap,
       imgY,
       imgSize,
-      imgSize
+      imgSize,
     );
 
     // Right side logos
@@ -359,9 +450,28 @@ const HealthandMedical = () => {
       centerX + 90 - imgSize * 2 - imgGap,
       imgY,
       imgSize,
-      imgSize
+      imgSize,
     );
-    doc.addImage(logo2, "PNG", centerX + 90 - imgSize, imgY, imgSize, imgSize);
+    const logo2Width = 25;
+    const logo2Height = 18;
+
+    // Right logos
+    doc.addImage(
+      logo3,
+      "PNG",
+      centerX + 90 - imgSize * 2 - imgGap,
+      imgY,
+      imgSize,
+      imgSize,
+    );
+    doc.addImage(
+      logo2,
+      "PNG",
+      centerX + 90 - logo2Width,
+      imgY,
+      logo2Width,
+      logo2Height,
+    );
 
     doc.setFontSize(14);
     doc.text("VACCINATION REPORT", pageWidth / 2, 42, { align: "center" });
@@ -377,7 +487,7 @@ const HealthandMedical = () => {
     doc.text(
       "Livestock Inspector: ____________________",
       pageWidth - 90,
-      infoStartY
+      infoStartY,
     );
     doc.text("Date: ____________________", pageWidth - 90, infoStartY + 5);
 
@@ -429,8 +539,8 @@ const HealthandMedical = () => {
       styles: {
         fontSize: 8,
         cellPadding: 2,
-        lineWidth: 0.3,
-        lineColor: [0, 0, 0],
+        lineWidth: 0.3, // 👈 thin border
+        lineColor: [22, 163, 74],
         textColor: [0, 0, 0],
         font: "helvetica",
         valign: "middle",
@@ -483,8 +593,8 @@ const HealthandMedical = () => {
       tableColumns[activeTable].forEach((col) => {
         result[col.label] =
           activeTable === "healthList"
-            ? row[col.key] ?? ""
-            : row.recordData[col.key] ?? "";
+            ? (row[col.key] ?? "")
+            : (row.recordData[col.key] ?? "");
       });
 
       return result;
@@ -507,12 +617,44 @@ const HealthandMedical = () => {
     saveAs(blob, `${activeTable}-report.xlsx`);
   };
 
+  const resolveCellValue = ({ row, col, activeTable }) => {
+    let rawValue;
+
+    if (activeTable === "healthList") {
+      rawValue = row[col.key];
+    } else if (
+      ["vaccination"].includes(activeTable) &&
+      [
+        "raiserName",
+        "contactNumber",
+        "typeOfAnimal",
+        "livestockName",
+        "age",
+      ].includes(col.key)
+    ) {
+      rawValue = row[col.key];
+    } else {
+      rawValue = row.recordData?.[col.key];
+    }
+
+    if (rawValue === "" || rawValue === null || rawValue === undefined) {
+      return "—";
+    }
+
+    // ✅ Apply formatter if present
+    if (col.format) {
+      return col.format(rawValue, row);
+    }
+
+    return rawValue;
+  };
+
   return (
     <div className="app flex flex-col md:flex-row">
       <Sidebarr />
       <div className="content flex-grow p-2 overflow-auto h-screen">
         <Topbar />
-        <div className="sticky top-14 flex flex-col md:flex-row items-start md:items-center justify-between p-1 m-2">
+        <div className="top-14 flex flex-col md:flex-row items-start md:items-center justify-between p-1 m-2">
           <Headerr title="Health and Medical Records" />
         </div>
 
@@ -560,7 +702,7 @@ const HealthandMedical = () => {
             </button>
 
             <button
-              onClick={() => handleButtonClick("unvaccinated")} 
+              onClick={() => handleButtonClick("unvaccinated")}
               className="flex items-center gap-2 bg-sky-700 text-white text-xs px-5 py-3 rounded-xl shadow hover:bg-sky-900  transition"
             >
               <MedicationLiquidRoundedIcon />
@@ -585,7 +727,7 @@ const HealthandMedical = () => {
               placeholder="Search records..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full md:w-96 px-2 py-2 border border-gray-300 rounded-lg shadow-sm
+              className="w-full h-10 md:w-96 px-2 py-2 border border-gray-300 rounded-lg shadow-sm
                focus:outline-none focus:ring-2 focus:ring-primary text-xs"
             />
 
@@ -593,8 +735,8 @@ const HealthandMedical = () => {
               <button
                 onClick={handleDownloadPDF}
                 disabled={!displayedRecords.length}
-                className="p-2 rounded-lg bg-red-600 text-white text-xs
-   hover:bg-red-700 disabled:opacity-50 disabled:cursor-no-drop"
+                className="p-2 h-10 rounded-lg bg-gray-700 text-white text-xs
+              hover:bg-gray-600 disabled:opacity-50 disabled:cursor-no-drop"
               >
                 Download Report PDF
               </button>
@@ -626,7 +768,16 @@ const HealthandMedical = () => {
               </thead>
 
               <tbody>
-                {displayedRecords.length > 0 ? (
+                {isLoading ? (
+                  <tr>
+                    <td
+                      colSpan={tableColumns[activeTable].length + 1}
+                      className="text-center p-4"
+                    >
+                      Loading records...
+                    </td>
+                  </tr>
+                ) : displayedRecords.length > 0 ? (
                   displayedRecords.map((row, index) => (
                     <tr
                       key={row.id}
@@ -641,24 +792,7 @@ const HealthandMedical = () => {
                           key={col.key}
                           className="p-2 border border-gray-400"
                         >
-                          {activeTable === "healthList" && row[col.key]}
-
-                          {activeTable === "vaccination" &&
-                            ([
-                              "raiserName",
-                              "contactNumber",
-                              "typeOfAnimal",
-                              "livestockName",
-                              "age",
-                            ].includes(col.key)
-                              ? row[col.key]
-                              : row.recordData[col.key])}
-
-                          {["deworming", "treatment", "ai"].includes(
-                            activeTable
-                          ) && row.recordData[col.key]}
-
-                          {!row[col.key] && !row.recordData[col.key] && "—"}
+                          {resolveCellValue({ row, col, activeTable })}
                         </td>
                       ))}
                     </tr>

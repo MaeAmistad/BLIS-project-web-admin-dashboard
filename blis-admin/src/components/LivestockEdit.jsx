@@ -75,7 +75,31 @@ export default function LivestockEdit({
     }
   }, [open, initialData]);
 
+  const validators = {
+    lettersOnly: /^[a-zA-Z\s]*$/,
+    numbersOnly: /^[0-9]*$/,
+  };
+
   const updateLivestock = (index, field, value) => {
+    // Letters-only fields
+    const lettersOnlyFields = [
+      "livestockName",
+      "breed",
+      "colorMarkings",
+      "healthCondition",
+    ];
+
+    if (lettersOnlyFields.includes(field)) {
+      if (!validators.lettersOnly.test(value)) return;
+    }
+
+    // Numbers-only fields
+    const numbersOnlyFields = ["weight", "age"];
+
+    if (numbersOnlyFields.includes(field)) {
+      if (!validators.numbersOnly.test(value)) return;
+    }
+
     setLivestockList((prev) =>
       prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
     );
@@ -125,7 +149,7 @@ export default function LivestockEdit({
               {/* Card Header */}
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-sm font-semibold text-gray-700">
-                  Livestock #{idx + 1}
+                  Livestock
                 </h3>
 
                 <div className="flex gap-3">
@@ -224,6 +248,7 @@ export default function LivestockEdit({
                   <input
                     className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
                     placeholder="Weight"
+                    inputMode="numeric"
                     value={item.weight || ""}
                     onChange={(e) =>
                       updateLivestock(idx, "weight", e.target.value)
@@ -283,6 +308,7 @@ export default function LivestockEdit({
                   <input
                     className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
                     placeholder="Age"
+                    inputMode="numeric"
                     value={item.age || ""}
                     onChange={(e) =>
                       updateLivestock(idx, "age", e.target.value)
@@ -314,7 +340,7 @@ export default function LivestockEdit({
         {/* FOOTER */}
         <div className="flex justify-end mt-6 border-t pt-4">
           <button
-            onClick={() => onSave(livestockList)}
+            onClick={handleConfirmSave}
             disabled={isSaving}
             className="px-5 py-2 bg-primary text-white rounded-lg disabled:opacity-50"
           >

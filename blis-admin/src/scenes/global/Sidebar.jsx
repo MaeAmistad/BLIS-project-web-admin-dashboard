@@ -33,17 +33,17 @@ const Sidebarr = () => {
       icon: <AccountCircleRoundedIcon />,
     },
     {
-      title: "Raiser/Farmer",
+      title: "Raiser Management",
       path: "/raiserProfile",
       icon: <PeopleRoundedIcon />,
     },
     {
-      title: "Livestock",
+      title: "Livestock Registration & Monitoring",
       path: "/livestock",
       icon: <InventoryRoundedIcon />,
     },
     {
-      title: "Health and Medical",
+      title: "Health and Medical Records",
       path: "/healthandmed",
       icon: <MedicalInformationIcon />,
     },

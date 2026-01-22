@@ -8,6 +8,8 @@ import {
   onSnapshot,
   limit,
   orderBy,
+  getDoc,
+  doc,
 } from "firebase/firestore";
 import { db } from "../../firebase";
 
@@ -120,33 +122,31 @@ const StatCard = ({ title, value, icon: Icon, color }) => (
   </div>
 );
 
-const ActivityLog = ({ logs }) => (
-  <div className="bg-white rounded-2xl shadow p-4 h-full overflow-y-auto border border-gray-300 flex flex-col">
+const ActivityLog = ({ reminders }) => (
+  <div className="bg-white rounded-2xl shadow p-4 border border-gray-300 flex flex-col h-full">
     <h3 className="font-semibold text-md mb-4 flex items-center gap-2">
-      <Activity size={14} /> Recent Activity
+      <Activity size={14} /> Reminders
     </h3>
 
-    {logs.length === 0 ? (
-      <p className="text-xs text-gray-500">No recent activity</p>
-    ) : (
-      <ul className="space-y-4 text-xs overflow-y-auto">
-        {logs.map((log) => {
-          const date = log.createdAt?.toDate() || log.updatedAt?.toDate();
-
-          return (
+    <div className="flex-1 overflow-y-auto">
+      {reminders.length === 0 ? (
+        <p className="text-xs text-gray-500">No reminders</p>
+      ) : (
+        <ul className="space-y-4 text-xs">
+          {reminders.map((reminder) => (
             <li
-              key={log.id}
+              key={reminder.id}
               className="border-l-4 border-blue-500 pl-3 text-sm"
             >
-              <p className="font-medium">{log.message}</p>
-              <p className="text-xs text-gray-500">
-                {date ? date.toLocaleString() : "Just now"}
+              <p className="text-xs text-gray-500 font-semibold">
+                {reminder.date ? reminder.date.toLocaleDateString() : "No date"}
               </p>
+              <p className="font-medium">{reminder.message}</p>
             </li>
-          );
-        })}
-      </ul>
-    )}
+          ))}
+        </ul>
+      )}
+    </div>
   </div>
 );
 
@@ -203,12 +203,137 @@ const Dashboard = () => {
     aiPending: 0,
     inventoryItems: 0,
     lowStock: 0,
+    unvaccinated: 0,
   });
 
   const [raisersByAddress, setRaisersByAddress] = useState([]);
   const [livestockByType, setLivestockByType] = useState([]);
   const [activityLogs, setActivityLogs] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [reminders, setReminders] = useState([]);
+
+  useEffect(() => {
+    const fetchReminders = async () => {
+      try {
+        const reminderList = [];
+        const today = new Date();
+        const in30Days = new Date();
+        in30Days.setDate(today.getDate() + 30);
+
+        // ======= Fetch all raisers once =======
+        const raiserSnap = await getDocs(collection(db, "raisers"));
+        const raiserMap = {}; // {raiserId: fullName}
+        raiserSnap.forEach((r) => {
+          const data = r.data();
+          const fullName = [data.firstName, data.middleInitial, data.lastName]
+            .filter(Boolean)
+            .join(" ");
+          raiserMap[r.id] = fullName;
+        });
+
+        // ======= Fetch all healthRecords =======
+        const healthSnap = await getDocs(collectionGroup(db, "healthRecords"));
+        for (const hr of healthSnap.docs) {
+          const data = hr.data();
+          const pathParts = hr.ref.path.split("/");
+          const raiserId = pathParts[1];
+          const livestockId = pathParts[3];
+
+          const raiserName = raiserMap[raiserId] || "Unknown Raiser";
+
+          // Fetch livestock name
+          let livestockName = "Unknown Livestock";
+          const livestockRef = doc(
+            db,
+            `raisers/${raiserId}/livestock/${livestockId}`,
+          );
+          const livestockDoc = await getDoc(livestockRef);
+          if (livestockDoc.exists()) {
+            livestockName = livestockDoc.data().typeOfAnimal || livestockName;
+          }
+
+          const type = data.type?.toUpperCase();
+          if (type === "DEWORMING" && data.nextSchedule) {
+            const date = data.nextSchedule.toDate
+              ? data.nextSchedule.toDate()
+              : new Date(data.nextSchedule);
+            if (date >= today && date <= in30Days) {
+              reminderList.push({
+                id: doc.id,
+                message: `Deworming next schedule for ${livestockName}, (${raiserName})`,
+                date,
+              });
+            }
+          }
+
+          if (type === "AI" && data.nextCalvingDate) {
+            const date = data.nextCalvingDate.toDate
+              ? data.nextCalvingDate.toDate()
+              : new Date(data.nextCalvingDate);
+            if (date >= today && date <= in30Days) {
+              reminderList.push({
+                id: doc.id,
+                message: `Reheat Monitoring Schedule for ${livestockName}, (${raiserName})`,
+                date,
+              });
+            }
+          }
+
+          if (type === "AI" && data.expectedDelivery) {
+            const date = data.expectedDelivery.toDate
+              ? data.expectedDelivery.toDate()
+              : new Date(data.expectedDelivery);
+            if (date >= today && date <= in30Days) {
+              reminderList.push({
+                id: doc.id,
+                message: `${raiserName}'s ${livestockName} expected Delivery`,
+                date,
+              });
+            }
+          }
+        }
+
+        // ====== INVENTORY REMINDERS ======
+        const inventorySnap = await getDocs(collection(db, "inventory"));
+        inventorySnap.forEach((doc) => {
+          const data = doc.data();
+          const expirationDate = data.expirationDate?.toDate
+            ? data.expirationDate.toDate()
+            : new Date(data.expirationDate);
+          const oneWeekBefore = new Date(expirationDate);
+          oneWeekBefore.setDate(expirationDate.getDate() - 7);
+
+          // Low stock reminder
+          if (data.quantity < 20) {
+            reminderList.push({
+              id: doc.id + "_lowStock",
+              message: `Low stock: ${data.itemName} (${data.quantity} left)`,
+              date: today,
+            });
+          }
+
+          // Expiration reminder
+          if (oneWeekBefore >= today && oneWeekBefore <= in30Days) {
+            reminderList.push({
+              id: doc.id + "_expire",
+              message: `${data.itemName} expires soon (${expirationDate.toLocaleDateString()})`,
+              date: oneWeekBefore,
+            });
+          }
+        });
+
+        // Sort by nearest date
+        reminderList.sort((a, b) => a.date - b.date);
+
+        setReminders(reminderList);
+      } catch (error) {
+        console.error("Error fetching reminders:", error);
+      }
+    };
+
+    fetchReminders();
+  }, []);
 
   useEffect(() => {
     const q = query(
@@ -263,8 +388,10 @@ const Dashboard = () => {
            LIVESTOCK
         ========================= */
         const livestockSnap = await getDocs(collectionGroup(db, "livestock"));
-
+        const healthSnap = await getDocs(collectionGroup(db, "healthRecords"));
         const animalMap = {}; // { COW: 10, PIG: 5 }
+
+        const vaccinatedLivestockIds = new Set();
 
         livestockSnap.forEach((doc) => {
           const { typeOfAnimal } = doc.data();
@@ -297,7 +424,6 @@ const Dashboard = () => {
         /* =========================
            HEALTH RECORDS
         ========================= */
-        const healthSnap = await getDocs(collectionGroup(db, "healthRecords"));
 
         let vaccinationCount = 0;
         let treatmentCount = 0;
@@ -307,16 +433,35 @@ const Dashboard = () => {
         healthSnap.forEach((doc) => {
           const data = doc.data();
           const type = data.type?.toUpperCase?.();
-          if (!data.type) {
-            console.warn("Missing type in doc:", doc.id, data);
+
+          if (!type) return;
+
+          if (type === "VACCINATIONS" || type === "VACCINATION") {
+            vaccinationCount++;
+            if (doc.ref.parent?.parent?.id) {
+              vaccinatedLivestockIds.add(doc.ref.parent.parent.id);
+            }
           }
 
-          if (typeof type !== "string") return;
-
-          if (type === "VACCINATION") vaccinationCount++;
           if (type === "TREATMENT") treatmentCount++;
           if (type === "AI") aiPendingCount++;
           if (type === "DEWORMING") dewormingCount++;
+        });
+
+        let unvaccinatedCount = 0;
+
+        livestockSnap.forEach((doc) => {
+          const { typeOfAnimal } = doc.data();
+          if (!typeOfAnimal) return;
+
+          const key = typeOfAnimal.toUpperCase();
+
+          if (
+            (key === "DOG" || key === "CAT") &&
+            !vaccinatedLivestockIds.has(doc.id)
+          ) {
+            unvaccinatedCount++;
+          }
         });
 
         /* =========================
@@ -340,6 +485,7 @@ const Dashboard = () => {
           deworming: dewormingCount,
           inventoryItems: inventorySnap.size,
           lowStock: lowStockCount,
+          unvaccinated: unvaccinatedCount,
         });
       } catch (error) {
         console.error("Dashboard error:", error);
@@ -350,6 +496,7 @@ const Dashboard = () => {
 
     fetchDashboardData();
   }, []);
+
   useEffect(() => {
     console.log("raisersByAddress:", raisersByAddress);
 
@@ -443,16 +590,15 @@ const Dashboard = () => {
             ) : (
               <>
                 {/* ================= MAIN GRID ================= */}
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-6 items-stretch">
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-6 items-stretch min-h-[200px]">
                   {/* LEFT CONTENT */}
-                  <div className="xl:col-span-6 space-y-4 h-full flex flex-col">
-                    {/* ================= KPI CARDS ================= */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 place-items-center">
+                  <div className="xl:col-span-5 flex flex-col gap-4 h-full">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 auto-rows-fr">
                       <StatCard
                         title="Total Raisers"
                         value={stats.raisers}
                         icon={Users}
-                        color="bg-gradient-to-r from-blue-500 to-blue-600"
+                        color="bg-gradient-to-r from-blue-700 to-blue-800"
                       />
                       <StatCard
                         title="Total Livestock"
@@ -466,16 +612,6 @@ const Dashboard = () => {
                         icon={Users}
                         color="bg-gradient-to-r from-indigo-900 to-indigo-950"
                       />
-                      <StatCard
-                        title="Inventory Items"
-                        value={stats.inventoryItems}
-                        icon={Boxes}
-                        color="bg-gradient-to-r from-teal-600 to-teal-700"
-                      />
-                    </div>
-
-                    {/* HEALTH OVERVIEW */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 place-items-center">
                       <StatCard
                         title="Vaccinations"
                         value={stats.vaccinations}
@@ -500,46 +636,39 @@ const Dashboard = () => {
                         icon={AlertTriangle}
                         color="bg-gradient-to-r from-violet-800 to-violet-900"
                       />
+                      <StatCard
+                        title="Inventory Items"
+                        value={stats.inventoryItems}
+                        icon={Boxes}
+                        color="bg-gradient-to-r from-teal-600 to-teal-700"
+                      />
+                      <StatCard
+                        title="Unvaccinated Livestocks"
+                        value={stats.inventoryItems}
+                        icon={Boxes}
+                        color="bg-gradient-to-r from-sky-600 to-sky-800"
+                      />
                     </div>
                   </div>
 
                   {/* RIGHT CONTENT */}
-                  {/* <div className="xl:col-span-6 h-full grid grid-cols-1 xl:grid-cols-2 gap-2">
-
-                    <div className="space-y-2 max-h-[calc(100vh-220px)]">
-                      <div className="flex-[5] overflow-hidden">
-                        <ActivityLog logs={activityLogs} />
-                      </div>
-
-                      <div className="flex-[5] overflow-hidden">
-                        <AlertsPanel
-                          lowStock={stats.lowStock}
-                          aiPending={stats.aiPending}
-                        />
-                      </div> 
-                    </div>
-
-                    <div className="overflow-y-auto max-h-[calc(100vh-170px)]">
-                      <CalendarPanel />
-                    </div>
-                  </div> */}
-                  <div className="xl:col-span-6 h-full grid grid-cols-1 xl:grid-cols-2 gap-2">
+                  <div className="xl:col-span-7 h-full grid grid-cols-1 xl:grid-cols-2 gap-4 auto-rows-fr h-full">
                     {/* Activity */}
-                    <div className="h-full">
-                      <ActivityLog logs={activityLogs} />
+                    <div className="h-[300px]">
+                      <ActivityLog reminders={reminders} />
                     </div>
 
                     {/* Calendar */}
-                    <div className="h-full overflow-auto">
+                    <div className="h-[300px] flex flex-col">
                       <CalendarPanel />
                     </div>
                   </div>
                 </div>
 
                 {/* ================= CHARTS SECTION ================= */}
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-4">
-                  {/* LINE GRAPH (9 columns) */}
-                  <div className="xl:col-span-9 bg-white rounded-2xl shadow p-4 border border-gray-200">
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-6">
+                  {/* LINE GRAPH: aligns with StatCards + ActivityLog (left side) */}
+                  <div className="xl:col-span-8 bg-white rounded-2xl shadow p-4 border border-gray-200">
                     <h3 className="font-semibold mb-3">Raisers per Address</h3>
 
                     <div className="w-full h-[260px]">
@@ -552,7 +681,6 @@ const Dashboard = () => {
                             margin={{ top: 10, right: 20, left: 0, bottom: 50 }}
                           >
                             <CartesianGrid strokeDasharray="3 3" />
-
                             <XAxis
                               dataKey="address"
                               angle={-30}
@@ -561,18 +689,15 @@ const Dashboard = () => {
                               height={60}
                               tick={{ fontSize: 12 }}
                             />
-
                             <YAxis
                               allowDecimals={false}
                               domain={[0, "auto"]}
                               tick={{ fontSize: 12 }}
                             />
-
                             <Tooltip
                               contentStyle={{ fontSize: "12px" }}
                               labelStyle={{ fontSize: "12px" }}
                             />
-
                             <Line
                               type="monotone"
                               dataKey="count"
@@ -586,9 +711,9 @@ const Dashboard = () => {
                     </div>
                   </div>
 
-                  {/* PIE CHART (3 columns – aligned with Calendar) */}
+                  {/* PIE CHART: aligns with Calendar (right side) */}
                   {!loading && livestockByType.length > 0 && (
-                    <div className="xl:col-span-3 bg-white rounded-2xl shadow p-4 flex flex-col border border-gray-200">
+                    <div className="xl:col-span-4 bg-white rounded-2xl shadow p-4 flex flex-col border border-gray-200">
                       <h3 className="font-semibold mb-3 text-center text-sm">
                         Livestock Distribution by Type
                       </h3>

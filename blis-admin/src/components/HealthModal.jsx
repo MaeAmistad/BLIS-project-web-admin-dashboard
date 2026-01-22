@@ -53,6 +53,7 @@ export default function HealthRecordsModal({
     status: "",
     calvingDate: "",
     remarks: "",
+    expectedDelivery:""
   };
 
   const [vaccinationForm, setVaccinationForm] = useState(emptyVaccination);
@@ -243,16 +244,6 @@ export default function HealthRecordsModal({
             onClick={() => toggleSection("vaccination")}
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* <Input
-                label="Livestock"
-                value={vaccinationForm.livestock}
-                onChange={(e) =>
-                  setVaccinationForm({
-                    ...vaccinationForm,
-                    livestock: e.target.value,
-                  })
-                }
-              /> */}
               <Input
                 label="Vaccine Name"
                 value={vaccinationForm.vaccine}
@@ -314,10 +305,6 @@ export default function HealthRecordsModal({
                 setVaccinations([...vaccinations, vaccinationForm]);
                 setVaccinationForm(emptyVaccination);
               }}
-              onAddAnother={() => {
-                setVaccinations([...vaccinations, vaccinationForm]);
-                setVaccinationForm(emptyVaccination);
-              }}
             />
             {vaccinations.length > 0 && (
               <div className="mt-4 border-t pt-4 space-y-2">
@@ -331,7 +318,7 @@ export default function HealthRecordsModal({
                     className="flex justify-between items-center bg-gray-50 border rounded-lg p-3"
                   >
                     <div className="text-sm">
-                      <strong>{record.livestock}</strong> – {record.vaccine}
+                      <strong>{record.vaccine}</strong> – {record.dosage}
                       <div className="text-xs text-gray-500">{record.date}</div>
                     </div>
 
@@ -355,16 +342,6 @@ export default function HealthRecordsModal({
             onClick={() => toggleSection("deworming")}
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* <Input
-                label="Livestock"
-                value={dewormingForm.livestock}
-                onChange={(e) =>
-                  setDewormingForm({
-                    ...dewormingForm,
-                    livestock: e.target.value,
-                  })
-                }
-              /> */}
               <Input
                 label="Type of Dewormer"
                 value={dewormingForm.dewormer}
@@ -434,10 +411,6 @@ export default function HealthRecordsModal({
                 setDewormings([...dewormings, dewormingForm]);
                 setDewormingForm(emptyDeworming);
               }}
-              onAddAnother={() => {
-                setDewormings([...dewormings, dewormingForm]);
-                setDewormingForm(emptyDeworming);
-              }}
             />
 
             {dewormings.length > 0 && (
@@ -481,16 +454,6 @@ export default function HealthRecordsModal({
             onClick={() => toggleSection("treatment")}
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* <Input
-                label="Livestock"
-                value={treatmentForm.livestock}
-                onChange={(e) =>
-                  setTreatmentForm({
-                    ...treatmentForm,
-                    livestock: e.target.value,
-                  })
-                }
-              /> */}
               <Input
                 label="Illness"
                 value={treatmentForm.illness}
@@ -581,10 +544,6 @@ export default function HealthRecordsModal({
                 setTreatments([...treatments, treatmentForm]);
                 setTreatmentForm(emptyTreatment);
               }}
-              onAddAnother={() => {
-                setTreatments([...treatments, treatmentForm]);
-                setTreatmentForm(emptyTreatment);
-              }}
             />
 
             {treatments.length > 0 && (
@@ -628,13 +587,6 @@ export default function HealthRecordsModal({
             onClick={() => toggleSection("ai")}
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* <Input
-                label="Livestock Name / Tag #"
-                value={aiForm.livestock}
-                onChange={(e) =>
-                  setAiForm({ ...aiForm, livestock: e.target.value })
-                }
-              /> */}
               <Input
                 label="Type of Animal"
                 value={aiForm.animalType}
@@ -690,14 +642,18 @@ export default function HealthRecordsModal({
                   })
                 }
               />
+              <Input
+                label="Expected Delivery"
+                type="date"
+                value={aiForm.expectedDelivery}
+                onChange={(e) =>
+                  setAiForm({ ...aiForm, expectedDelivery: e.target.value })
+                }
+              />
             </div>
 
             <ActionButtons
               onSave={() => {
-                setAiRecords([...aiRecords, aiForm]);
-                setAiForm(emptyAI);
-              }}
-              onAddAnother={() => {
                 setAiRecords([...aiRecords, aiForm]);
                 setAiForm(emptyAI);
               }}

@@ -359,7 +359,16 @@ const RaiserProfile = () => {
       imgSize,
       imgSize,
     );
-    doc.addImage(logo2, "PNG", centerX + 90 - imgSize, imgY, imgSize, imgSize);
+    const logo2Width = 25;
+    const logo2Height = 18;
+    doc.addImage(
+      logo2,
+      "PNG",
+      centerX + 90 - logo2Width,
+      imgY,
+      logo2Width,
+      logo2Height,
+    );
 
     // TITLE
     doc.setFontSize(14);
@@ -395,6 +404,8 @@ const RaiserProfile = () => {
         fontSize: 8,
         halign: "center",
         valign: "middle",
+        lineWidth: 0.3, // 👈 thin border
+        lineColor: [22, 163, 74],
       },
       headStyles: {
         fillColor: [34, 139, 34],
@@ -471,7 +482,7 @@ const RaiserProfile = () => {
             {/* Button pushed to the right */}
             <button
               onClick={handlePrintRaisers}
-              className="ml-auto px-3 py-1.5 text-xs rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-no-drop"
+              className="ml-auto px-3 py-2 text-sm rounded-lg bg-black text-white hover:bg-black-700 disabled:opacity-50 disabled:cursor-no-drop"
             >
               <Print fontSize="extra-small" />
               Print Raisers
@@ -484,7 +495,7 @@ const RaiserProfile = () => {
               <thead className="h-8 bg-primary uppercase sticky top-0 text-white text-sm z-10">
                 <tr>
                   <th className="w-[50px]">NO</th>
-                  <th className="w-[300px]">Full Name</th>
+                  <th className="w-[300px]">Raiser Name</th>
                   <th className="w-[200px]">Email</th>
                   <th className="w-[150px]">Gender</th>
                   <th className="w-[120px]">Contact No.</th>
@@ -514,9 +525,9 @@ const RaiserProfile = () => {
                       <td
                         className="p-2 text-center border border-gray-400 cursor-pointer"
                         onClick={() => handleRaiserClick(raiser)}
-                      >{`${raiser.lastName}, ${raiser.firstName} ${
+                      >{`${raiser.firstName}  ${
                         raiser.middleInitial || ""
-                      }`}</td>
+                      } ${raiser.lastName} `}</td>
                       <td className="p-2 text-center border border-gray-400">
                         {raiser.email}
                       </td>

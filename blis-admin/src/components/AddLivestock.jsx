@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AddHealthRecords from "./AddHealthRecord";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import Swal from "sweetalert2";
 import { notifyAllUsers } from "./NotifyAllUsers";
@@ -11,6 +11,8 @@ const AddLivestock = ({ open, onClose, raiserData }) => {
   const [healthOpen, setHealthOpen] = useState(false);
   const [activeLivestockIndex, setActiveLivestockIndex] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [existingCount, setExistingCount] = useState(0);
+
 
   const [livestockList, setLivestockList] = useState([
     {
@@ -45,6 +47,28 @@ const AddLivestock = ({ open, onClose, raiserData }) => {
     "Cat",
   ];
 
+  useEffect(() => {
+  if (!raiserData?.id) return;
+
+  const fetchExistingLivestockCount = async () => {
+    try {
+      const livestockRef = collection(
+        db,
+        "raisers",
+        raiserData.id,
+        "livestock"
+      );
+
+      const snap = await getDocs(livestockRef);
+      setExistingCount(snap.size); // 🔥 this is the key
+    } catch (err) {
+      console.error("Error fetching livestock count:", err);
+    }
+  };
+
+  fetchExistingLivestockCount();
+}, [raiserData?.id]);
+
   const addLivestock = () => {
     setLivestockList((prev) => [
       ...prev,
@@ -68,7 +92,31 @@ const AddLivestock = ({ open, onClose, raiserData }) => {
     ]);
   };
 
+  const validators = {
+    lettersOnly: /^[a-zA-Z\s]*$/,
+    numbersOnly: /^[0-9]*\.?[0-9]*$/,
+  };
+
   const updateLivestock = (index, field, value) => {
+    // Letters-only fields
+    const lettersOnlyFields = [
+      "livestockName",
+      "breed",
+      "colorMarkings",
+      "healthCondition",
+    ];
+
+    if (lettersOnlyFields.includes(field)) {
+      if (!validators.lettersOnly.test(value)) return;
+    }
+
+    // Numbers-only fields
+    const numbersOnlyFields = ["weight", "age"];
+
+    if (numbersOnlyFields.includes(field)) {
+      if (!validators.numbersOnly.test(value)) return;
+    }
+
     setLivestockList((prev) =>
       prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
     );
@@ -245,7 +293,7 @@ const AddLivestock = ({ open, onClose, raiserData }) => {
               {/* Card Header */}
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-sm font-semibold text-gray-700">
-                  Livestock #{idx + 1}
+                  Livestock #{existingCount + idx + 1}
                 </h3>
 
                 <div className="flex gap-3">
@@ -345,6 +393,7 @@ const AddLivestock = ({ open, onClose, raiserData }) => {
                     className="p-2 text-xs border rounded-md focus:ring-2 focus:ring-green-400"
                     placeholder="Weight"
                     value={item.weight || ""}
+                    inputMode="numeric"
                     onChange={(e) =>
                       updateLivestock(idx, "weight", e.target.value)
                     }
@@ -384,7 +433,7 @@ const AddLivestock = ({ open, onClose, raiserData }) => {
 
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-medium text-gray-600">
-                    Date
+                    Date Acquired
                   </label>
                   <input
                     type="date"
@@ -404,6 +453,7 @@ const AddLivestock = ({ open, onClose, raiserData }) => {
                     className="p-2 text-xs border rounded-md focus:ring-2 focus:ring-green-400"
                     placeholder="Age"
                     value={item.age || ""}
+                    inputMode="numeric"
                     onChange={(e) =>
                       updateLivestock(idx, "age", e.target.value)
                     }
@@ -426,20 +476,6 @@ const AddLivestock = ({ open, onClose, raiserData }) => {
                     <option value="Inactive">Inactive</option>
                   </select>
                 </div>
-
-                {/* <div className="flex flex-col gap-1">
-                    <label className="text-xs font-medium text-gray-600">
-                      Barangay
-                    </label>
-                    <input
-                      className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
-                      placeholder="Barangay"
-                      value={item.barangay || ""}
-                      onChange={(e) =>
-                        updateLivestock(idx, "barangay", e.target.value)
-                      }
-                    />
-                  </div> */}
               </div>
             </div>
           ))}
@@ -456,7 +492,10 @@ const AddLivestock = ({ open, onClose, raiserData }) => {
         {/* FOOTER */}
         <div className="flex justify-end items-center mt-6 border-t pt-4">
           <div className="flex gap-3">
-            <button className="px-5 py-2 border rounded-lg hover:bg-gray-100">
+            <button
+              className="px-5 py-2 border rounded-lg hover:bg-gray-100"
+              onClick={onClose}
+            >
               Cancel
             </button>
             <button

@@ -33,6 +33,11 @@ export default function LivestockModal({
     },
   ]);
 
+  const validators = {
+    lettersOnly: /^[a-zA-Z\s]*$/,
+    numbersOnly: /^[0-9]*\.?[0-9]*$/,
+  };
+
   const animalOptions = [
     "Horse",
     "Cattle",
@@ -98,8 +103,27 @@ export default function LivestockModal({
   };
 
   const updateLivestock = (index, field, value) => {
+    // Letters-only fields
+    const lettersOnlyFields = [
+      "livestockName",
+      "breed",
+      "colorMarkings",
+      "healthCondition",
+    ];
+
+    if (lettersOnlyFields.includes(field)) {
+      if (!validators.lettersOnly.test(value)) return;
+    }
+
+    // Numbers-only fields
+    const numbersOnlyFields = ["weight", "age"];
+
+    if (numbersOnlyFields.includes(field)) {
+      if (!validators.numbersOnly.test(value)) return;
+    }
+
     setLivestockList((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
+      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
     );
   };
 
@@ -178,7 +202,7 @@ export default function LivestockModal({
                     }}
                     className="text-xs bg-primary text-white p-1 rounded rounded-md font-medium"
                   >
-                  <AddCircleOutlineRounded fontSize="small" />
+                    <AddCircleOutlineRounded fontSize="small" />
                     Add Health Records
                   </button>
 
@@ -266,6 +290,7 @@ export default function LivestockModal({
                   <input
                     className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
                     placeholder="Weight"
+                    inputMode="numeric"
                     value={item.weight || ""}
                     onChange={(e) =>
                       updateLivestock(idx, "weight", e.target.value)
@@ -324,6 +349,7 @@ export default function LivestockModal({
                   </label>
                   <input
                     className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    inputMode="numeric"
                     placeholder="Age"
                     value={item.age || ""}
                     onChange={(e) =>
@@ -420,8 +446,8 @@ export default function LivestockModal({
                         aiRecords: records.aiRecords || [],
                       },
                     }
-                  : animal
-              )
+                  : animal,
+              ),
             );
 
             setHealthOpen(false);

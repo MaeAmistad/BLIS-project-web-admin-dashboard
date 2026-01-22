@@ -32,8 +32,10 @@ const InventoryandSupplies = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [categories, setCategories] = useState([]);
+  const [isInventoryLoading, setIsInventoryLoading] = useState(true);
 
   useEffect(() => {
+    setIsInventoryLoading(true);
     const q = query(collection(db, "inventories"));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -49,7 +51,9 @@ const InventoryandSupplies = () => {
         ...new Set(data.map((item) => item.category).filter(Boolean)),
       ];
       setCategories(uniqueCategories);
+      setIsInventoryLoading(false);
     });
+    
 
     return () => unsubscribe();
   }, []);
@@ -150,7 +154,9 @@ const InventoryandSupplies = () => {
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="w-full sm:max-w-xs border border-green-400 rounded-lg px-3 py-2 text-xs"
               >
-                <option value="" className="text-sm">All Categories</option>
+                <option value="" className="text-sm">
+                  All Categories
+                </option>
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>
                     {cat}
@@ -179,9 +185,21 @@ const InventoryandSupplies = () => {
               </thead>
 
               <tbody>
-                {filteredInventories.length === 0 ? (
+                {isInventoryLoading ? (
                   <tr>
-                    <td colSpan="10" className="py-6 text-gray-500 text-sm text-center">
+                    <td
+                      colSpan={10}
+                      className="py-6 text-gray-500 text-sm text-center"
+                    >
+                      Loading inventory items...
+                    </td>
+                  </tr>
+                ) : filteredInventories.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan="10"
+                      className="py-6 text-gray-500 text-sm text-center"
+                    >
                       No inventory items found
                     </td>
                   </tr>

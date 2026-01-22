@@ -19,6 +19,12 @@ const defaultForm = {
   typeOfRaiser: "",
 };
 
+const validators = {
+  lettersOnly: /^[a-zA-Z\s]*$/,          // allows spaces
+  numbersOnly: /^[0-9]*$/,
+};
+
+
 const barangayOptions = [
   "Aggay",
   "An-annam",
@@ -68,10 +74,38 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
   }, [open, initialData]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (!name) return;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const { name, value } = e.target;
+
+  // Letters only fields
+  const lettersOnlyFields = [
+    "lastName",
+    "firstName",
+    "middleInitial",
+    "farmName",
+    "farmLocation",
+  ];
+
+  if (lettersOnlyFields.includes(name)) {
+    if (!validators.lettersOnly.test(value)) return;
+  }
+
+  // Contact number: numbers only, max 11 digits
+  if (name === "contactNumber") {
+    if (!validators.numbersOnly.test(value)) return;
+    if (value.length > 11) return;
+  }
+
+  // Number of workers: numbers only
+  if (name === "numberOfWorkers") {
+    if (!validators.numbersOnly.test(value)) return;
+  }
+
+  setFormData((prev) => ({
+    ...prev,
+    [name]: value,
+  }));
+};
+
   const validateForm = () => {
     if (!formData.lastName || !formData.firstName) {
       Swal.fire({
@@ -183,7 +217,7 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
                 onChange={handleChange}
               />
               <Input
-                label="Middle Initial"
+                label="Middle Name"
                 name="middleInitial"
                 value={formData.middleInitial || ""}
                 onChange={handleChange}
@@ -247,7 +281,7 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
                 onChange={handleChange}
               />
               <Input
-                label="Farm Size"
+                label="Farm Size (Hectares/Meter)"
                 name="farmSize"
                 value={formData.farmSize || ""}
                 onChange={handleChange}

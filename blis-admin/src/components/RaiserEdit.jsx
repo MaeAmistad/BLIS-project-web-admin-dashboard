@@ -43,10 +43,44 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
     }
   }, [raiserData]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const validators = {
+    lettersOnly: /^[a-zA-Z\s]*$/,
+    numbersOnly: /^[0-9]*\.?[0-9]*$/,
   };
+
+  const handleChange = (e) => {
+  const { name, value } = e.target;
+
+  // Letters only fields
+  const lettersOnlyFields = [
+    "lastName",
+    "firstName",
+    "middleInitial",
+    "farmName",
+    "farmLocation",
+  ];
+
+  if (lettersOnlyFields.includes(name)) {
+    if (!validators.lettersOnly.test(value)) return;
+  }
+
+  // Contact number: numbers only, max 11 digits
+  if (name === "contactNumber") {
+    if (!validators.numbersOnly.test(value)) return;
+    if (value.length > 11) return;
+  }
+
+  // Number of workers: numbers only
+  if (name === "numberOfWorkers") {
+    if (!validators.numbersOnly.test(value)) return;
+  }
+
+  setFormData((prev) => ({
+    ...prev,
+    [name]: value,
+  }));
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -168,6 +202,7 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
                   name="contactNumber"
                   value={formData.contactNumber}
                   onChange={handleChange}
+                  inputMode="numeric"
                 />
                 <Input
                   label="Barangay"
@@ -217,6 +252,7 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
                   name="numberOfWorkers"
                   value={formData.numberOfWorkers}
                   onChange={handleChange}
+                  inputMode="numeric"
                 />
 
                 {/* <div className="flex flex-col gap-1">

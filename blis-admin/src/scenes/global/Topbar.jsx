@@ -142,7 +142,7 @@ const Topbar = () => {
   // };
 
   return (
-    <div className="sticky top-0 z-10 flex items-center justify-between px-2 py-3 bg-white border-b z-50">
+    <div className="sticky top-0 flex items-center justify-between px-2 py-3 bg-white border-b z-50">
       {/* Left title */}
       <p className="text-xl font-semibold text-gray-800 leading-none">
         Bantay Livestock Information and Registration System

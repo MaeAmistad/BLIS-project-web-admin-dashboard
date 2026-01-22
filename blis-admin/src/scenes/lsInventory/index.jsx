@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  collection,
-  getDocs,
-} from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
 import Topbar from "../global/Topbar";
 import Sidebarr from "../global/Sidebar";
@@ -74,9 +71,17 @@ const LivestockInventory = () => {
           )
         ).filter(Boolean);
 
+        const raiserName = [
+          raiserData.firstName,
+          raiserData.middleInitial,
+          raiserData.lastName,
+        ]
+          .filter(Boolean)
+          .join(" ");
+
         return {
           id: raiserDoc.id,
-          raiserName: `${raiserData.firstName} ${raiserData.lastName}`,
+          raiserName: raiserName,
           address: raiserData.address,
           email: raiserData.email,
           contactNumber: raiserData.contactNumber,
@@ -127,7 +132,6 @@ const LivestockInventory = () => {
   //   }
   // };
 
-
   // View livestock details
   const handleView = (livestock) => {
     setSelectedLivestock(livestock);
@@ -139,7 +143,6 @@ const LivestockInventory = () => {
     setShowRaiser(true);
     setSelectedRaiser(raiser);
   };
-
 
   const handleAdd = (raiser) => {
     setOpenModal(true);
@@ -207,7 +210,16 @@ const LivestockInventory = () => {
       imgSize,
       imgSize,
     );
-    doc.addImage(logo2, "PNG", centerX + 90 - imgSize, imgY, imgSize, imgSize);
+    const logo2Width = 25;
+    const logo2Height = 18;
+    doc.addImage(
+      logo2,
+      "PNG",
+      centerX + 90 - logo2Width,
+      imgY,
+      logo2Width,
+      logo2Height,
+    );
 
     // TITLE
     doc.setFontSize(14);
@@ -241,6 +253,8 @@ const LivestockInventory = () => {
         fontSize: 8,
         halign: "center",
         valign: "middle",
+        lineWidth: 0.3, // 👈 thin border
+        lineColor: [22, 163, 74],
       },
       headStyles: {
         fillColor: [34, 139, 34],
@@ -294,7 +308,7 @@ const LivestockInventory = () => {
 
             <button
               onClick={handlePrintLivestocks}
-              className="ml-auto px-3 py-1.5 text-xs rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-no-drop flex items-center gap-1"
+              className="ml-auto px-3 py-1.5 text-xs h-8 rounded-lg bg-black text-white hover:bg-gray-700 disabled:opacity-50 disabled:cursor-no-drop flex items-center gap-1"
             >
               <Print fontSize="extra-small" />
               Print Livestocks
@@ -383,8 +397,10 @@ const LivestockInventory = () => {
                             />
                           </IconButton>
 
-                          <IconButton aria-label="add livestock"
-                          onClick={() => handleAdd(r)}>
+                          <IconButton
+                            aria-label="add livestock"
+                            onClick={() => handleAdd(r)}
+                          >
                             <AddCircleOutlineRounded
                               sx={{ color: "#220577ff", fontSize: 16 }}
                             />

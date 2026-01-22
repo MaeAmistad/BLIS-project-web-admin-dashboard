@@ -8,13 +8,81 @@ import logo2 from "../assets/duras.jpg";
 import logo3 from "../assets/mao.jpg";
 import logo4 from "../assets/pilipins.png";
 
-const EXCLUDED_FIELDS = ["id", "type", "createdAt", "updatedAt", "healthRecords", ];
+const EXCLUDED_FIELDS = [
+  "id",
+  "type",
+  "createdAt",
+  "updatedAt",
+  "healthRecords",
+];
+const LIVESTOCK_FIELD_ORDER = [
+  "livestockName",
+  "typeOfAnimal",
+  "breed",
+  "gender",
+  "age",
+  "dateOfBirth",
+  "colorMarkings",
+  "weight",
+  "healthCondition",
+  "status",
+];
 
-const formatLabel = (key) =>
-  key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
+const LABEL_OVERRIDES = {
+  calvingDate: "Re-heat Monitoring",
+};
+
+const formatLabel = (key) => {
+  if (LABEL_OVERRIDES[key]) return LABEL_OVERRIDES[key];
+
+  return key
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (str) => str.toUpperCase());
+};
+
+const formatRecordType = (type) => {
+  if (!type) return "";
+
+  const normalized = type.toLowerCase();
+
+  if (normalized === "ai") return "Artificial Insemination";
+
+  return type
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (str) => str.toUpperCase());
+};
+
 
 const renderDynamicFields = (obj) => (
-  <div className="grid grid-cols-2 border border-gray-200 rounded-md overflow-hidden">
+  <div className="grid grid-cols-2 border border-green-400 rounded-md overflow-hidden">
+    {LIVESTOCK_FIELD_ORDER.map((key) => {
+      const value = obj[key];
+
+      if (
+        EXCLUDED_FIELDS.includes(key) ||
+        value === "" ||
+        value === null ||
+        value === undefined
+      ) {
+        return null;
+      }
+
+      return (
+        <React.Fragment key={key}>
+          <div className="px-3 py-2 text-xs font-medium text-gray-900 border-b border-r border-green-400">
+            {formatLabel(key)}
+          </div>
+          <div className="px-3 py-2 text-xs text-gray-700 border-b border-green-400 break-words">
+            {String(value)}
+          </div>
+        </React.Fragment>
+      );
+    })}
+  </div>
+);
+
+const renderDynamicRecords = (obj) => (
+  <div className="grid grid-cols-2 border border-green-400 rounded-md overflow-hidden">
     {Object.entries(obj).map(([key, value]) => {
       if (
         EXCLUDED_FIELDS.includes(key) ||
@@ -27,10 +95,10 @@ const renderDynamicFields = (obj) => (
 
       return (
         <React.Fragment key={key}>
-          <div className="px-3 py-2 text-sm font-medium text-gray-900 border-b border-r border-gray-200">
+          <div className="px-3 py-2 text-sm font-medium text-gray-900 border-b border-r border-green-200">
             {formatLabel(key)}
           </div>
-          <div className="px-3 py-2 text-sm text-gray-700 border-b border-gray-200 break-words">
+          <div className="px-3 py-2 text-sm text-gray-700 border-b border-green-200 break-words">
             {String(value)}
           </div>
         </React.Fragment>
@@ -133,7 +201,7 @@ const LivestockViewInfo = ({ visible, raiserInfo, onClose }) => {
     });
 
     const pageWidth = doc.internal.pageSize.getWidth();
-    let y = 50;
+    let y = 52;
 
     /* ================= HEADER ================= */
     doc.setFont("helvetica", "bold");
@@ -179,19 +247,43 @@ const LivestockViewInfo = ({ visible, raiserInfo, onClose }) => {
       imgSize,
       imgSize,
     );
-    doc.addImage(logo2, "PNG", centerX + 90 - imgSize, imgY, imgSize, imgSize);
+    const logo2Width = 25;
+    const logo2Height = 18;
+    doc.addImage(
+      logo2,
+      "PNG",
+      centerX + 90 - logo2Width,
+      imgY,
+      logo2Width,
+      logo2Height,
+    );
 
     doc.setFontSize(14);
-    doc.text("LIVESTOCK PER RAISER", centerX, 42, { align: "center" });
+    doc.text("Raiser and Livestock Information", centerX, 42, { align: "center" });
+
+    const LABEL_COL_WIDTH = 45;
+    const VALUE_COL_WIDTH = pageWidth - 36 - LABEL_COL_WIDTH;
+    // 36 = left + right margin (18 + 18)
+
+    const COMPACT_LABEL_COL_WIDTH = 35;
+    const COMPACT_VALUE_COL_WIDTH = pageWidth - 36 - COMPACT_LABEL_COL_WIDTH;
 
     /* ================= PERSONAL INFO ================= */
     doc.setFontSize(11);
-    doc.text("Personal Information", 18, y - 6);
+    doc.text("Personal Information", 18, y - 4);
 
     autoTable(doc, {
       startY: y,
       theme: "grid",
-      styles: { fontSize: 9 },
+      styles: {
+        fontSize: 9,
+        lineWidth: 0.3, // 👈 thin border
+        lineColor: [22, 163, 74],
+      },
+      columnStyles: {
+        0: { cellWidth: LABEL_COL_WIDTH },
+        1: { cellWidth: VALUE_COL_WIDTH },
+      },
       body: Object.entries({
         name: raiserInfo.raiserName,
         gender: raiserInfo.gender,
@@ -203,7 +295,7 @@ const LivestockViewInfo = ({ visible, raiserInfo, onClose }) => {
         .map(([k, v]) => [formatLabel(k), String(v)]),
     });
 
-    y = doc.lastAutoTable.finalY + 8;
+    y = doc.lastAutoTable.finalY + 10;
 
     /* ================= FARM INFO ================= */
     doc.text("Farm Information", 18, y - 4);
@@ -211,7 +303,15 @@ const LivestockViewInfo = ({ visible, raiserInfo, onClose }) => {
     autoTable(doc, {
       startY: y,
       theme: "grid",
-      styles: { fontSize: 9 },
+      styles: {
+        fontSize: 9,
+        lineWidth: 0.3, // 👈 thin border
+        lineColor: [22, 163, 74],
+      },
+      columnStyles: {
+        0: { cellWidth: LABEL_COL_WIDTH },
+        1: { cellWidth: VALUE_COL_WIDTH },
+      },
       body: Object.entries({
         farmName: raiserInfo.farmName,
         farmLocation: raiserInfo.farmLocation,
@@ -225,18 +325,26 @@ const LivestockViewInfo = ({ visible, raiserInfo, onClose }) => {
         .map(([k, v]) => [formatLabel(k), String(v)]),
     });
 
-    y = doc.lastAutoTable.finalY + 10;
+    y = doc.lastAutoTable.finalY + 12;
 
     /* ================= LIVESTOCK ================= */
     livestock.forEach((animal, index) => {
       doc.setFontSize(12);
       doc.text(`Livestock ${index + 1}`, 14, y);
-      y += 4;
+      y += 6;
 
       autoTable(doc, {
         startY: y,
         theme: "striped",
-        styles: { fontSize: 9 },
+        styles: {
+          fontSize: 9,
+          lineWidth: 0.3, // 👈 thin border
+          lineColor: [22, 163, 74],
+        },
+        columnStyles: {
+          0: { cellWidth: LABEL_COL_WIDTH },
+          1: { cellWidth: VALUE_COL_WIDTH },
+        },
         body: Object.entries(animal)
           .filter(
             ([key, value]) =>
@@ -247,7 +355,7 @@ const LivestockViewInfo = ({ visible, raiserInfo, onClose }) => {
           .map(([k, v]) => [formatLabel(k), String(v)]),
       });
 
-      y = doc.lastAutoTable.finalY + 4;
+      y = doc.lastAutoTable.finalY + 6;
 
       if (animal.healthRecords?.length) {
         doc.setFontSize(11);
@@ -260,22 +368,21 @@ const LivestockViewInfo = ({ visible, raiserInfo, onClose }) => {
             doc.setFont("helvetica", "bold");
             doc.setFontSize(10);
             doc.text(record.type.toUpperCase(), 22, y);
-            y += 2;
-
-            // small divider line
-            doc.setLineWidth(0.3);
-            doc.line(22, y, pageWidth - 22, y);
-            y += 3;
+            y += 4;
           }
 
           // ===== RECORD DETAILS TABLE =====
           autoTable(doc, {
             startY: y,
             theme: "grid",
-            styles: { fontSize: 8 },
+            styles: {
+              fontSize: 8,
+              lineWidth: 0.3, // 👈 thin border
+              lineColor: [22, 163, 74],
+            },
             columnStyles: {
               0: { cellWidth: 40 },
-              1: { cellWidth: "auto" },
+              1: { cellWidth: 130 },
             },
             body: Object.entries(record)
               .filter(
@@ -314,7 +421,7 @@ const LivestockViewInfo = ({ visible, raiserInfo, onClose }) => {
           <div className="flex items-center gap-3">
             <button
               onClick={handlePrint}
-              className="text-xs px-3 py-1.5 rounded bg-primary text-white font-medium"
+              className="text-xs px-3 py-1.5 rounded bg-black text-white font-medium"
             >
               🖨 Print
             </button>
@@ -384,50 +491,64 @@ const LivestockViewInfo = ({ visible, raiserInfo, onClose }) => {
                 {renderDynamicFields(animal)}
 
                 {/* HEALTH RECORDS */}
-                {animal.healthRecords?.length > 0 && (
-                  <div className="mt-4 border-t pt-3">
-                    <div className="space-y-3">
-                      {/* HEALTH RECORDS DROPDOWN */}
-                      {animal.healthRecords?.length > 0 && (
-                        <div className="mt-3">
-                          <div
-                            onClick={() => toggleHealthRecords(animal.id)}
-                            className="flex items-center justify-between cursor-pointer select-none"
-                          >
-                            <h5 className="font-semibold text-sm text-blue-600">
-                              Health Records
-                            </h5>
+                <div className="mt-4 border-t pt-3">
+                  <div className="space-y-3">
+                    <div className="mt-3">
+                      <div
+                        className={`flex items-center justify-between select-none ${
+                          animal.healthRecords?.length > 0
+                            ? "cursor-pointer"
+                            : ""
+                        }`}
+                        onClick={() => {
+                          if (animal.healthRecords?.length > 0) {
+                            toggleHealthRecords(animal.id);
+                          }
+                        }}
+                      >
+                        <h5
+                          className={`font-semibold text-sm ${
+                            animal.healthRecords?.length > 0
+                              ? "text-blue-600"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          {animal.healthRecords?.length > 0
+                            ? "Health Records"
+                            : "No Health Records for this Livestock"}
+                        </h5>
 
-                            <span className="text-xs p-1.5 rounded rounded-lg text-white bg-primary">
-                              {openHealth[animal.id]
-                                ? "Close Details ▼"
-                                : "Open Details ▶"}
-                            </span>
+                        {animal.healthRecords?.length > 0 && (
+                          <span className="text-xs p-1.5 rounded-lg text-white bg-primary">
+                            {openHealth[animal.id]
+                              ? "Close Details ▼"
+                              : "Open Details ▶"}
+                          </span>
+                        )}
+                      </div>
+
+                      {animal.healthRecords?.length > 0 &&
+                        openHealth[animal.id] && (
+                          <div className="mt-3 border-t pt-3 space-y-3">
+                            {animal.healthRecords.map((record) => (
+                              <div
+                                key={record.id}
+                                className="border rounded-md p-3 bg-white"
+                              >
+                                {record.type && (
+                                  <p className="font-semibold text-xs mb-1 capitalize">
+                                    {formatRecordType(record.type)}
+                                  </p>
+                                )}
+
+                                {renderDynamicRecords(record)}
+                              </div>
+                            ))}
                           </div>
-
-                          {openHealth[animal.id] && (
-                            <div className="mt-3 border-t pt-3 space-y-3">
-                              {animal.healthRecords.map((record) => (
-                                <div
-                                  key={record.id}
-                                  className="border rounded-md p-3 bg-white"
-                                >
-                                  {record.type && (
-                                    <p className="font-semibold text-zs mb-1 capitalize">
-                                      {record.type}
-                                    </p>
-                                  )}
-
-                                  {renderDynamicFields(record)}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
+                        )}
                     </div>
                   </div>
-                )}
+                </div>
               </div>
             ))}
           </div>
