@@ -433,6 +433,7 @@ export default function LivestockModal({
         <HealthRecordsModal
           open={healthOpen}
           initialData={livestockList[activeLivestockIndex].healthRecords}
+           typeOfAnimal={livestockList[activeLivestockIndex].typeOfAnimal}
           onSubmit={(records) => {
             setLivestockList((prev) =>
               prev.map((animal, i) =>

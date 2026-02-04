@@ -13,6 +13,7 @@ export default function HealthRecordsModal({
     aiRecords: [],
   }, // array of arrays: health records per livestock
   livestockList = [], // array of livestock objects
+  typeOfAnimal,
 }) {
   const [openSection, setOpenSection] = useState(null);
 
@@ -79,19 +80,64 @@ export default function HealthRecordsModal({
     setAiRecords(initialData.aiRecords || []);
   }, [open, initialData]);
 
-  useEffect(() => {
-    if (!aiForm.date) return;
+  const addDays = (dateStr, days) => {
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().split("T")[0];
+};
 
-    const inseminationDate = new Date(aiForm.date);
-    inseminationDate.setDate(inseminationDate.getDate() + 21);
+useEffect(() => {
+  if (!aiForm.date || !aiForm.animalType) return;
 
-    const calvingDate = inseminationDate.toISOString().split("T")[0];
+  const inseminationDate = aiForm.date;
 
-    setAiForm((prev) => ({
-      ...prev,
-      calvingDate,
-    }));
-  }, [aiForm.date]);
+  const calvingDate = addDays(inseminationDate, 21);
+
+  let expectedDelivery = "";
+
+  switch (aiForm.animalType.toLowerCase()) {
+    case "pig":
+      expectedDelivery = addDays(inseminationDate, 42);
+      break;
+
+    case "swine":
+      expectedDelivery = addDays(inseminationDate, 114);
+      break;
+
+    case "cow":
+      expectedDelivery = addDays(inseminationDate, 284);
+      break;
+
+    case "goat":
+    case "sheep":
+      expectedDelivery = addDays(inseminationDate, 150);
+      break;
+
+    case "dog":
+    case "cat":
+      expectedDelivery = "";
+      break;
+    default:
+      expectedDelivery = "";
+  }
+
+  setAiForm((prev) => ({
+    ...prev,
+    calvingDate,
+    expectedDelivery,
+  }));
+}, [aiForm.date, aiForm.animalType]);
+
+
+useEffect(() => {
+  if (!typeOfAnimal) return;
+
+  setAiForm((prev) => ({
+    ...prev,
+    animalType: typeOfAnimal,
+  }));
+}, [typeOfAnimal]);
+
 
   const removeVaccination = (index) => {
     Swal.fire({
@@ -593,6 +639,7 @@ export default function HealthRecordsModal({
                 onChange={(e) =>
                   setAiForm({ ...aiForm, animalType: e.target.value })
                 }
+                disabled
               />
               <Input
                 label="Date of Insemination"

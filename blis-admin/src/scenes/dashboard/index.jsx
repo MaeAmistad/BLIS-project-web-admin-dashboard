@@ -139,9 +139,27 @@ const ActivityLog = ({ reminders }) => (
               className="border-l-4 border-blue-500 pl-3 text-sm"
             >
               <p className="text-xs text-gray-500 font-semibold">
-                {reminder.date ? reminder.date.toLocaleDateString() : "No date"}
+                <span>{reminder.date?.toLocaleDateString() || "No date"}</span>
+
+                {typeof reminder.remainingDays === "number" && (
+                  <span
+                    className={`ml-2 px-2 py-0.5 rounded-full text-[10px]
+        ${
+          reminder.remainingDays <= 3
+            ? "bg-red-100 text-red-600"
+            : reminder.remainingDays <= 7
+              ? "bg-yellow-100 text-yellow-700"
+              : "bg-green-100 text-green-700"
+        }`}
+                  >
+                    {reminder.remainingDays === 0
+                      ? "Today"
+                      : `${reminder.remainingDays} days left`}
+                  </span>
+                )}
               </p>
-              <p className="font-medium">{reminder.message}</p>
+
+              <p className="font-medium mt-2">{reminder.message}</p>
             </li>
           ))}
         </ul>
@@ -219,13 +237,35 @@ const Dashboard = () => {
     return d;
   };
 
+  const getRemainingDays = (from, to) => {
+  const start = new Date(from);
+  const end = new Date(to);
+
+  start.setHours(0, 0, 0, 0);
+  end.setHours(0, 0, 0, 0);
+
+  return Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+};
+
+
   useEffect(() => {
     const fetchReminders = async () => {
       try {
         const reminderList = [];
         const today = new Date();
-        const in30Days = new Date();
-        in30Days.setDate(today.getDate() + 30);
+
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+        const endOfMonth = new Date(
+          today.getFullYear(),
+          today.getMonth() + 1,
+          0,
+          23,
+          59,
+          59,
+        );
+
+        
 
         // ======= Fetch all raisers once =======
         const raiserSnap = await getDocs(collection(db, "raisers"));
@@ -274,11 +314,12 @@ const Dashboard = () => {
               continue;
             }
 
-            if (nextSchedule >= today && nextSchedule <= in30Days) {
+            if (nextSchedule >= today && nextSchedule <= endOfMonth) {
               reminderList.push({
                 id: hr.id,
                 message: `Deworming schedule for ${livestockName}, (${raiserName})`,
                 date: nextSchedule,
+                remainingDays: getRemainingDays(today, nextSchedule),
               });
             }
           }
@@ -287,11 +328,13 @@ const Dashboard = () => {
             const date = data.nextCalvingDate.toDate
               ? data.nextCalvingDate.toDate()
               : new Date(data.nextCalvingDate);
-            if (date >= today && date <= in30Days) {
+            if (date >= today && date <= endOfMonth) {
               reminderList.push({
                 id: doc.id,
                 message: `Reheat Monitoring Schedule for ${livestockName}, (${raiserName})`,
                 date,
+                remainingDays: getRemainingDays(today, date),
+                
               });
             }
           }
@@ -300,11 +343,12 @@ const Dashboard = () => {
             const date = data.expectedDelivery.toDate
               ? data.expectedDelivery.toDate()
               : new Date(data.expectedDelivery);
-            if (date >= today && date <= in30Days) {
+            if (date >= today && date <= endOfMonth) {
               reminderList.push({
                 id: doc.id,
                 message: `${raiserName}'s ${livestockName} expected Delivery`,
                 date,
+                remainingDays: getRemainingDays(today, date),
               });
             }
           }
@@ -326,15 +370,17 @@ const Dashboard = () => {
               id: doc.id + "_lowStock",
               message: `Low stock: ${data.itemName} (${data.quantity} left)`,
               date: today,
+              
             });
           }
 
           // Expiration reminder
-          if (oneWeekBefore >= today && oneWeekBefore <= in30Days) {
+          if (oneWeekBefore >= today && oneWeekBefore <= endOfMonth) {
             reminderList.push({
               id: doc.id + "_expire",
               message: `${data.itemName} expires soon (${expirationDate.toLocaleDateString()})`,
               date: oneWeekBefore,
+              remainingDays: getRemainingDays(today, expirationDate),
             });
           }
         });
