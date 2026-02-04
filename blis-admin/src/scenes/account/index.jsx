@@ -49,6 +49,7 @@ const Account = () => {
   const role = [
     { key: "1", value: "ADMIN" },
     { key: "2", value: "MAO" },
+    { key: "3", value: "JO" },
   ];
 
   // Fetch users

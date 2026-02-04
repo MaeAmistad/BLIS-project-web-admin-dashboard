@@ -248,7 +248,7 @@ const RaiserProfile = () => {
 
       await notifyAllUsers({
         title: "New Raiser Profile",
-        message: `Record for Raiser ${raisers.firstName} and its livestock records has been created`,
+        message: `Record for Raiser ${raisers.raiserName} and its livestock records has been created`,
         type: "add",
       });
 
@@ -529,23 +529,23 @@ const RaiserProfile = () => {
                         raiser.middleInitial || ""
                       } ${raiser.lastName} `}</td>
                       <td className="p-2 text-center border border-gray-400">
-                        {raiser.email}
+                        {raiser.email || "-"}
                       </td>
                       <td className="p-2 text-center border border-gray-400">
-                        {raiser.gender}
+                        {raiser.gender || "-"}
                       </td>
                       <td className="p-2 text-center border border-gray-400">
-                        {raiser.contactNumber}
+                        {raiser.contactNumber || "-"}
                       </td>
                       <td className="p-2 text-center border border-gray-400">
-                        {raiser.address}
+                        {raiser.address || "-"}
                       </td>
                       <td className="p-2 text-center border border-gray-400">
-                        {raiser.typeOfRaiser}
+                        {raiser.typeOfRaiser || "-"}
                       </td>
 
                       <td className="p-2 text-center border border-gray-400">
-                        {raiser.registrationStatus}
+                        {raiser.registrationStatus || "-"}
                       </td>
 
                       <td className="p-2 text-center border border-gray-400">

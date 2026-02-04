@@ -124,7 +124,7 @@ const StatCard = ({ title, value, icon: Icon, color }) => (
 
 const ActivityLog = ({ reminders }) => (
   <div className="bg-white rounded-2xl shadow p-4 border border-gray-300 flex flex-col h-full">
-    <h3 className="font-semibold text-md mb-4 flex items-center gap-2">
+    <h3 className="font-semibold text-md mb-4 flex items-center gap-2 bg-gray-700 text-white rounded-lg p-1">
       <Activity size={14} /> Reminders
     </h3>
 
@@ -213,6 +213,12 @@ const Dashboard = () => {
 
   const [reminders, setReminders] = useState([]);
 
+  const addMonths = (date, months) => {
+    const d = new Date(date);
+    d.setMonth(d.getMonth() + months);
+    return d;
+  };
+
   useEffect(() => {
     const fetchReminders = async () => {
       try {
@@ -254,15 +260,25 @@ const Dashboard = () => {
           }
 
           const type = data.type?.toUpperCase();
-          if (type === "DEWORMING" && data.nextSchedule) {
-            const date = data.nextSchedule.toDate
-              ? data.nextSchedule.toDate()
-              : new Date(data.nextSchedule);
-            if (date >= today && date <= in30Days) {
+          if (type === "DEWORMING" && data.dateAdministered) {
+            const administeredDate = data.dateAdministered.toDate
+              ? data.dateAdministered.toDate()
+              : new Date(data.dateAdministered);
+
+            // Compute quarterly schedule (every 3 months)
+            const nextSchedule = addMonths(administeredDate, 3);
+
+            // Exclude Dog and Cat (case-insensitive)
+            const excludedAnimals = ["dog", "cat"];
+            if (excludedAnimals.includes(livestockName.toLowerCase())) {
+              continue;
+            }
+
+            if (nextSchedule >= today && nextSchedule <= in30Days) {
               reminderList.push({
-                id: doc.id,
-                message: `Deworming next schedule for ${livestockName}, (${raiserName})`,
-                date,
+                id: hr.id,
+                message: `Deworming schedule for ${livestockName}, (${raiserName})`,
+                date: nextSchedule,
               });
             }
           }
