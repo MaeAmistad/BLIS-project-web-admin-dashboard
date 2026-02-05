@@ -248,7 +248,7 @@ const RaiserProfile = () => {
 
       await notifyAllUsers({
         title: "New Raiser Profile",
-        message: `Record for Raiser ${raisers.raiserName} and its livestock records has been created`,
+        message: `Record for Raiser ${raisers.firstName} ${raisers.middleInitial} ${raisers.lastName}and its livestock records has been created`,
         type: "add",
       });
 
