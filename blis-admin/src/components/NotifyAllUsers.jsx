@@ -13,6 +13,7 @@ export const notifyAllUsers = async ({ title, message, type }) => {
         type,          // "add" | "edit"
         read: false,
         createdAt: serverTimestamp(),
+         updatedAt: serverTimestamp(),
       }
     )
   );

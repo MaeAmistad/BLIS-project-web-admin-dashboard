@@ -17,13 +17,14 @@ const defaultForm = {
   registrationStatus: "",
   dateOfRegistration: "",
   typeOfRaiser: "",
+  farmSizeUnit: "hectare",
+  farmSizeInHectares: "",
 };
 
 const validators = {
-  lettersOnly: /^[a-zA-Z\s]*$/,          // allows spaces
+  lettersOnly: /^[a-zA-Z\s]*$/, // allows spaces
   numbersOnly: /^[0-9]*$/,
 };
-
 
 const barangayOptions = [
   "Aggay",
@@ -65,46 +66,69 @@ const barangayOptions = [
 const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
   const [formData, setFormData] = useState(defaultForm);
 
-   const { user } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (open && Object.keys(initialData || {}).length > 0) {
-      setFormData(initialData);
+      setFormData({
+        ...initialData,
+        farmSize: initialData.farmSize?.toString() || "",
+        farmSizeUnit: "hectare",
+        farmSizeInHectares: initialData.farmSize || "",
+      });
     }
   }, [open, initialData]);
 
   const handleChange = (e) => {
-  const { name, value } = e.target;
+    const { name, value } = e.target;
 
-  // Letters only fields
-  const lettersOnlyFields = [
-    "lastName",
-    "firstName",
-    "middleInitial",
-    "farmName",
-    "farmLocation",
-  ];
+    // Letters only fields
+    const lettersOnlyFields = [
+      "lastName",
+      "firstName",
+      "middleInitial",
+      "farmName",
+      "farmLocation",
+    ];
 
-  if (lettersOnlyFields.includes(name)) {
-    if (!validators.lettersOnly.test(value)) return;
-  }
+    if (lettersOnlyFields.includes(name)) {
+      if (!validators.lettersOnly.test(value)) return;
+    }
 
-  // Contact number: numbers only, max 11 digits
-  if (name === "contactNumber") {
-    if (!validators.numbersOnly.test(value)) return;
-    if (value.length > 11) return;
-  }
+    // Contact number: numbers only, max 11 digits
+    if (name === "contactNumber") {
+      if (!validators.numbersOnly.test(value)) return;
+      if (value.length > 11) return;
+    }
 
-  // Number of workers: numbers only
-  if (name === "numberOfWorkers") {
-    if (!validators.numbersOnly.test(value)) return;
-  }
+    // Number of workers: numbers only
+    if (name === "numberOfWorkers") {
+      if (!validators.numbersOnly.test(value)) return;
+    }
 
-  setFormData((prev) => ({
-    ...prev,
-    [name]: value,
-  }));
-};
+    if (name === "farmSize") {
+      const converted = convertToHectares(value, formData.farmSizeUnit);
+
+      setFormData((prev) => ({
+        ...prev,
+        farmSize: value,
+        farmSizeInHectares: converted,
+      }));
+    } else if (name === "farmSizeUnit") {
+      const converted = convertToHectares(formData.farmSize, value);
+
+      setFormData((prev) => ({
+        ...prev,
+        farmSizeUnit: value,
+        farmSizeInHectares: converted,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
 
   const validateForm = () => {
     if (!formData.lastName || !formData.firstName) {
@@ -136,11 +160,10 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
 
     //const now = new Date().toISOString();
 
-    const data = {
+    onSave({
       ...formData,
-    };
-
-    onSave(data);
+      farmSize: formData.farmSizeInHectares || formData.farmSize,
+    });
   };
 
   const handleCancel = async () => {
@@ -156,6 +179,20 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
 
     if (confirm.isConfirmed) {
       onCancel();
+    }
+  };
+
+  const convertToHectares = (value, unit) => {
+    const num = parseFloat(value);
+    if (isNaN(num)) return "";
+
+    switch (unit) {
+      case "sqm":
+      case "m":
+        return num / 10000;
+      case "hectare":
+      default:
+        return num;
     }
   };
 
@@ -280,12 +317,34 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
                 value={formData.farmLocation || ""}
                 onChange={handleChange}
               />
-              <Input
-                label="Farm Size (Hectares/Meter)"
-                name="farmSize"
-                value={formData.farmSize || ""}
-                onChange={handleChange}
-              />
+              <div className="flex flex-col gap-1">
+                <div className="flex gap-2">
+                  <Input
+                    label="Farm Size"
+                    type="number"
+                    name="farmSize"
+                    value={formData.farmSize || ""}
+                    onChange={handleChange}
+                  />
+
+                  <select
+                    name="farmSizeUnit"
+                    value={formData.farmSizeUnit}
+                    onChange={handleChange}
+                    className="w-40 border h-9 mt-5 rounded-xl text-xs p-2 bg-white focus:ring-2 focus:ring-green-400 focus:outline-none"
+                  >
+                    <option value="hectare">ha</option>
+                    <option value="sqm">sqm</option>
+                  </select>
+                </div>
+
+                {formData.farmSizeUnit !== "hectare" && formData.farmSize && (
+                  <p className="text-xs text-gray-500">
+                    ≈ {Number(formData.farmSizeInHectares || 0).toFixed(4)}
+                    hectares
+                  </p>
+                )}
+              </div>
 
               <Input
                 label="Number of Workers"
@@ -359,7 +418,7 @@ const Input = ({ label, name, value, onChange, type = "text" }) => (
       name={name}
       value={value}
       onChange={onChange}
-      className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+      className="w-full border rounded-xl text-xs p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
     />
   </div>
 );
@@ -375,11 +434,9 @@ const Select = ({ label, name, value, onChange, options }) => (
       name={name}
       value={value}
       onChange={onChange}
-      className="w-full border rounded-xl p-2 bg-white focus:ring-2 focus:ring-green-400 focus:outline-none"
+      className="w-full border rounded-xl text-xs p-2 bg-white focus:ring-2 focus:ring-green-400 focus:outline-none"
     >
-      <option value="">
-        Select {label}
-      </option>
+      <option value="">Select {label}</option>
       {options.map((opt) => (
         <option key={opt} value={opt}>
           {opt}

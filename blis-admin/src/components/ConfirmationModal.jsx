@@ -189,7 +189,8 @@ export default function ConfirmationModal({
                         onClick={() => toggleHealth(idx)}
                       >
                         <span>Health Records</span>
-                        <span>{healthExpanded[idx] ? "▼" : "▲"}</span>
+                        <span>{healthExpanded[idx] ? "Close Details ▼"
+                              : "Open Details ▶"}</span>
                       </button>
 
                       {healthExpanded[idx] && (

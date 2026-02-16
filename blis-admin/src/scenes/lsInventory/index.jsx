@@ -149,6 +149,13 @@ const LivestockInventory = () => {
     setSelectedRaiser(raiser);
   };
 
+  const getTimestamp = (ts) => {
+  if (!ts) return 0;
+
+  // Supports Firestore timestamp or JS Date
+  if (ts.seconds) return ts.seconds * 1000;
+  return new Date(ts).getTime();
+};
   // Search filter
   const filteredLivestock = livestocks.filter((r) => {
     const term = searchTerm.toLowerCase();
@@ -164,6 +171,18 @@ const LivestockInventory = () => {
       r.address?.toLowerCase().includes(term) ||
       animals.includes(term)
     );
+  }).sort((a, b) => {
+    const aLastActivity = Math.max(
+      getTimestamp(a.createdAt),
+      getTimestamp(a.updatedAt)
+    );
+
+    const bLastActivity = Math.max(
+      getTimestamp(b.createdAt),
+      getTimestamp(b.updatedAt)
+    );
+
+    return bLastActivity - aLastActivity; // newest first
   });
 
   const handlePrintLivestocks = () => {

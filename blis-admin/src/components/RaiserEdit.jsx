@@ -19,6 +19,8 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
     numberOfWorkers: "",
     registrationStatus: "",
     typeOfRaiser: "",
+    farmSizeUnit: "hectare", // default
+    farmSizeInHectares: "",
   });
 
   console.log("Passed Raiser Data: ", raiserData);
@@ -32,6 +34,8 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
         firstName: raiserData?.firstName,
         farmLocation: raiserData?.farmLocation,
         farmSize: raiserData?.farmSize,
+        farmSizeUnit: "hectare",
+        farmSizeInHectares: raiserData?.farmSize || "",
         farmName: raiserData?.farmName,
         gender: raiserData?.gender,
         lastName: raiserData?.lastName,
@@ -48,39 +52,77 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
     numbersOnly: /^[0-9]*\.?[0-9]*$/,
   };
 
+  const convertToHectares = (value, unit) => {
+    const num = parseFloat(value);
+    if (isNaN(num)) return "";
+
+    switch (unit) {
+      case "sqm":
+      case "m":
+        return num / 10000;
+      case "hectare":
+      default:
+        return num;
+    }
+  };
+
   const handleChange = (e) => {
-  const { name, value } = e.target;
+    const { name, value } = e.target;
 
-  // Letters only fields
-  const lettersOnlyFields = [
-    "lastName",
-    "firstName",
-    "middleInitial",
-    "farmName",
-    "farmLocation",
-  ];
+    // Letters only fields
+    const lettersOnlyFields = [
+      "lastName",
+      "firstName",
+      "middleInitial",
+      "farmName",
+      "farmLocation",
+    ];
 
-  if (lettersOnlyFields.includes(name)) {
-    if (!validators.lettersOnly.test(value)) return;
-  }
+    if (lettersOnlyFields.includes(name)) {
+      if (!validators.lettersOnly.test(value)) return;
+    }
 
-  // Contact number: numbers only, max 11 digits
-  if (name === "contactNumber") {
-    if (!validators.numbersOnly.test(value)) return;
-    if (value.length > 11) return;
-  }
+    // Contact number: numbers only, max 11 digits
+    if (name === "contactNumber") {
+      if (!validators.numbersOnly.test(value)) return;
+      if (value.length > 11) return;
+    }
 
-  // Number of workers: numbers only
-  if (name === "numberOfWorkers") {
-    if (!validators.numbersOnly.test(value)) return;
-  }
+    // Number of workers: numbers only
+    if (name === "numberOfWorkers") {
+      if (!validators.numbersOnly.test(value)) return;
+    }
 
-  setFormData((prev) => ({
-    ...prev,
-    [name]: value,
-  }));
-};
+    // Farm size input
+    if (name === "farmSize") {
+      const converted = convertToHectares(value, formData.farmSizeUnit);
 
+      setFormData((prev) => ({
+        ...prev,
+        farmSize: value,
+        farmSizeInHectares: converted,
+      }));
+      return;
+    }
+
+    // Farm size unit selector
+    if (name === "farmSizeUnit") {
+      const converted = convertToHectares(formData.farmSize, value);
+
+      setFormData((prev) => ({
+        ...prev,
+        farmSizeUnit: value,
+        farmSizeInHectares: converted,
+      }));
+      return;
+    }
+
+    // Default update for other fields
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -93,7 +135,7 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
         contactNumber: formData.contactNumber,
         email: formData.email,
         farmLocation: formData.farmLocation,
-        farmSize: formData.farmSize,
+        farmSize: formData.farmSizeInHectares || formData.farmSize,
         farmName: formData.farmName,
         gender: formData.gender,
         lastName: formData.lastName,
@@ -124,7 +166,7 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
         "Error!",
         "Something went wrong while saving. ",
         error,
-        "error"
+        "error",
       );
     }
   };
@@ -240,12 +282,34 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
                   value={formData.farmLocation}
                   onChange={handleChange}
                 />
-                <Input
-                  label="Farm Size"
-                  name="farmSize"
-                  value={formData.farmSize}
-                  onChange={handleChange}
-                />
+                <div className="flex flex-col gap-1">
+                  <div className="flex gap-2">
+                    <Input
+                    label="Farm Size"
+                      type="number"
+                      name="farmSize"
+                      value={formData.farmSize || ""}
+                      onChange={handleChange}
+                    />
+
+                    <select
+                      name="farmSizeUnit"
+                      value={formData.farmSizeUnit}
+                      onChange={handleChange}
+                      className="w-40 border h-9 mt-5 rounded-xl text-xs p-2 bg-white focus:ring-2 focus:ring-green-400 focus:outline-none"
+                    >
+                      <option value="hectare">ha</option>
+                      <option value="sqm">sqm</option>
+                    </select>
+                  </div>
+
+                  {formData.farmSizeUnit !== "hectare" && formData.farmSize && (
+                    <p className="text-xs text-gray-500">
+                      ≈ {Number(formData.farmSizeInHectares || 0).toFixed(4)}
+                      hectares
+                    </p>
+                  )}
+                </div>
 
                 <Input
                   label="Number of Workers"
@@ -310,7 +374,7 @@ const Input = ({ label, name, value, onChange, type = "text" }) => (
       name={name}
       value={value}
       onChange={onChange}
-      className="w-full border rounded-xl p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
+      className="w-full border rounded-xl text-xs p-2 focus:ring-2 focus:ring-green-400 focus:outline-none"
     />
   </div>
 );

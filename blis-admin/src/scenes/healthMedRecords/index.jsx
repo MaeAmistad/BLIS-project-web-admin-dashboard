@@ -54,6 +54,8 @@ const tableColumns = {
     { label: "Age", key: "age" },
     { label: "Vaccine Used", key: "vaccine" },
     { label: "Date", key: "date" },
+    { label: "Vitamins", key: "vitamins" },
+    { label: "Vitamins Date", key: "dateVitamins" },
     { label: "Remarks", key: "remarks" },
   ],
 

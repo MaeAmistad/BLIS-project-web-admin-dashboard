@@ -23,6 +23,8 @@ export default function HealthRecordsModal({
     administeredBy: "",
     dosage: "",
     remarks: "",
+    vitamins: "",
+  dateVitamins: "",
   };
 
   const emptyDeworming = {
@@ -341,6 +343,27 @@ useEffect(() => {
                   setVaccinationForm({
                     ...vaccinationForm,
                     remarks: e.target.value,
+                  })
+                }
+              />
+              <Input
+                label="Medicine/Vitamins"
+                value={vaccinationForm.vitamins}
+                onChange={(e) =>
+                  setVaccinationForm({
+                    ...vaccinationForm,
+                    vitamins: e.target.value,
+                  })
+                }
+              />
+              <Input
+                type="date"
+                label="Date Vitamins"
+                value={vaccinationForm.dateVitamins}
+                onChange={(e) =>
+                  setVaccinationForm({
+                    ...vaccinationForm,
+                    dateVitamins: e.target.value,
                   })
                 }
               />

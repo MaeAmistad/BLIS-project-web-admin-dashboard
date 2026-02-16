@@ -246,9 +246,11 @@ const RaiserProfile = () => {
         }
       }
 
+      const { firstName, middleInitial, lastName } = wizardData.raiser;
+
       await notifyAllUsers({
         title: "New Raiser Profile",
-        message: `Record for Raiser ${raisers.firstName} ${raisers.middleInitial} ${raisers.lastName}and its livestock records has been created`,
+        message: `Record for Raiser ${firstName} ${middleInitial} ${lastName} and its livestock records has been created`,
         type: "add",
       });
 
@@ -283,26 +285,49 @@ const RaiserProfile = () => {
     ),
   ];
 
-  const filteredRaisers = raisers.filter((raiser) => {
-    const term = searchTerm.toLowerCase();
+  const getTimestamp = (ts) => {
+  if (!ts) return 0;
 
-    const fullName = `${raiser.firstName || ""} ${raiser.middleInitial || ""} ${
-      raiser.lastName || ""
-    }`.toLowerCase();
+  // Handles Firestore timestamp OR JS Date
+  if (ts.seconds) return ts.seconds * 1000;
+  return new Date(ts).getTime();
+};
 
-    const matchesSearch =
-      fullName.includes(term) ||
-      (raiser.address?.toLowerCase() || "").includes(term) ||
-      (raiser.typeOfRaiser?.toLowerCase() || "").includes(term);
+  const filteredRaisers = raisers
+    .filter((raiser) => {
+      const term = searchTerm.toLowerCase();
 
-    const matchesAddress =
-      selectedAddress === "" || raiser.address === selectedAddress;
+      const fullName =
+        `${raiser.firstName || ""} ${raiser.middleInitial || ""} ${
+          raiser.lastName || ""
+        }`.toLowerCase();
 
-    const matchesStatus =
-      selectedStatus === "" || raiser.registrationStatus === selectedStatus;
+      const matchesSearch =
+        fullName.includes(term) ||
+        (raiser.address?.toLowerCase() || "").includes(term) ||
+        (raiser.typeOfRaiser?.toLowerCase() || "").includes(term);
 
-    return matchesSearch && matchesAddress && matchesStatus;
-  });
+      const matchesAddress =
+        selectedAddress === "" || raiser.address === selectedAddress;
+
+      const matchesStatus =
+        selectedStatus === "" || raiser.registrationStatus === selectedStatus;
+
+      return matchesSearch && matchesAddress && matchesStatus;
+    })
+    .sort((a, b) => {
+    const aLastActivity = Math.max(
+      getTimestamp(a.createdAt),
+      getTimestamp(a.updatedAt)
+    );
+
+    const bLastActivity = Math.max(
+      getTimestamp(b.createdAt),
+      getTimestamp(b.updatedAt)
+    );
+
+    return bLastActivity - aLastActivity; // newest first
+    });
 
   const handlePrintRaisers = () => {
     const doc = new jsPDF({

@@ -104,6 +104,14 @@ const InventoryandSupplies = () => {
     }
   };
 
+  const getTimestamp = (ts) => {
+  if (!ts) return 0;
+
+  // Supports Firestore timestamp or JS Date
+  if (ts.seconds) return ts.seconds * 1000;
+  return new Date(ts).getTime();
+};
+
   const filteredInventories = inventories.filter((item) => {
     // Check if itemName matches the search term (case-insensitive)
     const matchesSearch = item.itemName
@@ -116,6 +124,18 @@ const InventoryandSupplies = () => {
 
     // Only include items that satisfy BOTH filters
     return matchesSearch && matchesCategory;
+  }).sort((a, b) => {
+    const aLastActivity = Math.max(
+      getTimestamp(a.createdAt),
+      getTimestamp(a.updatedAt)
+    );
+
+    const bLastActivity = Math.max(
+      getTimestamp(b.createdAt),
+      getTimestamp(b.updatedAt)
+    );
+
+    return bLastActivity - aLastActivity; // newest first
   });
 
   return (
