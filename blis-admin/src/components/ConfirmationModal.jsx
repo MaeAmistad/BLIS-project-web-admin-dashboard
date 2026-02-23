@@ -119,7 +119,7 @@ export default function ConfirmationModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-white rounded-2xl w-full max-w-4xl p-6 shadow-lg max-h-[80vh] overflow-y-auto animate-fadeIn">
         <div className="relative mb-4">
-          <h2 className="text-2xl font-semibold text-center">
+          <h2 className="text-2xl font-semibold text-green-800 text-center">
             Confirm Submission
           </h2>
 
@@ -143,8 +143,8 @@ export default function ConfirmationModal({
             className="w-full text-left px-4 py-2 font-semibold hover:bg-gray-100 flex justify-between items-center"
             onClick={() => toggle("raiser")}
           >
-            <span>Raiser Information</span>
-            <span>{expanded.raiser ? "▼" : "▲"}</span>
+            <span className="text-green-800 font-semibold">Raiser Information</span>
+            <span>{expanded.raiser ? "▼" : "▶"}</span>
           </button>
           {expanded.raiser && (
             <div className="p-4">{renderObject(data.raiser)}</div>
@@ -157,8 +157,8 @@ export default function ConfirmationModal({
             className="w-full text-left px-4 py-2 font-semibold hover:bg-gray-100 flex justify-between items-center"
             onClick={() => toggle("livestock")}
           >
-            <span>Livestock</span>
-            <span>{expanded.livestock ? "▼" : "▲"}</span>
+            <span className="text-green-800 font-semibold">Livestock</span>
+            <span>{expanded.livestock ? "▼" : "▶"}</span>
           </button>
           {expanded.livestock && (
             <div className="p-4 space-y-3">

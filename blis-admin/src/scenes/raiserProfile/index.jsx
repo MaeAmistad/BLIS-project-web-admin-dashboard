@@ -246,11 +246,17 @@ const RaiserProfile = () => {
         }
       }
 
-      const { firstName, middleInitial, lastName } = wizardData.raiser;
+      const fullName = [
+        wizardData.raiser?.firstName,
+        wizardData.raiser?.middleInitial,
+        wizardData.raiser?.lastName,
+      ]
+        .filter(Boolean)
+        .join(" ");
 
       await notifyAllUsers({
         title: "New Raiser Profile",
-        message: `Record for Raiser ${firstName} ${middleInitial} ${lastName} and its livestock records has been created`,
+        message: `Record for Raiser ${fullName} and its livestock records has been created`,
         type: "add",
       });
 
@@ -286,12 +292,12 @@ const RaiserProfile = () => {
   ];
 
   const getTimestamp = (ts) => {
-  if (!ts) return 0;
+    if (!ts) return 0;
 
-  // Handles Firestore timestamp OR JS Date
-  if (ts.seconds) return ts.seconds * 1000;
-  return new Date(ts).getTime();
-};
+    // Handles Firestore timestamp OR JS Date
+    if (ts.seconds) return ts.seconds * 1000;
+    return new Date(ts).getTime();
+  };
 
   const filteredRaisers = raisers
     .filter((raiser) => {
@@ -316,17 +322,17 @@ const RaiserProfile = () => {
       return matchesSearch && matchesAddress && matchesStatus;
     })
     .sort((a, b) => {
-    const aLastActivity = Math.max(
-      getTimestamp(a.createdAt),
-      getTimestamp(a.updatedAt)
-    );
+      const aLastActivity = Math.max(
+        getTimestamp(a.createdAt),
+        getTimestamp(a.updatedAt),
+      );
 
-    const bLastActivity = Math.max(
-      getTimestamp(b.createdAt),
-      getTimestamp(b.updatedAt)
-    );
+      const bLastActivity = Math.max(
+        getTimestamp(b.createdAt),
+        getTimestamp(b.updatedAt),
+      );
 
-    return bLastActivity - aLastActivity; // newest first
+      return bLastActivity - aLastActivity; // newest first
     });
 
   const handlePrintRaisers = () => {

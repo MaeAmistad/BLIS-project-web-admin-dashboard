@@ -469,7 +469,7 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
               {renderInfoGrid({
                 farmName: raiserInfo.farmName,
                 farmLocation: raiserInfo.farmLocation,
-                farmSize: raiserInfo.farmSize,
+                farmSizeInHectares: raiserInfo.farmSizeInHectares,
                 numberOfWorkers: raiserInfo.numberOfWorkers,
                 registrationStatus: raiserInfo.registrationStatus,
                 dateOfRegistration: raiserInfo.dateOfRegistration,

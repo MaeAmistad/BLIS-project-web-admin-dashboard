@@ -137,7 +137,7 @@ const Sidebarr = () => {
       <div>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 p-3 rounded-lg font-medium text-white text-xs hover:bg-red-500/70 transition-all w-full"
+          className="flex items-center gap-3 p-3 rounded-lg font-medium bg-red-600 text-white text-xs hover:bg-red-500/80 transition-all w-full"
         >
           <LogoutRoundedIcon />
           <span className={`text-xs ${!open && "hidden"}`}>Log out</span>

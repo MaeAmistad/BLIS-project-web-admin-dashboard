@@ -111,7 +111,7 @@ const AddLivestock = ({ open, onClose, raiserData }) => {
     }
 
     // Numbers-only fields
-    const numbersOnlyFields = ["weight", "age"];
+    const numbersOnlyFields = ["weight"];
 
     if (numbersOnlyFields.includes(field)) {
       if (!validators.numbersOnly.test(value)) return;
@@ -453,7 +453,6 @@ const AddLivestock = ({ open, onClose, raiserData }) => {
                     className="p-2 text-xs border rounded-md focus:ring-2 focus:ring-green-400"
                     placeholder="Age"
                     value={item.age || ""}
-                    inputMode="numeric"
                     onChange={(e) =>
                       updateLivestock(idx, "age", e.target.value)
                     }

@@ -94,7 +94,7 @@ export default function LivestockEdit({
     }
 
     // Numbers-only fields
-    const numbersOnlyFields = ["weight", "age"];
+    const numbersOnlyFields = ["weight"];
 
     if (numbersOnlyFields.includes(field)) {
       if (!validators.numbersOnly.test(value)) return;
@@ -307,7 +307,6 @@ export default function LivestockEdit({
                   </label>
                   <input
                     className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
-                    placeholder="Age"
                     inputMode="numeric"
                     value={item.age || ""}
                     onChange={(e) =>

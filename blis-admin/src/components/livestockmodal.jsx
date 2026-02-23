@@ -116,7 +116,7 @@ export default function LivestockModal({
     }
 
     // Numbers-only fields
-    const numbersOnlyFields = ["weight", "age"];
+    const numbersOnlyFields = ["weight"];
 
     if (numbersOnlyFields.includes(field)) {
       if (!validators.numbersOnly.test(value)) return;
@@ -349,7 +349,6 @@ export default function LivestockModal({
                   </label>
                   <input
                     className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
-                    inputMode="numeric"
                     placeholder="Age"
                     value={item.age || ""}
                     onChange={(e) =>
