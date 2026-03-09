@@ -103,7 +103,7 @@ const ViewLivestockDetailsModal = ({ open, onClose, raiser }) => {
 
   const openEditLivestock = async (livestock) => {
     console.log("Editing livestock:", livestock);
-    // 1️⃣ Fetch healthRecords subcollection
+
     const healthSnap = await getDocs(
       collection(
         db,
@@ -137,7 +137,7 @@ const ViewLivestockDetailsModal = ({ open, onClose, raiser }) => {
       }
     });
 
-    // Prepare data for modal (SINGLE livestock)
+
     setEditLivestockData([
       {
         id: livestock.id,
@@ -239,36 +239,7 @@ const ViewLivestockDetailsModal = ({ open, onClose, raiser }) => {
           <h2 className="text-2xl font-semibold text-green-700 mb-4 text-center">
             Livestock Details
           </h2>
-          {/* Ownership Details */}
-          {/* <h3 className="text-lg font-semibold text-gray-800 mb-2 border-b pb-1">
-            Ownership Details
-          </h3>
-          <div className="grid grid-cols-2 gap-4 text-sm text-gray-700 mb-6">
-            <div>
-              <p className="font-medium text-gray-900">Raiser's Name</p>
-              <p>{raiser.raiserName || "—"}</p>
-            </div>
-            <div>
-              <p className="font-medium text-gray-900">Farm Name</p>
-              <p>{raiser.farmName || "—"}</p>
-            </div>
-            <div>
-              <p className="font-medium text-gray-900">Farm Location</p>
-              <p>{raiser.farmLocation || "—"}</p>
-            </div>
-            <div>
-              <p className="font-medium text-gray-900">Raiser's Barangay</p>
-              <p>{raiser.address || "—"}</p>
-            </div>
-            <div>
-              <p className="font-medium text-gray-900">Contact Number</p>
-              <p>{raiser.contactNumber || "—"}</p>
-            </div>
-            <div>
-              <p className="font-medium text-gray-900">Type of Raiser</p>
-              <p>{raiser.typeOfRaiser || "—"}</p>
-            </div>
-          </div> */}
+          
           {/* Livestock Information */}
           <h3 className="text-lg font-semibold text-gray-800 mb-2 border-b pb-1">
             Livestock Information

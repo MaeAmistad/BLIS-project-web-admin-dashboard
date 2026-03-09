@@ -12,10 +12,8 @@ export default function CalendarPanel() {
  useEffect(() => {
     async function fetchAllAIEvents() {
       try {
-        // 1️⃣ Get all raisers
         const raisersSnapshot = await getDocs(collection(db, "raisers"));
 
-        // 2️⃣ Fetch all livestock for all raisers in parallel
         const livestockPromises = raisersSnapshot.docs.map(raiserDoc =>
           getDocs(collection(db, "raisers", raiserDoc.id, "livestock")).then(
             livestockSnapshot => ({
@@ -27,7 +25,6 @@ export default function CalendarPanel() {
 
         const allLivestock = await Promise.all(livestockPromises);
 
-        // 3️⃣ Fetch all healthRecords for all livestock in parallel
         const healthRecordPromises = allLivestock.flatMap(
           ({ raiserId, livestockDocs }) =>
             livestockDocs.map(livestockDoc =>
@@ -53,7 +50,6 @@ export default function CalendarPanel() {
 
         const allHealthRecords = await Promise.all(healthRecordPromises);
 
-        // 4️⃣ Filter AI records and map to calendar events
         const aiEvents = allHealthRecords.flatMap(
           ({ raiserId, livestockId, healthRecords }) =>
             healthRecords

@@ -35,7 +35,6 @@ const ArtificialInseminationModal = ({ open, onClose }) => {
     if (confirm.isConfirmed) {
       console.log("Saved AI Record:", formData);
 
-      // Success alert
       await Swal.fire({
         icon: "success",
         title: "Record Saved",
@@ -43,7 +42,6 @@ const ArtificialInseminationModal = ({ open, onClose }) => {
         confirmButtonColor: "#16a34a",
       });
 
-      // Reset form after saving
       setFormData({
         livestockTag: "",
         dateInseminated: "",
@@ -125,7 +123,6 @@ const ArtificialInseminationModal = ({ open, onClose }) => {
             className="w-full border rounded-xl p-2 h-20"
           />
 
-          {/* Buttons */}
           <div className="flex justify-end gap-3 mt-4">
             <button
               type="button"

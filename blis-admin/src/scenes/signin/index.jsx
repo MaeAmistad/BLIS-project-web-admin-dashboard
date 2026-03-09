@@ -16,7 +16,6 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
   const navigate = useNavigate();
@@ -65,7 +64,7 @@ const Login = () => {
 
       const firebaseUser = userCredential.user;
 
-      // 1. Check email verification
+
       if (!firebaseUser.emailVerified) {
         const result = await Swal.fire({
           icon: "warning",
@@ -88,12 +87,12 @@ const Login = () => {
           });
         }
 
-        // Always sign out unverified users
+
         await auth.signOut();
         return;
       }
 
-      // 2. Read user document from Firestore
+
       const userRef = doc(db, "users", firebaseUser.uid);
       const userSnap = await getDoc(userRef);
 
@@ -119,7 +118,7 @@ const Login = () => {
         return;
       }
 
-      // 4. Check role
+
       if (role !== "ADMIN") {
         await Swal.fire({
           icon: "error",

@@ -30,75 +30,14 @@ export default function ConfirmationModal({
     });
   };
 
-  // const handleSave = async () => {
-  //   try {
-  //     setLoading(true);
-
-  //     // 1️⃣ Save Raiser
-  //     const raiserRef = doc(collection(db, "raisers"));
-  //     await setDoc(raiserRef, data.raiser);
-  //     const raiserId = raiserRef.id;
-
-  //     // 2️⃣ Save Livestock + Health Records
-  //     for (const livestock of data.livestock) {
-  //       const { healthRecords, ...livestockData } = livestock;
-
-  //       // Save livestock document (WITHOUT healthRecords)
-  //       const livestockRef = doc(
-  //         collection(db, "raisers", raiserId, "livestock")
-  //       );
-  //       await setDoc(livestockRef, livestockData);
-
-  //       // Save health records as subcollection
-  //       if (healthRecords) {
-  //         const recordTypes = [
-  //           { key: "vaccinations", type: "vaccination" },
-  //           { key: "dewormings", type: "deworming" },
-  //           { key: "treatments", type: "treatment" },
-  //           { key: "aiRecords", type: "ai" },
-  //         ];
-
-  //         for (const { key, type } of recordTypes) {
-  //           const records = healthRecords[key] || [];
-
-  //           for (const record of records) {
-  //             await setDoc(
-  //               doc(
-  //                 collection(
-  //                   db,
-  //                   "raisers",
-  //                   raiserId,
-  //                   "livestock",
-  //                   livestockRef.id,
-  //                   "healthRecords"
-  //                 )
-  //               ),
-  //               {
-  //                 ...record,
-  //                 type,
-  //               }
-  //             );
-  //           }
-  //         }
-  //       }
-  //     }
-
-  //     setLoading(false);
-  //     onConfirm();
-  //   } catch (error) {
-  //     console.error("Error saving data:", error);
-  //     setLoading(false);
-  //     alert("Error saving data. Check console for details.");
-  //   }
-  // };
+  
 
   const handleConfirm = async () => {
-    // Prevent double click
     if (loading) return;
 
     try {
       setLoading(true);
-      await onConfirm(); // submit to server
+      await onConfirm(); 
     } finally {
       setLoading(false);
     }

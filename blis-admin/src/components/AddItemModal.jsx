@@ -7,7 +7,7 @@ import {
   updateDoc,
   serverTimestamp,
 } from "firebase/firestore";
-import { db } from "../firebase"; // adjust path
+import { db } from "../firebase";
 import { useAuth } from "./AuthContext";
 import { notifyAllUsers } from "./NotifyAllUsers";
 
@@ -198,7 +198,6 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
             />
           </div>
 
-          {/* Category Radio Buttons */}
           <div className="col-span-2">
             <label className="block text-sm font-medium mb-2">Category</label>
             <div className="flex flex-wrap gap-4">
@@ -303,7 +302,6 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
           </div>
         </div>
 
-        {/* Buttons */}
         <div className="flex justify-end gap-3 mt-6">
           <button
             onClick={handleCloseConfirm}

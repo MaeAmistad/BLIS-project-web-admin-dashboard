@@ -1,7 +1,7 @@
 import React from "react";
 
 const ViewDetailsModal = ({ open, onClose, raiser }) => {
-  if (!open || !raiser) return null; // Don't render if closed
+  if (!open || !raiser) return null; 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">

@@ -203,7 +203,7 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
     const pageWidth = doc.internal.pageSize.getWidth();
     let y = 52;
 
-    /* ================= HEADER ================= */
+    /*  HEADER */
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
 
@@ -224,7 +224,7 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
       align: "center",
     });
 
-    // --- IMAGES ---
+
     const imgSize = 18;
     const imgY = headerY - 8;
     const imgGap = 6;
@@ -263,12 +263,11 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
 
     const LABEL_COL_WIDTH = 45;
     const VALUE_COL_WIDTH = pageWidth - 36 - LABEL_COL_WIDTH;
-    // 36 = left + right margin (18 + 18)
 
     const COMPACT_LABEL_COL_WIDTH = 35;
     const COMPACT_VALUE_COL_WIDTH = pageWidth - 36 - COMPACT_LABEL_COL_WIDTH;
 
-    /* ================= PERSONAL INFO ================= */
+    /*  PERSONAL INFO  */
     doc.setFontSize(11);
     doc.text("Personal Information", 18, y - 4);
 
@@ -277,7 +276,7 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
       theme: "grid",
       styles: {
         fontSize: 9,
-        lineWidth: 0.3, // 👈 thin border
+        lineWidth: 0.3,
         lineColor: [22, 163, 74],
       },
       columnStyles: {
@@ -297,7 +296,7 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
 
     y = doc.lastAutoTable.finalY + 10;
 
-    /* ================= FARM INFO ================= */
+    /*  FARM INFO */
     doc.text("Farm Information", 18, y - 4);
 
     autoTable(doc, {
@@ -305,7 +304,7 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
       theme: "grid",
       styles: {
         fontSize: 9,
-        lineWidth: 0.3, // 👈 thin border
+        lineWidth: 0.3, 
         lineColor: [22, 163, 74],
       },
       columnStyles: {
@@ -327,7 +326,7 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
 
     y = doc.lastAutoTable.finalY + 12;
 
-    /* ================= LIVESTOCK ================= */
+    /*  LIVESTOCK */
     livestock.forEach((animal, index) => {
       doc.setFontSize(12);
       doc.text(`Livestock ${index + 1}`, 14, y);
@@ -338,7 +337,7 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
         theme: "striped",
         styles: {
           fontSize: 9,
-          lineWidth: 0.3, // 👈 thin border
+          lineWidth: 0.3, 
           lineColor: [22, 163, 74],
         },
         columnStyles: {
@@ -363,7 +362,7 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
         y += 4;
 
         animal.healthRecords.forEach((record) => {
-          // ===== RECORD TYPE AS HEADER =====
+          // RECORD TYPE AS HEADER
           if (record.type) {
             doc.setFont("helvetica", "bold");
             doc.setFontSize(10);
@@ -371,13 +370,13 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
             y += 4;
           }
 
-          // ===== RECORD DETAILS TABLE =====
+          // RECORD DETAILS TABLE
           autoTable(doc, {
             startY: y,
             theme: "grid",
             styles: {
               fontSize: 8,
-              lineWidth: 0.3, // 👈 thin border
+              lineWidth: 0.3, 
               lineColor: [22, 163, 74],
             },
             columnStyles: {
@@ -394,7 +393,6 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
 
           y = doc.lastAutoTable.finalY + 6;
 
-          // Page break safety
           if (y > 180) {
             doc.addPage();
             y = 40;
@@ -491,10 +489,10 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
               <div key={animal.id} className="border rounded-lg p-4 bg-gray-50">
                 <h4 className="font-semibold mb-2">Livestock {index + 1}</h4>
 
-                {/* LIVESTOCK FIELDS (dynamic) */}
+
                 {renderDynamicFields(animal)}
 
-                {/* HEALTH RECORDS */}
+
                 <div className="mt-4 border-t pt-3">
                   <div className="space-y-3">
                     <div className="mt-3">

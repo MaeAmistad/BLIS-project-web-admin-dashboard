@@ -182,7 +182,7 @@ const LivestockInventory = () => {
       getTimestamp(b.updatedAt)
     );
 
-    return bLastActivity - aLastActivity; // newest first
+    return bLastActivity - aLastActivity;
   });
 
   const handlePrintLivestocks = () => {
@@ -195,7 +195,7 @@ const LivestockInventory = () => {
     const pageWidth = doc.internal.pageSize.getWidth();
     const centerX = pageWidth / 2;
 
-    /* ================= HEADER ================= */
+    /*  HEADER  */
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.text("REPUBLIC OF THE PHILIPPINES", centerX, 20, { align: "center" });
@@ -244,7 +244,7 @@ const LivestockInventory = () => {
     doc.setFontSize(14);
     doc.text("LIVESTOCK INFORMATION", centerX, 42, { align: "center" });
 
-    /* ================= TABLE ================= */
+    /*  TABLE */
     autoTable(doc, {
       startY: 48,
       theme: "grid",
@@ -272,7 +272,7 @@ const LivestockInventory = () => {
         fontSize: 8,
         halign: "center",
         valign: "middle",
-        lineWidth: 0.3, // 👈 thin border
+        lineWidth: 0.3, 
         lineColor: [22, 163, 74],
       },
       headStyles: {
@@ -301,14 +301,6 @@ const LivestockInventory = () => {
         <div className="sticky top-14 flex flex-col md:flex-row items-start md:items-center justify-between p-1 m-2">
           <Headerr title="Livestock Information" />
 
-          {/* <button
-            // onClick={handleAdd}
-            className="mt-2 md:mt-0 bg-green-600 text-white text-sm py-2 px-3 rounded-lg
-                         flex items-center gap-1"
-          >
-            <AddCircleOutlineRounded fontSize="small" />
-            Add Livestock
-          </button> */}
         </div>
 
         {/* Main Body */}
@@ -425,20 +417,7 @@ const LivestockInventory = () => {
                             />
                           </IconButton>
 
-                          {/* <IconButton aria-label="edit livestock">
-                            <EditRounded
-                              sx={{ color: "#266b0f", fontSize: 16 }}
-                            />
-                          </IconButton> */}
-
-                          {/* <IconButton
-                            aria-label="delete livestock"
-                            //  onClick={() => handleDelete(r)}
-                          >
-                            <DeleteRounded
-                              sx={{ color: "#a30808", fontSize: 16 }}
-                            />
-                          </IconButton> */}
+                          
                         </div>
                       </td>
                     </tr>
@@ -456,13 +435,6 @@ const LivestockInventory = () => {
         </div>
       </div>
 
-      {/* Modals */}
-      {/* <LivestockModal
-        open={open}
-        onClose={() => setOpen(false)}
-        onSave={handleSave}
-        initialData={editData}
-      /> */}
 
       <ViewLivestockDetailsModal
         open={viewOpen}

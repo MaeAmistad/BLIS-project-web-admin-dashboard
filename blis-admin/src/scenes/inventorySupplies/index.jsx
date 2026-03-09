@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Topbar from "../global/Topbar";
 import Sidebarr from "../global/Sidebar";
 import AddItemModal from "../../components/AddItemModal";
-import SummarizeRoundedIcon from "@mui/icons-material/SummarizeRounded";
+
 import Headerr from "../../components/Headerr";
 import {
   AddCircleOutlineRounded,
@@ -46,7 +46,6 @@ const InventoryandSupplies = () => {
 
       setInventories(data);
 
-      // Extract unique categories dynamically
       const uniqueCategories = [
         ...new Set(data.map((item) => item.category).filter(Boolean)),
       ];
@@ -107,22 +106,22 @@ const InventoryandSupplies = () => {
   const getTimestamp = (ts) => {
   if (!ts) return 0;
 
-  // Supports Firestore timestamp or JS Date
+
   if (ts.seconds) return ts.seconds * 1000;
   return new Date(ts).getTime();
 };
 
   const filteredInventories = inventories.filter((item) => {
-    // Check if itemName matches the search term (case-insensitive)
+  
     const matchesSearch = item.itemName
       ?.toLowerCase()
       .includes(searchTerm.toLowerCase());
 
-    // Check if category matches the selectedCategory (or show all if none selected)
+
     const matchesCategory =
       selectedCategory === "" || item.category === selectedCategory;
 
-    // Only include items that satisfy BOTH filters
+
     return matchesSearch && matchesCategory;
   }).sort((a, b) => {
     const aLastActivity = Math.max(
@@ -135,7 +134,7 @@ const InventoryandSupplies = () => {
       getTimestamp(b.updatedAt)
     );
 
-    return bLastActivity - aLastActivity; // newest first
+    return bLastActivity - aLastActivity;
   });
 
   return (

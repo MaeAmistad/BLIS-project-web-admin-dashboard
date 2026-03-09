@@ -8,7 +8,6 @@ import InventoryRoundedIcon from "@mui/icons-material/InventoryRounded";
 import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
 import MedicalInformationIcon from "@mui/icons-material/MedicalInformation";
 import Inventory2RoundedIcon from "@mui/icons-material/Inventory2Rounded";
-import AssessmentRoundedIcon from "@mui/icons-material/AssessmentRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import { getAuth, signOut } from "firebase/auth";
 import Swal from "sweetalert2";
@@ -52,12 +51,7 @@ const Sidebarr = () => {
       path: "/inventorySupplies",
       icon: <Inventory2RoundedIcon />,
     },
-    // {
-    //   title: "Report and Analytics",
-    //   path: "/reportsAnalytics",
-    //   icon: <AssessmentRoundedIcon />,
-    // },
-    // { title: "Settings", path: "/settings", icon: <SettingsRoundedIcon /> },
+
   ];
 
   const handleLogout = async () => {
@@ -144,7 +138,6 @@ const Sidebarr = () => {
         </button>
       </div>
 
-      {/* Toggle Button (BOTTOM) */}
       <button
         onClick={() => setOpen(!open)}
         className="absolute -right-3 bottom-10 bg-[#2E7D32] 

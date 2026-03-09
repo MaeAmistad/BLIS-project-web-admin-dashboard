@@ -177,8 +177,8 @@ const AddLivestock = ({ open, onClose, raiserData }) => {
 
       for (const record of group.records) {
         await addDoc(healthRef, {
-          ...record, // ✅ spread fields at root
-          type: group.type, // ✅ discriminator
+          ...record, 
+          type: group.type, 
           createdAt: serverTimestamp(),
         });
       }
@@ -204,7 +204,6 @@ const AddLivestock = ({ open, onClose, raiserData }) => {
       );
 
       for (const animal of livestockList) {
-        // 1️⃣ Create livestock document
         const livestockDoc = await addDoc(livestockRef, {
           livestockName: animal.livestockName,
           typeOfAnimal: animal.typeOfAnimal,
@@ -219,7 +218,6 @@ const AddLivestock = ({ open, onClose, raiserData }) => {
           createdAt: serverTimestamp(),
         });
 
-        // 2️⃣ Save health records (multiple schemas supported)
         await saveHealthRecords({
           raiserId: raiserData.id,
           livestockId: livestockDoc.id,

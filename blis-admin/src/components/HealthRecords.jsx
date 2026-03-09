@@ -11,8 +11,8 @@ export default function HealthRecords({
     dewormings: [],
     treatments: [],
     aiRecords: [],
-  }, // array of arrays: health records per livestock
-  livestockList = [], // array of livestock objects
+  }, 
+  livestockList = [], 
 }) {
   const [openSection, setOpenSection] = useState(null);
 
@@ -124,8 +124,8 @@ export default function HealthRecords({
       text: "This vaccination record will be permanently removed.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#dc2626", // red-600
-      cancelButtonColor: "#6b7280", // gray-500
+      confirmButtonColor: "#dc2626", 
+      cancelButtonColor: "#6b7280", 
       confirmButtonText: "Yes, remove it",
       cancelButtonText: "Cancel",
     }).then((result) => {
@@ -149,8 +149,8 @@ export default function HealthRecords({
       text: "This deworming record will be permanently removed.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#dc2626", // red-600
-      cancelButtonColor: "#6b7280", // gray-500
+      confirmButtonColor: "#dc2626", 
+      cancelButtonColor: "#6b7280", 
       confirmButtonText: "Yes, remove it",
       cancelButtonText: "Cancel",
     }).then((result) => {
@@ -174,8 +174,8 @@ export default function HealthRecords({
       text: "This treatment record will be permanently removed.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#dc2626", // red-600
-      cancelButtonColor: "#6b7280", // gray-500
+      confirmButtonColor: "#dc2626", 
+      cancelButtonColor: "#6b7280", 
       confirmButtonText: "Yes, remove it",
       cancelButtonText: "Cancel",
     }).then((result) => {
@@ -199,8 +199,8 @@ export default function HealthRecords({
       text: "This Artificial Insemination record will be permanently removed.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#dc2626", // red-600
-      cancelButtonColor: "#6b7280", // gray-500
+      confirmButtonColor: "#dc2626", 
+      cancelButtonColor: "#6b7280", 
       confirmButtonText: "Yes, remove it",
       cancelButtonText: "Cancel",
     }).then((result) => {
@@ -269,16 +269,7 @@ export default function HealthRecords({
             onClick={() => toggleSection("vaccination")}
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* <Input
-                label="Livestock"
-                value={vaccinationForm.livestock}
-                onChange={(e) =>
-                  setVaccinationForm({
-                    ...vaccinationForm,
-                    livestock: e.target.value,
-                  })
-                }
-              /> */}
+              
               <Input
                 label="Vaccine Name"
                 value={vaccinationForm.vaccine}
@@ -365,10 +356,7 @@ export default function HealthRecords({
                 ]);
                 setVaccinationForm(emptyVaccination);
               }}
-              // onAddAnother={() => {
-              //   setVaccinations([...vaccinations, vaccinationForm]);
-              //   setVaccinationForm(emptyVaccination);
-              // }}
+              
             />
             {vaccinations.length > 0 && (
               <div className="mt-4 border-t pt-4 space-y-2">
@@ -406,16 +394,7 @@ export default function HealthRecords({
             onClick={() => toggleSection("deworming")}
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* <Input
-                label="Livestock"
-                value={dewormingForm.livestock}
-                onChange={(e) =>
-                  setDewormingForm({
-                    ...dewormingForm,
-                    livestock: e.target.value,
-                  })
-                }
-              /> */}
+              
               <Input
                 label="Type of Dewormer"
                 value={dewormingForm.dewormer}
@@ -488,10 +467,7 @@ export default function HealthRecords({
                 ]);
                 setDewormingForm(emptyDeworming);
               }}
-              // onAddAnother={() => {
-              //   setDewormings([...dewormings, dewormingForm]);
-              //   setDewormingForm(emptyDeworming);
-              // }}
+             
             />
 
             {dewormings.length > 0 && (
@@ -535,16 +511,7 @@ export default function HealthRecords({
             onClick={() => toggleSection("treatment")}
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* <Input
-                label="Livestock"
-                value={treatmentForm.livestock}
-                onChange={(e) =>
-                  setTreatmentForm({
-                    ...treatmentForm,
-                    livestock: e.target.value,
-                  })
-                }
-              /> */}
+              
               <Input
                 label="Illness"
                 value={treatmentForm.illness}
@@ -681,13 +648,7 @@ export default function HealthRecords({
             onClick={() => toggleSection("ai")}
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* <Input
-                label="Livestock Name / Tag #"
-                value={aiForm.livestock}
-                onChange={(e) =>
-                  setAiForm({ ...aiForm, livestock: e.target.value })
-                }
-              /> */}
+              
               <Input
                 label="Type of Animal"
                 value={aiForm.animalType}

@@ -217,7 +217,6 @@ export default function LivestockModal({
                 </div>
               </div>
 
-              {/* GRID — 3 COLUMNS */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-medium text-gray-600">
@@ -374,19 +373,6 @@ export default function LivestockModal({
                   </select>
                 </div>
 
-                {/* <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-gray-600">
-                    Barangay
-                  </label>
-                  <input
-                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
-                    placeholder="Barangay"
-                    value={item.barangay || ""}
-                    onChange={(e) =>
-                      updateLivestock(idx, "barangay", e.target.value)
-                    }
-                  />
-                </div> */}
               </div>
             </div>
           ))}

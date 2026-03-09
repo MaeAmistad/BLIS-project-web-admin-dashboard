@@ -23,7 +23,7 @@ const TreatmentRecordModal = ({ open, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Confirmation before saving
+ 
     const confirm = await Swal.fire({
       title: "Save Treatment Record?",
       text: "Please confirm to save this record.",
@@ -37,7 +37,7 @@ const TreatmentRecordModal = ({ open, onClose }) => {
     if (confirm.isConfirmed) {
       console.log("Saved Treatment Record:", formData);
 
-      // Success alert
+ 
       await Swal.fire({
         icon: "success",
         title: "Record Saved",
@@ -45,7 +45,7 @@ const TreatmentRecordModal = ({ open, onClose }) => {
         confirmButtonColor: "#16a34a",
       });
 
-      // Reset the form
+ 
       setFormData({
         livestockTag: "",
         illnessType: "",

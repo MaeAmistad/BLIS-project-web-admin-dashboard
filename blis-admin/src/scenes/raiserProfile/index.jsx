@@ -45,13 +45,12 @@ const RaiserProfile = () => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [isLoading, setisLoading] = useState(false);
 
-  // View Details Modal
   const [viewOpen, setViewOpen] = useState(false);
   const [selectedRaiser, setSelectedRaiser] = useState(null);
   const [showEdit, setShowEdit] = useState(false);
   const [showRaiser, setShowRaiser] = useState(false);
   const [wizardStep, setWizardStep] = useState(0);
-  // 0 = closed, 1 = Raiser, 2 = Livestock, 3 = Health Records, 4 = Confirmation
+ 
 
   const [wizardData, setWizardData] = useState({
     raiser: {},
@@ -107,13 +106,13 @@ const RaiserProfile = () => {
     if (!confirm.isConfirmed) return;
 
     try {
-      // 1️⃣ Get livestock
+
       const livestockSnap = await getDocs(
         collection(db, "raisers", raiser.id, "livestock"),
       );
 
       for (const livestockDoc of livestockSnap.docs) {
-        // 2️⃣ Get health records
+
         const healthSnap = await getDocs(
           collection(
             db,
@@ -125,16 +124,16 @@ const RaiserProfile = () => {
           ),
         );
 
-        // 3️⃣ Delete health records
+
         for (const healthDoc of healthSnap.docs) {
           await deleteDoc(healthDoc.ref);
         }
 
-        // 4️⃣ Delete livestock
+
         await deleteDoc(livestockDoc.ref);
       }
 
-      // 5️⃣ Delete raiser
+ 
       await deleteDoc(doc(db, "raisers", raiser.id));
 
       await notifyAllUsers({
@@ -166,7 +165,7 @@ const RaiserProfile = () => {
       raiser: {},
       livestock: [],
     });
-    setWizardStep(0); // close wizard
+    setWizardStep(0); 
   };
 
   const handleCancelWizard = () => {
@@ -197,12 +196,12 @@ const RaiserProfile = () => {
 
   const saveAllData = async (wizardData) => {
     try {
-      // 1️⃣ Create raiser
+
       const raiserRef = doc(collection(db, "raisers"));
       await setDoc(raiserRef, cleanObject(wizardData.raiser));
       const raiserId = raiserRef.id;
 
-      // 2️⃣ Create livestock + health records
+
       for (const animal of wizardData.livestock) {
         const livestockRef = doc(
           collection(db, "raisers", raiserId, "livestock"),
@@ -210,10 +209,10 @@ const RaiserProfile = () => {
 
         const { healthRecords = {}, ...livestockData } = animal;
 
-        // 1️⃣ Save livestock (WITHOUT healthRecords)
+
         await setDoc(livestockRef, cleanObject(livestockData));
 
-        // 2️⃣ Save health records as subcollection
+
         const recordTypes = [
           { key: "vaccinations", type: "vaccination" },
           { key: "dewormings", type: "deworming" },
@@ -287,14 +286,14 @@ const RaiserProfile = () => {
 
   const uniqueAddresses = [
     ...new Set(
-      raisers.map((r) => r.address).filter(Boolean), // remove null/undefined
+      raisers.map((r) => r.address).filter(Boolean), 
     ),
   ];
 
   const getTimestamp = (ts) => {
     if (!ts) return 0;
 
-    // Handles Firestore timestamp OR JS Date
+
     if (ts.seconds) return ts.seconds * 1000;
     return new Date(ts).getTime();
   };
@@ -332,7 +331,7 @@ const RaiserProfile = () => {
         getTimestamp(b.updatedAt),
       );
 
-      return bLastActivity - aLastActivity; // newest first
+      return bLastActivity - aLastActivity; 
     });
 
   const handlePrintRaisers = () => {
@@ -344,7 +343,7 @@ const RaiserProfile = () => {
 
     const pageWidth = doc.internal.pageSize.getWidth();
 
-    /* ================= HEADER ================= */
+    /*  HEADER */
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
 
@@ -435,7 +434,7 @@ const RaiserProfile = () => {
         fontSize: 8,
         halign: "center",
         valign: "middle",
-        lineWidth: 0.3, // 👈 thin border
+        lineWidth: 0.3, 
         lineColor: [22, 163, 74],
       },
       headStyles: {
@@ -644,7 +643,7 @@ const RaiserProfile = () => {
             ...prev,
             livestock: list,
           }));
-          setWizardStep(3); // 👈 straight to confirmation
+          setWizardStep(3);
         }}
         onPrevious={() => setWizardStep(1)}
         onClose={() => setWizardStep(0)}

@@ -18,7 +18,7 @@ const VaccinationRecordModal = ({ open, onClose }) => {
     setFormData({ ...formData, [name]: value });
   };
 
-  // SAVE BUTTON WITH CONFIRMATION
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -47,7 +47,7 @@ const VaccinationRecordModal = ({ open, onClose }) => {
     }
   };
 
-  // CLOSE BUTTON WITH CONFIRMATION
+
   const handleClose = async () => {
     const result = await Swal.fire({
       title: "Are you sure?",

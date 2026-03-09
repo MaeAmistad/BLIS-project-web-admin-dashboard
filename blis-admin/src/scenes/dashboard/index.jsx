@@ -39,19 +39,17 @@ import {
   PieChart,
   Pie,
   Cell,
-  Legend,
 } from "recharts";
-import Card from "@mui/material/Card";
 import CalendarPanel from "../../components/CalendarPanel";
 
 const COLORS = [
-  "#316ccb", // blue
-  "#10B981", // green
-  "#0b74f5b0", // amber
-  "#9c0d6a", // red
-  "#068865", // purple
-  "#06B6D4", // cyan
-  "#F97316", // orange
+  "#316ccb", 
+  "#10B981", 
+  "#0b74f5b0", 
+  "#9c0d6a", 
+  "#068865", 
+  "#06B6D4", 
+  "#F97316", 
 ];
 
 const renderCustomizedLabel = ({ x, y, name, percentage }) => {
@@ -104,7 +102,7 @@ const LivestockPieChart = ({ data }) => (
         }}
       />
 
-      {/* <Legend /> */}
+    
     </PieChart>
   </ResponsiveContainer>
 );
@@ -165,28 +163,6 @@ const ActivityLog = ({ reminders }) => (
         </ul>
       )}
     </div>
-  </div>
-);
-
-const AlertsPanel = ({ lowStock, aiPending }) => (
-  <div className="bg-white rounded-2xl shadow p-4 border border-gray-300">
-    <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
-      <AlertTriangle size={18} /> Alerts
-    </h3>
-
-    <ul className="space-y-2 text-xs">
-      {lowStock > 0 ? (
-        <li className="text-red-600">
-          ⚠ {lowStock} inventory items are low on stock
-        </li>
-      ) : (
-        <li className="text-green-600">Inventory levels are healthy</li>
-      )}
-
-      {aiPending > 0 && (
-        <li className="text-orange-600">{aiPending} AI records pending</li>
-      )}
-    </ul>
   </div>
 );
 
@@ -267,9 +243,9 @@ const Dashboard = () => {
 
         
 
-        // ======= Fetch all raisers once =======
+        //  Fetch all raisers once 
         const raiserSnap = await getDocs(collection(db, "raisers"));
-        const raiserMap = {}; // {raiserId: fullName}
+        const raiserMap = {}; 
         raiserSnap.forEach((r) => {
           const data = r.data();
           const fullName = [data.firstName, data.middleInitial, data.lastName]
@@ -278,7 +254,7 @@ const Dashboard = () => {
           raiserMap[r.id] = fullName;
         });
 
-        // ======= Fetch all healthRecords =======
+        // Fetch all healthRecords 
         const healthSnap = await getDocs(collectionGroup(db, "healthRecords"));
         for (const hr of healthSnap.docs) {
           const data = hr.data();
@@ -354,7 +330,7 @@ const Dashboard = () => {
           }
         }
 
-        // ====== INVENTORY REMINDERS ======
+        // INVENTORY REMINDERS 
         const inventorySnap = await getDocs(collection(db, "inventory"));
         inventorySnap.forEach((doc) => {
           const data = doc.data();
@@ -422,16 +398,13 @@ const Dashboard = () => {
       setActivityLogs(logs);
     });
 
-    // Cleanup listener when component unmounts
+   
     return () => unsubscribe();
   }, []);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        /* =========================
-           RAISERS + ADDRESS COUNT
-        ========================= */
         const raisersSnap = await getDocs(collection(db, "raisers"));
         const addressMap = {};
         raisersSnap.forEach((doc) => {
@@ -446,12 +419,10 @@ const Dashboard = () => {
           })),
         );
 
-        /* =========================
-           LIVESTOCK
-        ========================= */
+
         const livestockSnap = await getDocs(collectionGroup(db, "livestock"));
         const healthSnap = await getDocs(collectionGroup(db, "healthRecords"));
-        const animalMap = {}; // { COW: 10, PIG: 5 }
+        const animalMap = {};
 
         const vaccinatedLivestockIds = new Set();
 
@@ -463,7 +434,7 @@ const Dashboard = () => {
           animalMap[key] = (animalMap[key] || 0) + 1;
         });
 
-        // Convert to array + percentage
+
         const totalLivestock = livestockSnap.size;
 
         const livestockTypeData = Object.entries(animalMap).map(
@@ -476,16 +447,11 @@ const Dashboard = () => {
 
         setLivestockByType(livestockTypeData);
 
-        /* =========================
-           USERS
-        ========================= */
+
         const activeUsersSnap = await getDocs(
           query(collection(db, "users"), where("status", "==", "ACTIVE")),
         );
 
-        /* =========================
-           HEALTH RECORDS
-        ========================= */
 
         let vaccinationCount = 0;
         let treatmentCount = 0;
@@ -526,9 +492,7 @@ const Dashboard = () => {
           }
         });
 
-        /* =========================
-           INVENTORY
-        ========================= */
+
         const inventorySnap = await getDocs(collection(db, "inventories"));
         let lowStockCount = 0;
 
@@ -582,17 +546,15 @@ const Dashboard = () => {
     allLogs.sort((a, b) => {
       const aTime = a.createdAt?.toDate?.() || new Date(a.createdAt);
       const bTime = b.createdAt?.toDate?.() || new Date(b.createdAt);
-      return bTime - aTime; // newest first
+      return bTime - aTime; 
     });
 
     const filteredLogs = allLogs.filter((log) => isToday(log.createdAt));
     setActivityLogs(filteredLogs);
 
-    // Optionally, limit to 20 most recent
     return allLogs.slice(0, 20);
   }
   useEffect(() => {
-    // 1️⃣ Top-level "raisers"
     const raiserQuery = query(
       collection(db, "raisers"),
       orderBy("createdAt", "desc"),
@@ -608,7 +570,7 @@ const Dashboard = () => {
       setActivityLogs((prev) => mergeAndSort(prev, logs));
     });
 
-    // 2️⃣ Subcollection "healthRecords" across all livestock
+
     const healthQuery = query(
       collectionGroup(db, "healthRecords"),
       orderBy("createdAt", "desc"),
@@ -651,7 +613,7 @@ const Dashboard = () => {
               </p>
             ) : (
               <>
-                {/* ================= MAIN GRID ================= */}
+                {/* MAIN GRID */}
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-6 items-stretch min-h-[200px]">
                   {/* LEFT CONTENT */}
                   <div className="xl:col-span-5 flex flex-col gap-4 h-full">
@@ -727,9 +689,9 @@ const Dashboard = () => {
                   </div>
                 </div>
 
-                {/* ================= CHARTS SECTION ================= */}
+                {/* CHARTS SECTION  */}
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-6">
-                  {/* LINE GRAPH: aligns with StatCards + ActivityLog (left side) */}
+                 
                   <div className="xl:col-span-8 bg-white rounded-2xl shadow p-4 border border-gray-200">
                     <h3 className="font-semibold mb-3">Raisers per Address</h3>
 
@@ -773,7 +735,7 @@ const Dashboard = () => {
                     </div>
                   </div>
 
-                  {/* PIE CHART: aligns with Calendar (right side) */}
+                  {/* PIE CHART */}
                   {!loading && livestockByType.length > 0 && (
                     <div className="xl:col-span-4 bg-white rounded-2xl shadow p-4 flex flex-col border border-gray-200">
                       <h3 className="font-semibold mb-3 text-center text-sm">

@@ -10,7 +10,7 @@ export const notifyAllUsers = async ({ title, message, type }) => {
       {
         title,
         message,
-        type,          // "add" | "edit"
+        type,          
         read: false,
         createdAt: serverTimestamp(),
          updatedAt: serverTimestamp(),

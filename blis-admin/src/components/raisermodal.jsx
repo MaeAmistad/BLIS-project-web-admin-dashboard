@@ -95,13 +95,13 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
       if (!validators.lettersOnly.test(value)) return;
     }
 
-    // Contact number: numbers only, max 11 digits
+    // Contact number - numbers only, max 11 digits
     if (name === "contactNumber") {
       if (!validators.numbersOnly.test(value)) return;
       if (value.length > 11) return;
     }
 
-    // Number of workers: numbers only
+    // Number of workers - numbers only
     if (name === "numberOfWorkers") {
       if (!validators.numbersOnly.test(value)) return;
     }
@@ -154,11 +154,10 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
     return true;
   };
 
-  // Save and proceed to STEP 2 (Livestock)
   const handleNext = () => {
     if (!validateForm()) return;
 
-    //const now = new Date().toISOString();
+  
 
     onSave({
       ...formData,
@@ -232,9 +231,9 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
           </button>
         </div>
 
-        {/* CONTENT */}
+
         <div className="p-6 space-y-6">
-          {/* ROW 1 — PERSONAL INFO */}
+
           <div className="bg-gray-50 rounded-xl p-5">
             <h2 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wide">
               Personal Information
@@ -298,7 +297,7 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
             </div>
           </div>
 
-          {/* ROW 2 — FARM INFO */}
+
           <div className="bg-gray-50 rounded-xl p-5">
             <h2 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wide">
               Farm Information
@@ -353,19 +352,7 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
                 onChange={handleChange}
               />
 
-              {/* <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-gray-600">
-                    Date of Registration
-                  </label>
-                  <input
-                    type="date"
-                    name="dateOfRegistration"
-                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
-                    value={formData.dateOfRegistration || ""}
-                    onChange={handleChange
-                    }
-                  />
-                </div> */}
+             
               <Select
                 label="Registration Status"
                 name="registrationStatus"
@@ -401,10 +388,6 @@ const RaiserModal = ({ open, onClose, onCancel, onSave, initialData }) => {
 };
 
 export default RaiserModal;
-
-/* --------------------------
-   REUSABLE INPUT COMPONENTS
---------------------------- */
 
 const Input = ({ label, name, value, onChange, type = "text" }) => (
   <div className="flex flex-col gap-1">

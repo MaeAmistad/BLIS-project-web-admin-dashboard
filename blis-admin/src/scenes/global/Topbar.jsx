@@ -1,15 +1,13 @@
 import {
   collection,
-  limit,
+
   onSnapshot,
   orderBy,
   query,
-  serverTimestamp,
-  setDoc,
-  where,
+
   writeBatch,
 } from "firebase/firestore";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { db } from "../../firebase";
 import { Bell } from "lucide-react";
@@ -92,54 +90,7 @@ const Topbar = () => {
     }
   }, [openNotifications, markAllAsRead]);
 
-  // const notificationsQuery = useMemo(() => {
-  //   if (!user?.uid) return null;
 
-  //   return query(
-  //     collection(db, "notifications"),
-  //     where("userId", "==", user.uid),
-  //     orderBy("createdAt", "desc")
-  //   );
-  // }, [user?.uid]);
-
-  // useEffect(() => {
-  //   if (!notificationsQuery) return;
-
-  //   let active = true;
-
-  //   const unsub = onSnapshot(notificationsQuery, (snap) => {
-  //     if (!active) return;
-
-  //     const data = snap.docs.map((d) => ({
-  //       id: d.id,
-  //       ...d.data(),
-  //     }));
-
-  //     setNotifications(data);
-  //     setUnreadCount(data.filter((n) => !n.read).length);
-  //   });
-
-  //   return () => {
-  //     active = false;
-  //     unsub();
-  //   };
-  // }, [notificationsQuery]);
-
-  // const markAsRead = async (id) => {
-  //   await updateDoc(doc(db, "notifications", id), { read: true });
-  // };
-
-  // const markAllAsRead = async () => {
-  //   const batch = writeBatch(db);
-
-  //   notifications
-  //     .filter((n) => !n.read)
-  //     .forEach((n) =>
-  //       batch.update(doc(db, "notifications", n.id), { read: true })
-  //     );
-
-  //   await batch.commit();
-  // };
 
   return (
     <div className="sticky top-0 flex items-center justify-between px-2 py-3 bg-white border-b z-50">

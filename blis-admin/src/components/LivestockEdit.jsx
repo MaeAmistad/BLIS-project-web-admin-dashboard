@@ -106,10 +106,10 @@ export default function LivestockEdit({
   };
 
   const handleConfirmSave = async () => {
-    if (isSaving) return; // prevent double submit
+    if (isSaving) return; 
     try {
       setIsSaving(true);
-      await onSave(livestockList); // 🔥 THIS triggers handleEditSave
+      await onSave(livestockList);
     } finally {
       setIsSaving(false);
     }
@@ -164,18 +164,11 @@ export default function LivestockEdit({
                     Add Health Records
                   </button>
 
-                  {/* {livestockList.length > 1 && (
-                    <button
-                      onClick={() => removeLivestock(idx)}
-                      className="text-sm text-red-600 hover:text-red-800 font-medium"
-                    >
-                      <DeleteRounded fontSize="small" />
-                    </button>
-                  )} */}
+              
                 </div>
               </div>
 
-              {/* GRID — 3 COLUMNS */}
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-medium text-gray-600">

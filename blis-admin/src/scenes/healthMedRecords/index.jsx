@@ -12,14 +12,11 @@ import { collection, getDocs, collectionGroup } from "firebase/firestore";
 import { db } from "../../firebase";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
 import logo1 from "../../../src/assets/bantaylogo.jpg";
 import logo2 from "../../../src/assets/duras.jpg";
 import logo3 from "../../../src/assets/mao.jpg";
 import logo4 from "../../../src/assets/pilipins.png";
 
-const ROWS_PER_PAGE = 20;
 
 const recordTypeFormatter = (value) => {
   if (!value) return "—";
@@ -95,7 +92,7 @@ const tableColumns = {
     { label: "No of Dogs", key: "dogCount" },
     { label: "No of Cats", key: "catCount" },
 
-    // reasons (flattened for now)
+
     { label: "Awan Tao", key: "reasonAwanTao" },
     { label: "Below 3 Months", key: "reasonBelow3Months" },
     { label: "Pregnant", key: "reasonPregnant" },
@@ -184,7 +181,7 @@ const unvaccinatedRecords = useMemo(() => {
 
       const healthRecords = animal.healthRecords || [];
       healthRecords.forEach((record) => {
-        // Skip if it's a vaccination record
+        
         if (record.type === "vaccination" || record.type === "vaccinations") return;
 
         if (!map[raiserId]) {
@@ -207,21 +204,7 @@ const unvaccinatedRecords = useMemo(() => {
         if (animalType === "dog") map[raiserId].dogCount += 1;
         if (animalType === "cat") map[raiserId].catCount += 1;
 
-        // switch (record.reason) {
-        //   case "Awan Tao":
-        //     map[raiserId].reasonAwanTao += 1;
-        //     break;
-        //   case "Below 3 Months":
-        //     map[raiserId].reasonBelow3Months += 1;
-        //     break;
-        //   case "Pregnant":
-        //     map[raiserId].reasonPregnant += 1;
-        //     break;
-        //   default:
-        //     map[raiserId].reasonAwanTao += 0;
-        //     map[raiserId].reasonBelow3Months += 0;
-        //     map[raiserId].reasonPregnant += 0;
-        // }
+      
 
         map[raiserId].remarks = record.remarks || map[raiserId].remarks;
       });
@@ -241,8 +224,8 @@ const unvaccinatedRecords = useMemo(() => {
 
       return {
         id: record.id,
-        recordType: record.type, // vaccination, deworming, etc
-        recordData: record, // full health record
+        recordType: record.type, 
+        recordData: record, 
 
         raiserName: raiser
           ? `${raiser.firstName} ${raiser.middleInitial} ${raiser.lastName}`
@@ -289,7 +272,7 @@ const unvaccinatedRecords = useMemo(() => {
     const centerX = pageWidth / 2;
     const headerY = 20;
 
-    /* ===== TEXT HEADER ===== */
+    /* TEXT HEADER  */
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.text("REPUBLIC OF THE PHILIPPINES", centerX, headerY, {
@@ -306,7 +289,7 @@ const unvaccinatedRecords = useMemo(() => {
       align: "center",
     });
 
-    /* ===== LOGOS ===== */
+    /* LOGOS */
     const imgSize = 18;
     const imgY = headerY - 8;
     const imgGap = 6;
@@ -343,16 +326,16 @@ const unvaccinatedRecords = useMemo(() => {
       logo2Height,
     );
 
-    /* ===== REPORT TITLE ===== */
+    /* REPORT TITLE */
     doc.setFontSize(14);
     doc.text(title, centerX, 42, { align: "center" });
 
-    /* ===== DATE ===== */
+    /*DATE */
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 48);
 
-    return 52; // 👈 return table start Y
+    return 52; 
   };
 
   const handleExportPDF = () => {
@@ -386,11 +369,11 @@ const unvaccinatedRecords = useMemo(() => {
       styles: {
         fontSize: 9,
         cellPadding: 3,
-        lineWidth: 0.3, // 👈 thin border
+        lineWidth: 0.3, 
         lineColor: [22, 163, 74],
       },
       headStyles: {
-        fillColor: [22, 163, 74], // green
+        fillColor: [22, 163, 74],
       },
     });
 
@@ -406,7 +389,7 @@ const unvaccinatedRecords = useMemo(() => {
 
     const pageWidth = doc.internal.pageSize.getWidth();
 
-    /* ================= HEADER ================= */
+    /*  HEADER  */
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
 
@@ -430,8 +413,8 @@ const unvaccinatedRecords = useMemo(() => {
     });
 
     // --- IMAGES ---
-    const imgSize = 18; // 👈 bigger logos
-    const imgY = headerY - 8; // 👈 vertically aligned with first line
+    const imgSize = 18; 
+    const imgY = headerY - 8; 
     const imgGap = 6;
 
     // Left side logos
@@ -480,7 +463,7 @@ const unvaccinatedRecords = useMemo(() => {
 
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
-    const infoStartY = 45; // 👈 increase this to move everything lower
+    const infoStartY = 45; 
 
     doc.text("Province: ________________________", 14, infoStartY);
     doc.text("Municipality: ____________________", 14, infoStartY + 5);
@@ -493,7 +476,7 @@ const unvaccinatedRecords = useMemo(() => {
     );
     doc.text("Date: ____________________", pageWidth - 90, infoStartY + 5);
 
-    /* ================= TABLE ================= */
+    /*  TABLE */
     const startY = 56;
 
     const columns = [
@@ -510,7 +493,6 @@ const unvaccinatedRecords = useMemo(() => {
       "Remarks",
     ];
 
-    // Create exactly 20 rows (like the form)
     const rows = Array.from({ length: 17 }).map((_, i) => {
       const record = displayedRecords[i];
 
@@ -541,7 +523,7 @@ const unvaccinatedRecords = useMemo(() => {
       styles: {
         fontSize: 8,
         cellPadding: 2,
-        lineWidth: 0.3, // 👈 thin border
+        lineWidth: 0.3, 
         lineColor: [22, 163, 74],
         textColor: [0, 0, 0],
         font: "helvetica",
@@ -567,7 +549,7 @@ const unvaccinatedRecords = useMemo(() => {
       },
     });
 
-    /* ================= FOOTER ================= */
+
     const finalY = doc.lastAutoTable.finalY + 10;
 
     doc.text("Submitted by: ____________________", 14, finalY);
@@ -586,38 +568,6 @@ const unvaccinatedRecords = useMemo(() => {
     }
   };
 
-  const handleExportExcel = () => {
-    if (!displayedRecords.length) return;
-
-    const data = displayedRecords.map((row) => {
-      const result = {};
-
-      tableColumns[activeTable].forEach((col) => {
-        result[col.label] =
-          activeTable === "healthList"
-            ? (row[col.key] ?? "")
-            : (row.recordData[col.key] ?? "");
-      });
-
-      return result;
-    });
-
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-
-    XLSX.utils.book_append_sheet(workbook, worksheet, activeTable);
-
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
-
-    const blob = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-
-    saveAs(blob, `${activeTable}-report.xlsx`);
-  };
 
   const resolveCellValue = ({ row, col, activeTable }) => {
     let rawValue;
@@ -711,13 +661,6 @@ const unvaccinatedRecords = useMemo(() => {
               Unvaccinated Livestocks
             </button>
 
-            {/* <button
-              onClick={() => handleButtonClick("summary")}
-              className="flex items-center gap-2 bg-gray-700 text-white px-5 py-3 rounded-xl shadow hover:bg-gray-800 transition"
-            >
-              <AssessmentIcon />
-              Health Summary Report
-            </button> */}
           </div>
         </div>
 
@@ -743,14 +686,6 @@ const unvaccinatedRecords = useMemo(() => {
                 Download Report PDF
               </button>
 
-              {/* <button
-                onClick={handleExportExcel}
-                disabled={!displayedRecords.length}
-                className="px-4 py-2 rounded-lg bg-green-600 text-white cursor-pointer
-                 hover:bg-green-700 disabled:opacity-50 disabled:cursor-no-drop"
-              >
-                Download Report Excel
-              </button> */}
             </div>
           </div>
 

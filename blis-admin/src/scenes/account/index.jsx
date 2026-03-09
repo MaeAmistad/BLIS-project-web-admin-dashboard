@@ -88,20 +88,20 @@ const Account = () => {
     }));
   };
 
-  // Handle dropdown selection
+
   const handleUserFilterChange = (event) => {
     setSelectedUserFilter(event.target.value);
   };
 
-  // Filtered users list based on selection
+
   const filteredUsers = users.filter((user) => {
-    // Always require ACTIVE status
+   
     if (user.status?.toUpperCase() !== "ACTIVE") return false;
 
-    // If no dropdown selection, show all ACTIVE users
+   
     if (!selectedUserFilter) return true;
 
-    // If dropdown selected, match the user
+    
     return user.name === selectedUserFilter;
   });
 
@@ -123,10 +123,10 @@ const Account = () => {
       return;
     }
 
-    // 🔴 Password length validation
+
     if (mode === "add" && password.length < 8) {
       setPasswordError("Password must be at least 8 characters.");
-      return; // ❌ Stop submission
+      return; 
     }
 
     if (mode === "add") {
@@ -154,7 +154,7 @@ const Account = () => {
         const user = userCredential.user;
         const uid = user.uid;
 
-        // 🔹 Save user to Firestore
+
         await setDoc(doc(db, "users", uid), {
           uid,
           role,
@@ -164,7 +164,7 @@ const Account = () => {
           createdAt: serverTimestamp(),
         });
 
-        // 🔹 Send verification email
+
         await sendEmailVerification(user);
 
         await notifyAllUsers({
@@ -173,7 +173,7 @@ const Account = () => {
           type: "add",
         });
 
-        // 🔹 Notify admin
+
         Swal.fire({
           icon: "success",
           title: "User Account Created",
@@ -211,7 +211,7 @@ const Account = () => {
         });
       }
 
-      // Reset form
+
       setMode("add");
       setSelectedUser(null);
       setData({
@@ -221,7 +221,7 @@ const Account = () => {
         password: "",
       });
 
-      // Refresh users
+
       const querySnapshot = await getDocs(collection(db, "users"));
       setUsers(
         querySnapshot.docs.map((doc) => ({
@@ -229,7 +229,7 @@ const Account = () => {
           ...doc.data(),
         })),
       );
-      //window.location.reload();
+      window.location.reload();
     } catch (error) {
       Swal.fire({
         icon: "error",

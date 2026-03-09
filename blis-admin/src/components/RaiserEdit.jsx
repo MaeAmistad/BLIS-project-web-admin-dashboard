@@ -82,13 +82,13 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
       if (!validators.lettersOnly.test(value)) return;
     }
 
-    // Contact number: numbers only, max 11 digits
+    // Contact number - numbers only, max 11 digits
     if (name === "contactNumber") {
       if (!validators.numbersOnly.test(value)) return;
       if (value.length > 11) return;
     }
 
-    // Number of workers: numbers only
+    // Number of workers - numbers only
     if (name === "numberOfWorkers") {
       if (!validators.numbersOnly.test(value)) return;
     }
@@ -117,7 +117,6 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
       return;
     }
 
-    // Default update for other fields
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -197,9 +196,8 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
             </button>
           </div>
 
-          {/* CONTENT */}
+
           <div className="p-6 space-y-6">
-            {/* ROW 1 — PERSONAL INFO */}
             <div className="bg-gray-50 rounded-xl p-5">
               <h2 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wide">
                 Personal Information
@@ -319,17 +317,7 @@ const RaiserEdit = ({ open, onClose, raiserData }) => {
                   inputMode="numeric"
                 />
 
-                {/* <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-600">
-                  Date of Registration
-                </label>
-                <input
-                  type="date"
-                  className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
-                  value={formData.dateOfRegistration}
-                  onChange={handleChange}
-                />
-              </div> */}
+               
                 <Select
                   label="Registration Status"
                   name="registrationStatus"

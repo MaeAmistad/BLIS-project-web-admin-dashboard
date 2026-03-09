@@ -11,8 +11,8 @@ export default function HealthRecordsModal({
     dewormings: [],
     treatments: [],
     aiRecords: [],
-  }, // array of arrays: health records per livestock
-  livestockList = [], // array of livestock objects
+  }, 
+  livestockList = [],
   typeOfAnimal,
 }) {
   const [openSection, setOpenSection] = useState(null);
@@ -147,8 +147,8 @@ useEffect(() => {
       text: "This vaccination record will be permanently removed.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#dc2626", // red-600
-      cancelButtonColor: "#6b7280", // gray-500
+      confirmButtonColor: "#dc2626", 
+      cancelButtonColor: "#6b7280", 
       confirmButtonText: "Yes, remove it",
       cancelButtonText: "Cancel",
     }).then((result) => {
@@ -172,8 +172,8 @@ useEffect(() => {
       text: "This deworming record will be permanently removed.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#dc2626", // red-600
-      cancelButtonColor: "#6b7280", // gray-500
+      confirmButtonColor: "#dc2626", 
+      cancelButtonColor: "#6b7280",
       confirmButtonText: "Yes, remove it",
       cancelButtonText: "Cancel",
     }).then((result) => {
@@ -197,8 +197,8 @@ useEffect(() => {
       text: "This treatment record will be permanently removed.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#dc2626", // red-600
-      cancelButtonColor: "#6b7280", // gray-500
+      confirmButtonColor: "#dc2626", 
+      cancelButtonColor: "#6b7280", 
       confirmButtonText: "Yes, remove it",
       cancelButtonText: "Cancel",
     }).then((result) => {
@@ -222,8 +222,8 @@ useEffect(() => {
       text: "This Artificial Insemination record will be permanently removed.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#dc2626", // red-600
-      cancelButtonColor: "#6b7280", // gray-500
+      confirmButtonColor: "#dc2626", 
+      cancelButtonColor: "#6b7280", 
       confirmButtonText: "Yes, remove it",
       cancelButtonText: "Cancel",
     }).then((result) => {

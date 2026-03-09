@@ -22,7 +22,7 @@ const DewormingRecordModal = ({ open, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Ask for confirmation before saving
+   
     const confirm = await Swal.fire({
       title: "Save Deworming Record?",
       text: "Please confirm to save this deworming record.",
@@ -36,7 +36,6 @@ const DewormingRecordModal = ({ open, onClose }) => {
     if (confirm.isConfirmed) {
       console.log("Saved Deworming Record:", formData);
 
-      // Success message
       await Swal.fire({
         icon: "success",
         title: "Record Saved",
@@ -44,7 +43,6 @@ const DewormingRecordModal = ({ open, onClose }) => {
         confirmButtonColor: "#16a34a",
       });
 
-      // Reset form after saving
       setFormData({
         livestockName: "",
         typeOfDewormer: "",
@@ -134,7 +132,7 @@ const DewormingRecordModal = ({ open, onClose }) => {
             className="w-full border rounded-xl p-2 h-20"
           />
 
-          {/* Buttons */}
+        
           <div className="flex justify-end gap-3 mt-4">
             <button
               type="button"
