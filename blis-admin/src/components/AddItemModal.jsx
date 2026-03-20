@@ -65,6 +65,13 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "quantity") {
+    const num = Number(value);
+
+    // Allow empty (so user can delete), but block <= 0
+    if (value !== "" && num <= 0) return;
+  }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
