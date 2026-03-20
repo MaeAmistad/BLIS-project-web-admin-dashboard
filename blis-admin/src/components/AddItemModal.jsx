@@ -82,6 +82,13 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
       return;
     }
 
+     const quantity = Number(formData.quantity);
+
+  if (!formData.quantity || quantity <= 0) {
+    Swal.fire("Invalid Input", "Quantity must be greater than 0", "warning");
+    return;
+  }
+
     if (loading) return;
     const result = await Swal.fire({
       title: mode === "edit" ? "Update Item?" : "Add Item?",
