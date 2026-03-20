@@ -67,11 +67,12 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
     const { name, value } = e.target;
 
     if (name === "quantity") {
-    const num = Number(value);
-
-    // Allow empty (so user can delete), but block <= 0
-    if (value !== "" && num <= 0) return;
-  }
+      const num = Number(value);
+      if (num <= 0) {
+        setFormData((prev) => ({ ...prev, quantity: 1 }));
+        return;
+      }
+    }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -82,12 +83,12 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
       return;
     }
 
-     const quantity = Number(formData.quantity);
+    const quantity = Number(formData.quantity);
 
-  if (!formData.quantity || quantity <= 0) {
-    Swal.fire("Invalid Input", "Quantity must be greater than 0", "warning");
-    return;
-  }
+    if (!formData.quantity || quantity <= 0) {
+      Swal.fire("Invalid Input", "Quantity must be greater than 0", "warning");
+      return;
+    }
 
     if (loading) return;
     const result = await Swal.fire({
@@ -242,6 +243,7 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
             <input
               type="number"
               name="quantity"
+              min="1"
               value={formData.quantity}
               onChange={handleChange}
               className="w-full border border-gray-300 rounded-xl p-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
@@ -340,8 +342,8 @@ const AddItemModal = ({ open, onClose, mode, inventory }) => {
                 ? "Updating..."
                 : "Adding..."
               : mode === "edit"
-              ? "Update Item"
-              : "Add Item"}
+                ? "Update Item"
+                : "Add Item"}
           </button>
         </div>
       </div>

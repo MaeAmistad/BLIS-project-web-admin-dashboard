@@ -6,10 +6,8 @@ import LivestockInventory from "./scenes/lsInventory";
 import VaccineTracking from "./scenes/vaccineTracking";
 import HealthandMedical from "./scenes/healthMedRecords";
 import InventoryandSupplies from "./scenes/inventorySupplies";
-import ReportandAnalytics from "./scenes/reportAnalytics";
 import Account from "./scenes/account";
 import UserProfile from "./components/userprofile";
-import Settings from "./scenes/settings";
 import React, { useEffect } from "react";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -69,14 +67,6 @@ function App() {
             element={
               <ProtectedRoute>
                 <InventoryandSupplies />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/reportsAnalytics"
-            element={
-              <ProtectedRoute>
-                <ReportandAnalytics />
               </ProtectedRoute>
             }
           />
