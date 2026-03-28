@@ -39,6 +39,8 @@ import logo4 from "../../../src/assets/pilipins.png";
 const RaiserProfile = () => {
   const { user } = useAuth();
 
+  const isAdmin = user?.role?.toLowerCase() === "admin";
+
   const [raisers, setRaisers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAddress, setSelectedAddress] = useState("");
@@ -50,7 +52,6 @@ const RaiserProfile = () => {
   const [showEdit, setShowEdit] = useState(false);
   const [showRaiser, setShowRaiser] = useState(false);
   const [wizardStep, setWizardStep] = useState(0);
- 
 
   const [wizardData, setWizardData] = useState({
     raiser: {},
@@ -106,13 +107,11 @@ const RaiserProfile = () => {
     if (!confirm.isConfirmed) return;
 
     try {
-
       const livestockSnap = await getDocs(
         collection(db, "raisers", raiser.id, "livestock"),
       );
 
       for (const livestockDoc of livestockSnap.docs) {
-
         const healthSnap = await getDocs(
           collection(
             db,
@@ -124,16 +123,13 @@ const RaiserProfile = () => {
           ),
         );
 
-
         for (const healthDoc of healthSnap.docs) {
           await deleteDoc(healthDoc.ref);
         }
 
-
         await deleteDoc(livestockDoc.ref);
       }
 
- 
       await deleteDoc(doc(db, "raisers", raiser.id));
 
       await notifyAllUsers({
@@ -165,7 +161,7 @@ const RaiserProfile = () => {
       raiser: {},
       livestock: [],
     });
-    setWizardStep(0); 
+    setWizardStep(0);
   };
 
   const handleCancelWizard = () => {
@@ -196,11 +192,9 @@ const RaiserProfile = () => {
 
   const saveAllData = async (wizardData) => {
     try {
-
       const raiserRef = doc(collection(db, "raisers"));
       await setDoc(raiserRef, cleanObject(wizardData.raiser));
       const raiserId = raiserRef.id;
-
 
       for (const animal of wizardData.livestock) {
         const livestockRef = doc(
@@ -209,9 +203,7 @@ const RaiserProfile = () => {
 
         const { healthRecords = {}, ...livestockData } = animal;
 
-
         await setDoc(livestockRef, cleanObject(livestockData));
-
 
         const recordTypes = [
           { key: "vaccinations", type: "vaccination" },
@@ -285,14 +277,11 @@ const RaiserProfile = () => {
   ];
 
   const uniqueAddresses = [
-    ...new Set(
-      raisers.map((r) => r.address).filter(Boolean), 
-    ),
+    ...new Set(raisers.map((r) => r.address).filter(Boolean)),
   ];
 
   const getTimestamp = (ts) => {
     if (!ts) return 0;
-
 
     if (ts.seconds) return ts.seconds * 1000;
     return new Date(ts).getTime();
@@ -331,7 +320,7 @@ const RaiserProfile = () => {
         getTimestamp(b.updatedAt),
       );
 
-      return bLastActivity - aLastActivity; 
+      return bLastActivity - aLastActivity;
     });
 
   const handlePrintRaisers = () => {
@@ -434,7 +423,7 @@ const RaiserProfile = () => {
         fontSize: 8,
         halign: "center",
         valign: "middle",
-        lineWidth: 0.3, 
+        lineWidth: 0.3,
         lineColor: [22, 163, 74],
       },
       headStyles: {
@@ -598,14 +587,16 @@ const RaiserProfile = () => {
                             />
                           </IconButton>
 
-                          <IconButton
-                            aria-label="delete"
-                            onClick={() => handleDelete(raiser)}
-                          >
-                            <DeleteRounded
-                              sx={{ color: "#a30808", fontSize: 16 }}
-                            />
-                          </IconButton>
+                          {isAdmin && (
+                            <IconButton
+                              aria-label="delete"
+                              onClick={() => handleDelete(raiser)}
+                            >
+                              <DeleteRounded
+                                sx={{ color: "#a30808", fontSize: 16 }}
+                              />
+                            </IconButton>
+                          )}
                         </div>
                       </td>
                     </tr>

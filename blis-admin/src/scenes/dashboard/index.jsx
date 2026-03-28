@@ -109,8 +109,8 @@ const LivestockPieChart = ({ data }) => (
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
   <div
-    className={`rounded-xl shadow p-3 text-white ${color}
-                max-w-[260px] w-full`}
+    className={`rounded-xl shadow p-3 border-2 ${color}
+                max-w-[220px] w-full`}
   >
     <div className="flex justify-between items-center">
       <p className="text-xs opacity-90">{title}</p>
@@ -622,55 +622,55 @@ const Dashboard = () => {
                         title="Total Raisers"
                         value={stats.raisers}
                         icon={Users}
-                        color="bg-gradient-to-r from-blue-700 to-blue-800"
+                        color="border border-primary"
                       />
                       <StatCard
                         title="Total Livestock"
                         value={stats.livestock}
                         icon={Beef}
-                        color="bg-gradient-to-r from-emerald-600 to-emerald-700"
+                        color="border border-primary"
                       />
                       <StatCard
                         title="Active Users"
                         value={stats.activeUsers}
                         icon={Users}
-                        color="bg-gradient-to-r from-indigo-900 to-indigo-950"
+                        color="border border-primary"
                       />
                       <StatCard
                         title="Vaccinations"
                         value={stats.vaccinations}
                         icon={Syringe}
-                        color="bg-gradient-to-r from-emerald-500 to-emerald-600"
+                        color="border border-primary"
                       />
                       <StatCard
                         title="Deworming"
                         value={stats.deworming}
                         icon={Droplets}
-                        color="bg-gradient-to-r from-cyan-600 to-cyan-700"
+                        color="border border-primary"
                       />
                       <StatCard
                         title="Treatments"
                         value={stats.treatments}
                         icon={Activity}
-                        color="bg-gradient-to-r from-blue-800 to-blue-900"
+                        color="border border-primary"
                       />
                       <StatCard
                         title="AI Pending"
                         value={stats.aiPending}
                         icon={AlertTriangle}
-                        color="bg-gradient-to-r from-violet-800 to-violet-900"
+                        color="border border-primary"
                       />
                       <StatCard
                         title="Inventory Items"
                         value={stats.inventoryItems}
                         icon={Boxes}
-                        color="bg-gradient-to-r from-teal-600 to-teal-700"
+                        color="border border-primary"
                       />
                       <StatCard
                         title="Unvaccinated Livestocks"
                         value={stats.inventoryItems}
                         icon={Boxes}
-                        color="bg-gradient-to-r from-sky-600 to-sky-800"
+                        color="border border-primary"
                       />
                     </div>
                   </div>

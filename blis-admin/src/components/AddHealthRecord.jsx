@@ -144,8 +144,8 @@ export default function AddHealthRecords({
       text: "This vaccination record will be permanently removed.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#dc2626", // red-600
-      cancelButtonColor: "#6b7280", // gray-500
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280", 
       confirmButtonText: "Yes, remove it",
       cancelButtonText: "Cancel",
     }).then((result) => {
@@ -169,8 +169,8 @@ export default function AddHealthRecords({
       text: "This deworming record will be permanently removed.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#dc2626", // red-600
-      cancelButtonColor: "#6b7280", // gray-500
+      confirmButtonColor: "#dc2626", 
+      cancelButtonColor: "#6b7280", 
       confirmButtonText: "Yes, remove it",
       cancelButtonText: "Cancel",
     }).then((result) => {
@@ -194,8 +194,8 @@ export default function AddHealthRecords({
       text: "This treatment record will be permanently removed.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#dc2626", // red-600
-      cancelButtonColor: "#6b7280", // gray-500
+      confirmButtonColor: "#dc2626", 
+      cancelButtonColor: "#6b7280", 
       confirmButtonText: "Yes, remove it",
       cancelButtonText: "Cancel",
     }).then((result) => {
@@ -219,8 +219,8 @@ export default function AddHealthRecords({
       text: "This Artificial Insemination record will be permanently removed.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#dc2626", // red-600
-      cancelButtonColor: "#6b7280", // gray-500
+      confirmButtonColor: "#dc2626", 
+      cancelButtonColor: "#6b7280", 
       confirmButtonText: "Yes, remove it",
       cancelButtonText: "Cancel",
     }).then((result) => {
@@ -243,7 +243,7 @@ export default function AddHealthRecords({
       <button
         type="button"
         onClick={onSave}
-        className="px-4 py-2 bg-green-700 text-white rounded-lg"
+        className="px-4 py-2 bg-green-700 text-xs text-white rounded-lg"
       >
         Save Record
       </button>
@@ -251,7 +251,7 @@ export default function AddHealthRecords({
       <button
         type="button"
         onClick={onAddAnother}
-        className="px-4 py-2 border border-green-700 text-green-700 rounded-lg"
+        className="px-4 py-2 border border-green-700 text-xs text-green-700 rounded-lg"
       >
         + Add Another Record
       </button>
@@ -274,7 +274,7 @@ export default function AddHealthRecords({
       <div className="bg-white w-full max-w-4xl rounded-2xl shadow-lg p-6 max-h-[85vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold">Health Records</h2>
+          <h2 className="text-xl font-semibold">Health Records</h2>
           <button onClick={onClose} className="text-red-500 font-medium">
             Close
           </button>
@@ -390,7 +390,7 @@ export default function AddHealthRecords({
 
                     <button
                       onClick={() => removeVaccination(idx)}
-                      className="text-sm "
+                      className="text-sm text-red"
                     >
                       Remove
                     </button>
@@ -502,7 +502,7 @@ export default function AddHealthRecords({
 
                     <button
                       onClick={() => removeDeworming(idx)}
-                      className="text-sm"
+                      className="text-sm text-red"
                     >
                       Remove
                     </button>
@@ -635,7 +635,7 @@ export default function AddHealthRecords({
 
                     <button
                       onClick={() => removeTreatment(idx)}
-                      className="text-sm"
+                      className="text-xs text-red"
                     >
                       Remove
                     </button>
@@ -747,7 +747,7 @@ export default function AddHealthRecords({
                       </div>
                     </div>
 
-                    <button onClick={() => removeAI(idx)} className="text-sm">
+                    <button onClick={() => removeAI(idx)} className="text-xs text-red">
                       Remove
                     </button>
                   </div>
@@ -758,13 +758,13 @@ export default function AddHealthRecords({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-3 mt-6">
+        <div className="flex justify-end text-xs gap-3 mt-6">
           <button onClick={onClose} className="px-5 py-2 border rounded-lg">
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            className="px-5 py-2 bg-green-700 text-white rounded-lg"
+            className="px-5 py-2 bg-green-700 text-xs text-white rounded-lg"
           >
             Save All
           </button>
@@ -775,27 +775,27 @@ export default function AddHealthRecords({
 }
 
 const baseInputClass =
-  "w-full border rounded px-3 py-2 text-sm " +
+  "w-full border rounded px-3 py-2 text-xs " +
   "focus:outline-none focus:ring-2 focus:ring-green-600";
 
 const Input = ({ label, type = "text", ...props }) => (
   <div>
-    <label className="block text-sm font-medium mb-1">{label}</label>
+    <label className="block text-xs font-medium mb-1">{label}</label>
     <input type={type} className={baseInputClass} {...props} />
   </div>
 );
 
 const Textarea = ({ label, ...props }) => (
   <div>
-    <label className="block text-sm font-medium mb-1">{label}</label>
+    <label className="block text-xs font-medium mb-1">{label}</label>
     <textarea className={`${baseInputClass} resize-none`} {...props} />
   </div>
 );
 
 const Select = ({ label, options, ...props }) => (
   <div>
-    <label className="block text-sm font-medium mb-1">{label}</label>
-    <select className="w-full border rounded px-3 py-2" {...props}>
+    <label className="block text-xs font-medium mb-1">{label}</label>
+    <select className="w-full border text-xs rounded px-3 py-2" {...props}>
       <option value="">Select</option>
       {options.map((o) => (
         <option key={o} value={o}>
@@ -808,11 +808,11 @@ const Select = ({ label, options, ...props }) => (
 
 const Section = ({ title, button, open, onClick, children }) => (
   <div className="border-2 rounded-xl p-4">
-    <h3 className="text-lg font-semibold text-green-700 mb-3">{title}</h3>
+    <h3 className="text-md font-semibold text-green-700 mb-3">{title}</h3>
 
     <button
       onClick={onClick}
-      className="w-full bg-green-700 text-white py-2 rounded-lg font-medium"
+      className="w-full bg-green-700 text-xs text-white text-xs py-2 rounded-lg font-medium"
     >
       {button}
     </button>

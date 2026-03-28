@@ -21,6 +21,7 @@ import { db } from "../../firebase";
 import { IconButton } from "@mui/material";
 import ViewInventory from "../../components/ViewInventory";
 import Swal from "sweetalert2";
+import { useAuth } from "../../components/AuthContext";
 
 const InventoryandSupplies = () => {
   const [openModal, setOpenModal] = useState(false);
@@ -33,6 +34,10 @@ const InventoryandSupplies = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [categories, setCategories] = useState([]);
   const [isInventoryLoading, setIsInventoryLoading] = useState(true);
+
+  const { user } = useAuth();
+
+  const isAdmin = user?.role?.toLowerCase() === "admin";
 
   useEffect(() => {
     setIsInventoryLoading(true);
@@ -52,7 +57,6 @@ const InventoryandSupplies = () => {
       setCategories(uniqueCategories);
       setIsInventoryLoading(false);
     });
-    
 
     return () => unsubscribe();
   }, []);
@@ -104,38 +108,36 @@ const InventoryandSupplies = () => {
   };
 
   const getTimestamp = (ts) => {
-  if (!ts) return 0;
+    if (!ts) return 0;
 
+    if (ts.seconds) return ts.seconds * 1000;
+    return new Date(ts).getTime();
+  };
 
-  if (ts.seconds) return ts.seconds * 1000;
-  return new Date(ts).getTime();
-};
+  const filteredInventories = inventories
+    .filter((item) => {
+      const matchesSearch = item.itemName
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase());
 
-  const filteredInventories = inventories.filter((item) => {
-  
-    const matchesSearch = item.itemName
-      ?.toLowerCase()
-      .includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        selectedCategory === "" || item.category === selectedCategory;
 
+      return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) => {
+      const aLastActivity = Math.max(
+        getTimestamp(a.createdAt),
+        getTimestamp(a.updatedAt),
+      );
 
-    const matchesCategory =
-      selectedCategory === "" || item.category === selectedCategory;
+      const bLastActivity = Math.max(
+        getTimestamp(b.createdAt),
+        getTimestamp(b.updatedAt),
+      );
 
-
-    return matchesSearch && matchesCategory;
-  }).sort((a, b) => {
-    const aLastActivity = Math.max(
-      getTimestamp(a.createdAt),
-      getTimestamp(a.updatedAt)
-    );
-
-    const bLastActivity = Math.max(
-      getTimestamp(b.createdAt),
-      getTimestamp(b.updatedAt)
-    );
-
-    return bLastActivity - aLastActivity;
-  });
+      return bLastActivity - aLastActivity;
+    });
 
   return (
     <div className="app flex flex-col md:flex-row">
@@ -278,14 +280,16 @@ const InventoryandSupplies = () => {
                               sx={{ color: "#266b0f", fontSize: 14 }}
                             />
                           </IconButton>
-                          <IconButton
-                            aria-label="delete"
-                            onClick={() => handleDelete(item.id)}
-                          >
-                            <DeleteRounded
-                              sx={{ color: "#a30808", fontSize: 14 }}
-                            />
-                          </IconButton>
+                          {isAdmin && (
+                            <IconButton
+                              aria-label="delete"
+                              onClick={() => handleDelete(item.id)}
+                            >
+                              <DeleteRounded
+                                sx={{ color: "#a30808", fontSize: 14 }}
+                              />
+                            </IconButton>
+                          )}
                         </div>
                       </td>
                     </tr>

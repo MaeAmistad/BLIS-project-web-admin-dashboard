@@ -12,7 +12,7 @@ export default function HealthRecords({
     treatments: [],
     aiRecords: [],
   }, 
-  livestockList = [], 
+  livestockTypeOfAnimal = ""
 }) {
   const [openSection, setOpenSection] = useState(null);
 
@@ -58,7 +58,7 @@ export default function HealthRecords({
   const emptyAI = useMemo(
     () => (
       {
-        animalType: "",
+        animalType: livestockTypeOfAnimal,
         date: "",
         time: "",
         semenType: "",
@@ -68,7 +68,7 @@ export default function HealthRecords({
         remarks: "",
         expectedDelivery: "",
       }   
-    ),[]
+    ),[livestockTypeOfAnimal]
   );
 
   const [vaccinationForm, setVaccinationForm] = useState(emptyVaccination);
@@ -85,14 +85,28 @@ export default function HealthRecords({
     setOpenSection(openSection === section ? null : section);
   };
 
-  useEffect(() => {
-    if (!open) return;
+ useEffect(() => {
+  if (!open) return;
 
+  if (Array.isArray(initialData)) {
+    setVaccinations(initialData.filter(r => r.type === "vaccination"));
+    setDewormings(initialData.filter(r => r.type === "deworming"));
+    setTreatments(initialData.filter(r => r.type === "treatment"));
+    setAiRecords(initialData.filter(r => r.type === "ai"));
+  } else {
+    // fallback if already grouped
     setVaccinations(initialData.vaccinations || []);
     setDewormings(initialData.dewormings || []);
     setTreatments(initialData.treatments || []);
     setAiRecords(initialData.aiRecords || []);
-  }, [open, initialData]);
+  }
+}, [open, initialData]);
+
+useEffect(() => {
+  if (open) {
+    setAiForm(emptyAI); 
+  }
+}, [open, emptyAI]);
 
   useEffect(() => {
     if (!open) {
@@ -104,19 +118,61 @@ export default function HealthRecords({
     }
   }, [open, emptyAI, emptyDeworming, emptyTreatment, emptyVaccination]);
 
-  useEffect(() => {
-      if (!aiForm.date) return;
-  
-      const inseminationDate = new Date(aiForm.date);
-      inseminationDate.setDate(inseminationDate.getDate() + 21);
-  
-      const calvingDate = inseminationDate.toISOString().split("T")[0];
-  
-      setAiForm((prev) => ({
-        ...prev,
-        calvingDate,
-      }));
-    }, [aiForm.date]);
+
+const addDays = (dateStr, days) => {
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().split("T")[0];
+};
+
+useEffect(() => {
+  if (!aiForm.date || !aiForm.animalType) return;
+
+  const newCalvingDate = addDays(aiForm.date, 21);
+
+  let newExpectedDelivery = "";
+
+  switch (aiForm.animalType.toLowerCase().trim()) {
+    case "pig":
+      newExpectedDelivery = addDays(aiForm.date, 42);
+      break;
+    case "swine":
+      newExpectedDelivery = addDays(aiForm.date, 114);
+      break;
+    case "cow":
+    case "cattle":
+      newExpectedDelivery = addDays(aiForm.date, 284);
+      break;
+    case "goat":
+    case "sheep":
+      newExpectedDelivery = addDays(aiForm.date, 150);
+      break;
+    case "horse":
+      newExpectedDelivery = addDays(aiForm.date, 340);
+      break;
+    case "carabao":
+      newExpectedDelivery = addDays(aiForm.date, 307);
+      break;
+    case "dog":
+    case "cat":
+      newExpectedDelivery = "";
+      break;
+    default:
+      newExpectedDelivery = "";
+  }
+
+
+  if (
+    aiForm.calvingDate !== newCalvingDate ||
+    aiForm.expectedDelivery !== newExpectedDelivery
+  ) {
+    setAiForm((prev) => ({
+      ...prev,
+      calvingDate: newCalvingDate,
+      expectedDelivery: newExpectedDelivery,
+    }));
+  }
+}, [aiForm.date, aiForm.animalType, aiForm.calvingDate, aiForm.expectedDelivery]);
 
   const removeVaccination = (index) => {
     Swal.fire({
@@ -223,7 +279,7 @@ export default function HealthRecords({
       <button
         type="button"
         onClick={onSave}
-        className="px-4 py-2 bg-green-700 text-white rounded-lg"
+        className="px-4 py-2 bg-green-700 text-white text-xs rounded-lg"
       >
         Save Record
       </button>
@@ -231,7 +287,7 @@ export default function HealthRecords({
       <button
         type="button"
         onClick={onAddAnother}
-        className="px-4 py-2 border border-green-700 text-green-700 rounded-lg"
+        className="px-4 py-2 border border-green-700 text-xs text-green-700 rounded-lg"
       >
         + Add Another Record
       </button>
@@ -239,13 +295,15 @@ export default function HealthRecords({
   );
 
   const handleSubmit = () => {
-    onSubmit({
-      vaccinations,
-      dewormings,
-      treatments,
-      aiRecords,
-    });
-  };
+  const allRecords = [
+    ...vaccinations,
+    ...dewormings,
+    ...treatments,
+    ...aiRecords,
+  ];
+
+  onSubmit(allRecords);
+};
 
   if (!open) return null;
 
@@ -254,7 +312,7 @@ export default function HealthRecords({
       <div className="bg-white w-full max-w-4xl rounded-2xl shadow-lg p-6 max-h-[85vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold">Health Records</h2>
+          <h2 className="text-xl font-semibold">Health Records</h2>
           <button onClick={onClose} className="text-red-500 font-medium">
             Close
           </button>
@@ -352,7 +410,7 @@ export default function HealthRecords({
               onSave={() => {
                 setVaccinations([
                   ...vaccinations,
-                  { ...vaccinationForm, id: undefined },
+                  { ...vaccinationForm, type: "vaccination"  },
                 ]);
                 setVaccinationForm(emptyVaccination);
               }}
@@ -360,7 +418,7 @@ export default function HealthRecords({
             />
             {vaccinations.length > 0 && (
               <div className="mt-4 border-t pt-4 space-y-2">
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-xs font-medium text-gray-600">
                   Saved Records
                 </p>
 
@@ -376,7 +434,7 @@ export default function HealthRecords({
 
                     <button
                       onClick={() => removeVaccination(idx)}
-                      className="text-sm "
+                      className="text-sm text-red"
                     >
                       Remove
                     </button>
@@ -463,7 +521,7 @@ export default function HealthRecords({
               onSave={() => {
                 setDewormings([
                   ...dewormings,
-                  { ...dewormingForm, id: undefined },
+                  { ...dewormingForm, type: "deworming" },
                 ]);
                 setDewormingForm(emptyDeworming);
               }}
@@ -472,7 +530,7 @@ export default function HealthRecords({
 
             {dewormings.length > 0 && (
               <div className="mt-4 border-t pt-4 space-y-2">
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-xs font-medium text-gray-600">
                   Saved Records
                 </p>
 
@@ -481,7 +539,7 @@ export default function HealthRecords({
                     key={idx}
                     className="flex justify-between items-center bg-gray-50 border rounded-lg p-3"
                   >
-                    <div className="text-sm">
+                    <div className="text-xs">
                       <strong>{record.dewormer}</strong> – {record.dosage}
                       <div className="text-xs text-gray-500">
                         Date Administered: {record.dateAdministered}
@@ -493,7 +551,7 @@ export default function HealthRecords({
 
                     <button
                       onClick={() => removeDeworming(idx)}
-                      className="text-sm"
+                      className="text-sm text-red"
                     >
                       Remove
                     </button>
@@ -601,7 +659,7 @@ export default function HealthRecords({
               onSave={() => {
                 setTreatments([
                   ...treatments,
-                  { ...treatmentForm, id: undefined },
+                  { ...treatmentForm, type: "treatment"},
                 ]);
                 setTreatmentForm(emptyTreatment);
               }}
@@ -630,7 +688,7 @@ export default function HealthRecords({
 
                     <button
                       onClick={() => removeTreatment(idx)}
-                      className="text-sm"
+                      className="text-sm text-red"
                     >
                       Remove
                     </button>
@@ -716,14 +774,14 @@ export default function HealthRecords({
 
             <ActionButtons
               onSave={() => {
-                setAiRecords([...aiRecords, { ...aiForm, id: undefined }]);
+                setAiRecords([...aiRecords, { ...aiForm, type: "ai" }]);
                 setAiForm(emptyAI);
               }}
             />
 
             {aiRecords.length > 0 && (
               <div className="mt-4 border-t pt-4 space-y-2">
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-xs font-medium text-gray-600">
                   Saved Records
                 </p>
 
@@ -732,7 +790,7 @@ export default function HealthRecords({
                     key={idx}
                     className="flex justify-between items-center bg-gray-50 border rounded-lg p-3"
                   >
-                    <div className="text-sm">
+                    <div className="text-xs">
                       <strong>{record.animalType}</strong> – {record.semenType}
                       <div className="text-xs text-gray-500">
                         AI Specialist: {record.specialist}
@@ -742,7 +800,7 @@ export default function HealthRecords({
                       </div>
                     </div>
 
-                    <button onClick={() => removeAI(idx)} className="text-sm">
+                    <button onClick={() => removeAI(idx)} className="text-sm text-red">
                       Remove
                     </button>
                   </div>
@@ -754,14 +812,14 @@ export default function HealthRecords({
 
         {/* Footer */}
         <div className="flex justify-end gap-3 mt-6">
-          <button onClick={onClose} className="px-5 py-2 border rounded-lg">
+          <button onClick={onClose} className="px-5 py-2 text-xs border rounded-lg">
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            className="px-5 py-2 bg-green-700 text-white rounded-lg"
+            className="px-5 py-2 bg-green-700 text-white text-xs rounded-lg"
           >
-            Save
+            Save All
           </button>
         </div>
       </div>
@@ -770,27 +828,27 @@ export default function HealthRecords({
 }
 
 const baseInputClass =
-  "w-full border rounded px-3 py-2 text-sm " +
+  "w-full border rounded px-3 py-2 text-xs " +
   "focus:outline-none focus:ring-2 focus:ring-green-600";
 
 const Input = ({ label, type = "text", ...props }) => (
   <div>
-    <label className="block text-sm font-medium mb-1">{label}</label>
+    <label className="block text-xs font-medium mb-1">{label}</label>
     <input type={type} className={baseInputClass} {...props} />
   </div>
 );
 
 const Textarea = ({ label, ...props }) => (
   <div>
-    <label className="block text-sm font-medium mb-1">{label}</label>
+    <label className="block text-xs font-medium mb-1">{label}</label>
     <textarea className={`${baseInputClass} resize-none`} {...props} />
   </div>
 );
 
 const Select = ({ label, options, ...props }) => (
   <div>
-    <label className="block text-sm font-medium mb-1">{label}</label>
-    <select className="w-full border rounded px-3 py-2" {...props}>
+    <label className="block text-xs font-medium mb-1">{label}</label>
+    <select className="w-full border text-xs rounded px-3 py-2" {...props}>
       <option value="">Select</option>
       {options.map((o) => (
         <option key={o} value={o}>
@@ -803,11 +861,11 @@ const Select = ({ label, options, ...props }) => (
 
 const Section = ({ title, button, open, onClick, children }) => (
   <div className="border-2 rounded-xl p-4">
-    <h3 className="text-lg font-semibold text-green-700 mb-3">{title}</h3>
+    <h3 className="text-md font-semibold text-green-700 mb-3">{title}</h3>
 
     <button
       onClick={onClick}
-      className="w-full bg-green-700 text-white py-2 rounded-lg font-medium"
+      className="w-full bg-green-700 text-white py-2 text-sm rounded-lg font-medium"
     >
       {button}
     </button>

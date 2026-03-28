@@ -769,7 +769,7 @@ useEffect(() => {
             onClick={handleSubmit}
             className="px-5 py-2 bg-green-700 text-white rounded-lg"
           >
-            Save
+            Save All
           </button>
         </div>
       </div>

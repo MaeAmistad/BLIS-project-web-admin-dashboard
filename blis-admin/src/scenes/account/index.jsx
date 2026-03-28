@@ -29,6 +29,7 @@ import {
 import { IconButton } from "@mui/material";
 import Headerr from "../../components/Headerr";
 import { notifyAllUsers } from "../../components/NotifyAllUsers";
+import { useAuth } from "../../components/AuthContext";
 
 const Account = () => {
   const [users, setUsers] = useState([]);
@@ -41,10 +42,15 @@ const Account = () => {
   });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedUserFilter, setSelectedUserFilter] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+
+  const { user } = useAuth();
+
+  const isAdmin = user?.role?.toLowerCase() === "admin";
 
   const role = [
     { key: "1", value: "ADMIN" },
@@ -88,22 +94,31 @@ const Account = () => {
     }));
   };
 
-
   const handleUserFilterChange = (event) => {
     setSelectedUserFilter(event.target.value);
   };
 
-
   const filteredUsers = users.filter((user) => {
-   
-    if (user.status?.toUpperCase() !== "ACTIVE") return false;
+  // Only ACTIVE users
+  if (user.status?.toUpperCase() !== "ACTIVE") return false;
 
-   
-    if (!selectedUserFilter) return true;
+  // Filter by dropdown (if selected)
+  if (selectedUserFilter && user.id !== selectedUserFilter) return false;
 
-    
-    return user.name === selectedUserFilter;
-  });
+  // Filter by search (if typed)
+  if (searchTerm) {
+    const search = searchTerm.toLowerCase();
+
+    const matchesSearch =
+      user.name?.toLowerCase().includes(search) ||
+      user.email?.toLowerCase().includes(search) ||
+      user.contactNumber?.includes(search);
+
+    if (!matchesSearch) return false;
+  }
+
+  return true;
+});
 
   // Add/Edit new user
   const handleSubmit = async (event) => {
@@ -123,10 +138,9 @@ const Account = () => {
       return;
     }
 
-
     if (mode === "add" && password.length < 8) {
       setPasswordError("Password must be at least 8 characters.");
-      return; 
+      return;
     }
 
     if (mode === "add") {
@@ -154,7 +168,6 @@ const Account = () => {
         const user = userCredential.user;
         const uid = user.uid;
 
-
         await setDoc(doc(db, "users", uid), {
           uid,
           role,
@@ -164,7 +177,6 @@ const Account = () => {
           createdAt: serverTimestamp(),
         });
 
-
         await sendEmailVerification(user);
 
         await notifyAllUsers({
@@ -172,7 +184,6 @@ const Account = () => {
           message: `A new user account was created: ${data.role} ${data.name}.`,
           type: "add",
         });
-
 
         Swal.fire({
           icon: "success",
@@ -211,7 +222,6 @@ const Account = () => {
         });
       }
 
-
       setMode("add");
       setSelectedUser(null);
       setData({
@@ -220,7 +230,6 @@ const Account = () => {
         email: "",
         password: "",
       });
-
 
       const querySnapshot = await getDocs(collection(db, "users"));
       setUsers(
@@ -341,28 +350,33 @@ const Account = () => {
           <Headerr title="User Account" />
         </div>
 
-        <div className="m-1 mt-1 flex-grow overflow-y-auto bg-white shadow-md rounded-md">
+        <div className="m-1 mt-1 flex-grow overflow-y-auto bg-white-main shadow-md rounded-md">
           {/* Search Filter */}
-          <div className="p-1">
-            <div className="h-10">
-              <div className="flex my-1 mx-1 space-x-1">
-                <select
-                  className="w-full sm:max-w-xs border border-green-600 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-xs text-gray-700 placeholder-gray-400"
-                  value={selectedUserFilter}
-                  onChange={handleUserFilterChange}
-                >
-                  <option value="">User Name</option>
+          <div className="flex flex-col sm:flex-row gap-2 my-1 mx-1">
+            <select
+              className="w-full sm:max-w-xs border border-green-600 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-3 py-2 text-xs text-gray-700 placeholder-gray-400"
+              value={selectedUserFilter}
+              onChange={handleUserFilterChange}
+            >
+              <option value="">All Name</option>
 
-                  {users
-                    ?.filter((user) => user.status?.toUpperCase() === "ACTIVE")
-                    .map((user) => (
-                      <option key={user.id} value={user.id}>
-                        {user.name}
-                      </option>
-                    ))}
-                </select>
-              </div>
-            </div>
+              {users
+                ?.filter((user) => user.status?.toUpperCase() === "ACTIVE")
+                .map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.name}
+                  </option>
+                ))}
+            </select>
+
+            {/* Search Bar */}
+            <input
+              type="text"
+              placeholder="Search Bar"
+              className="w-full sm:max-w-xs border border-green-600 focus:ring-2 focus:ring-green-500 focus:outline-none rounded-lg px-2 py-2 text-xs text-gray-700 placeholder-gray-400"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
 
           {/* TABLE SECTION */}
@@ -375,14 +389,14 @@ const Account = () => {
                     <th>Role</th>
                     <th>Name</th>
                     <th>Email</th>
-                    <th>Action</th>
+                    {isAdmin && <th>Action</th>}
                   </tr>
                 </thead>
                 <tbody>
                   {filteredUsers.length === 0 ? (
                     <tr>
                       <td
-                        colSpan={5}
+                        colSpan={isAdmin ? 5 : 4}
                         className="p-4 text-gray-500 text-center text-xs"
                       >
                         No users found
@@ -406,26 +420,28 @@ const Account = () => {
                         <td className="p-2 text-center border border-gray-400">
                           {user.email}
                         </td>
-                        <td className="p-2 text-center border border-gray-400">
-                          <div className="flex justify-center space-x-1">
-                            <IconButton
-                              aria-label="edit"
-                              onClick={() => handleEditClick(user)}
-                            >
-                              <EditRounded
-                                sx={{ color: "#266b0f", fontSize: 16 }}
-                              />
-                            </IconButton>
-                            <IconButton
-                              aria-label="edit"
-                              onClick={() => handleDelete(user)}
-                            >
-                              <DeleteRounded
-                                sx={{ color: "#a30808", fontSize: 16 }}
-                              />
-                            </IconButton>
-                          </div>
-                        </td>
+                        {isAdmin && (
+                          <td className="p-2 text-center border border-gray-400">
+                            <div className="flex justify-center space-x-1">
+                              <IconButton
+                                aria-label="edit"
+                                onClick={() => handleEditClick(user)}
+                              >
+                                <EditRounded
+                                  sx={{ color: "#266b0f", fontSize: 16 }}
+                                />
+                              </IconButton>
+                              <IconButton
+                                aria-label="edit"
+                                onClick={() => handleDelete(user)}
+                              >
+                                <DeleteRounded
+                                  sx={{ color: "#a30808", fontSize: 16 }}
+                                />
+                              </IconButton>
+                            </div>
+                          </td>
+                        )}
                       </tr>
                     ))
                   )}
@@ -434,157 +450,159 @@ const Account = () => {
             </div>
 
             {/* FORM SECTION */}
-            <div className="bg-white rounded-xl border border-current w-96 p-4">
-              <form onSubmit={handleSubmit} className="space-y-3">
-                <div className="flex items-center p-2 bg-gray-100 rounded-xl">
-                  <p className="font-bold text-center">
-                    {mode === "add" ? "Add User" : "Edit User"}
-                  </p>
-                </div>
+            {isAdmin && (
+              <div className="bg-white rounded-xl border border-current w-96 p-4">
+                <form onSubmit={handleSubmit} className="space-y-3">
+                  <div className="flex items-center p-2 bg-gray-100 rounded-xl">
+                    <p className="font-bold text-center">
+                      {mode === "add" ? "Add User" : "Edit User"}
+                    </p>
+                  </div>
 
-                {/* USER INFORMATION SECTION */}
-                <div className="mt-1 p-1">
-                  <div className="mt-1">
-                    <p className="text-sm">Role</p>
-                    <select
-                      className="w-full h-10 rounded-lg p-1 border border-current"
-                      name="role"
-                      value={data.role}
-                      onChange={handleSelectChange}
+                  {/* USER INFORMATION SECTION */}
+                  <div className="mt-1 p-1">
+                    <div className="mt-1">
+                      <p className="text-sm">Role</p>
+                      <select
+                        className="w-full h-10 rounded-lg p-1 border border-current"
+                        name="role"
+                        value={data.role}
+                        onChange={handleSelectChange}
+                      >
+                        <option value=""> </option>
+                        {role.map((stat) => (
+                          <option key={stat.key} value={stat.value}>
+                            {stat.value}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="mt-1">
+                      <p className="text-sm">Name</p>
+                      <input
+                        type="text"
+                        className="w-full h-10 border border-current p-1 text-xs rounded-xl"
+                        name="name"
+                        value={data.name}
+                        onChange={handleInput}
+                      />
+                    </div>
+
+                    <div className="mt-1">
+                      <p className="text-sm">Email</p>
+                      <input
+                        type="text"
+                        className="w-full h-10 border border-current p-1 text-xs rounded-xl"
+                        name="email"
+                        value={data.email}
+                        onChange={handleInput}
+                      />
+                    </div>
+
+                    {mode === "add" && (
+                      <>
+                        <div className="mt-1 relative">
+                          <p className="text-sm">Password</p>
+                          <input
+                            type={isOpen ? "text" : "password"}
+                            name="password"
+                            value={data.password}
+                            onChange={handleInput}
+                            className={`w-full h-10 border p-1 text-xs rounded-xl
+          ${passwordError ? "border-red-500" : "border-current"}
+        `}
+                          />
+
+                          <button
+                            type="button"
+                            onClick={() => setIsOpen((prev) => !prev)}
+                            className="absolute right-3 pt-5 top-1/2 -translate-y-1/2"
+                          >
+                            {isOpen ? (
+                              <VisibilityRounded
+                                sx={{ color: "#959595", fontSize: 14 }}
+                              />
+                            ) : (
+                              <VisibilityOffRounded
+                                sx={{ color: "#959595", fontSize: 14 }}
+                              />
+                            )}
+                          </button>
+                        </div>
+
+                        <div className="mt-1 relative">
+                          <p className="text-sm">Confirm Password</p>
+                          <input
+                            type={isOpen ? "text" : "password"}
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className={`w-full h-10 border p-1 text-xs rounded-xl
+          ${passwordError ? "border-red-500" : "border-current"}
+        `}
+                          />
+
+                          <button
+                            type="button"
+                            onClick={() => setIsOpen((prev) => !prev)}
+                            className="absolute right-3 pt-5 top-1/2 -translate-y-1/2"
+                          >
+                            {isOpen ? (
+                              <VisibilityRounded
+                                sx={{ color: "#959595", fontSize: 14 }}
+                              />
+                            ) : (
+                              <VisibilityOffRounded
+                                sx={{ color: "#959595", fontSize: 14 }}
+                              />
+                            )}
+                          </button>
+                        </div>
+
+                        {passwordError && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {passwordError}
+                          </p>
+                        )}
+                      </>
+                    )}
+
+                    {mode === "edit" && (
+                      <div className="mt-3 flex justify-center">
+                        <button
+                          type="button"
+                          onClick={handleResetPassword}
+                          className="bg-yellow-500 text-white px-4 py-2 rounded-xl text-xs hover:bg-yellow-600"
+                        >
+                          Send Password Reset Email
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex justify-center items-center m-2">
+                    <button
+                      type="submit"
+                      className="bg-primary w-28 h-10 rounded-3xl text-white text-xs my-3 cursor-pointer hover:bg-lighter-blue m-1 flex items-center justify-center"
                     >
-                      <option value=""> </option>
-                      {role.map((stat) => (
-                        <option key={stat.key} value={stat.value}>
-                          {stat.value}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                      <SaveAltRounded className="mr-1" />
+                      {mode === "add" ? "Add" : "Update"}
+                    </button>
 
-                  <div className="mt-1">
-                    <p className="text-sm">Name</p>
-                    <input
-                      type="text"
-                      className="w-full h-10 border border-current p-1 text-xs rounded-xl"
-                      name="name"
-                      value={data.name}
-                      onChange={handleInput}
-                    />
-                  </div>
-
-                  <div className="mt-1">
-                    <p className="text-sm">Email</p>
-                    <input
-                      type="text"
-                      className="w-full h-10 border border-current p-1 text-xs rounded-xl"
-                      name="email"
-                      value={data.email}
-                      onChange={handleInput}
-                    />
-                  </div>
-
-                  {mode === "add" && (
-                    <>
-                      <div className="mt-1 relative">
-                        <p className="text-sm">Password</p>
-                        <input
-                          type={isOpen ? "text" : "password"}
-                          name="password"
-                          value={data.password}
-                          onChange={handleInput}
-                          className={`w-full h-10 border p-1 text-xs rounded-xl
-          ${passwordError ? "border-red-500" : "border-current"}
-        `}
-                        />
-
-                        <button
-                          type="button"
-                          onClick={() => setIsOpen((prev) => !prev)}
-                          className="absolute right-3 pt-5 top-1/2 -translate-y-1/2"
-                        >
-                          {isOpen ? (
-                            <VisibilityRounded
-                              sx={{ color: "#959595", fontSize: 14 }}
-                            />
-                          ) : (
-                            <VisibilityOffRounded
-                              sx={{ color: "#959595", fontSize: 14 }}
-                            />
-                          )}
-                        </button>
-                      </div>
-
-                      <div className="mt-1 relative">
-                        <p className="text-sm">Confirm Password</p>
-                        <input
-                          type={isOpen ? "text" : "password"}
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          className={`w-full h-10 border p-1 text-xs rounded-xl
-          ${passwordError ? "border-red-500" : "border-current"}
-        `}
-                        />
-
-                        <button
-                          type="button"
-                          onClick={() => setIsOpen((prev) => !prev)}
-                          className="absolute right-3 pt-5 top-1/2 -translate-y-1/2"
-                        >
-                          {isOpen ? (
-                            <VisibilityRounded
-                              sx={{ color: "#959595", fontSize: 14 }}
-                            />
-                          ) : (
-                            <VisibilityOffRounded
-                              sx={{ color: "#959595", fontSize: 14 }}
-                            />
-                          )}
-                        </button>
-                      </div>
-
-                      {passwordError && (
-                        <p className="text-red-500 text-xs mt-1">
-                          {passwordError}
-                        </p>
-                      )}
-                    </>
-                  )}
-
-                  {mode === "edit" && (
-                    <div className="mt-3 flex justify-center">
+                    {mode === "edit" && (
                       <button
                         type="button"
-                        onClick={handleResetPassword}
-                        className="bg-yellow-500 text-white px-4 py-2 rounded-xl text-xs hover:bg-yellow-600"
+                        onClick={handleCancel}
+                        className="bg-gray-300 w-28 h-10 rounded-3xl text-xs text-black my-3 cursor-pointer hover:bg-lighter-blue m-1 flex items-center justify-center"
                       >
-                        Send Password Reset Email
+                        <CancelRounded className="mr-1 text-black" />
+                        Cancel
                       </button>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex justify-center items-center m-2">
-                  <button
-                    type="submit"
-                    className="bg-primary w-28 h-10 rounded-3xl text-white text-xs my-3 cursor-pointer hover:bg-lighter-blue m-1 flex items-center justify-center"
-                  >
-                    <SaveAltRounded className="mr-1" />
-                    {mode === "add" ? "Add" : "Update"}
-                  </button>
-
-                  {mode === "edit" && (
-                    <button
-                      type="button"
-                      onClick={handleCancel}
-                      className="bg-gray-300 w-28 h-10 rounded-3xl text-xs text-black my-3 cursor-pointer hover:bg-lighter-blue m-1 flex items-center justify-center"
-                    >
-                      <CancelRounded className="mr-1 text-black" />
-                      Cancel
-                    </button>
-                  )}
-                </div>
-              </form>
-            </div>
+                    )}
+                  </div>
+                </form>
+              </div>
+            )}
           </div>
         </div>
       </div>

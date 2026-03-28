@@ -8,7 +8,14 @@ import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import BiotechIcon from "@mui/icons-material/Biotech";
 import MedicationLiquidRoundedIcon from "@mui/icons-material/MedicationLiquidRounded";
 import Headerr from "../../components/Headerr";
-import { collection, getDocs, collectionGroup } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  collectionGroup,
+  doc,
+  deleteDoc,
+  getDoc,
+} from "firebase/firestore";
 import { db } from "../../firebase";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -16,7 +23,11 @@ import logo1 from "../../../src/assets/bantaylogo.jpg";
 import logo2 from "../../../src/assets/duras.jpg";
 import logo3 from "../../../src/assets/mao.jpg";
 import logo4 from "../../../src/assets/pilipins.png";
-
+import { DeleteRounded } from "@mui/icons-material";
+import { IconButton } from "@mui/material";
+import Swal from "sweetalert2";
+import { notifyAllUsers } from "../../components/NotifyAllUsers";
+import { useAuth } from "../../components/AuthContext";
 
 const recordTypeFormatter = (value) => {
   if (!value) return "—";
@@ -92,7 +103,6 @@ const tableColumns = {
     { label: "No of Dogs", key: "dogCount" },
     { label: "No of Cats", key: "catCount" },
 
-
     { label: "Awan Tao", key: "reasonAwanTao" },
     { label: "Below 3 Months", key: "reasonBelow3Months" },
     { label: "Pregnant", key: "reasonPregnant" },
@@ -108,6 +118,10 @@ const HealthandMedical = () => {
   const [livestock, setLivestock] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+
+  const { user } = useAuth();
+  
+    const isAdmin = user?.role?.toLowerCase() === "admin";
 
   useEffect(() => {
     const fetchAllHealthRecords = async () => {
@@ -160,59 +174,58 @@ const HealthandMedical = () => {
   }, [activeTable]);
 
   const normalizeAnimal = (typeOfAnimal = "") => {
-  const t = typeOfAnimal.toLowerCase();
-  if (t === "dog" || t === "dogs") return "dog";
-  if (t === "cat" || t === "cats") return "cat";
-  return null;
-};
+    const t = typeOfAnimal.toLowerCase();
+    if (t === "dog" || t === "dogs") return "dog";
+    if (t === "cat" || t === "cats") return "cat";
+    return null;
+  };
 
-const unvaccinatedRecords = useMemo(() => {
-  if (!raisers?.length) return [];
+  const unvaccinatedRecords = useMemo(() => {
+    if (!raisers?.length) return [];
 
-  const map = {};
+    const map = {};
 
-  raisers.forEach((raiser) => {
-    const raiserId = raiser.id;
-    const livestockList = raiser.livestock || [];
+    raisers.forEach((raiser) => {
+      const raiserId = raiser.id;
+      const livestockList = raiser.livestock || [];
 
-    livestockList.forEach((animal) => {
-      const animalType = normalizeAnimal(animal.typeOfAnimal);
-      if (!animalType) return;
+      livestockList.forEach((animal) => {
+        const animalType = normalizeAnimal(animal.typeOfAnimal);
+        if (!animalType) return;
 
-      const healthRecords = animal.healthRecords || [];
-      healthRecords.forEach((record) => {
-        
-        if (record.type === "vaccination" || record.type === "vaccinations") return;
+        const healthRecords = animal.healthRecords || [];
+        healthRecords.forEach((record) => {
+          if (record.type === "vaccination" || record.type === "vaccinations")
+            return;
 
-        if (!map[raiserId]) {
-          map[raiserId] = {
-            id: raiserId,
-            raiserName: `${raiser.firstName || "—"} ${raiser.lastName || ""}`.trim(),
-            contactNumber: raiser.contactNumber || "—",
+          if (!map[raiserId]) {
+            map[raiserId] = {
+              id: raiserId,
+              raiserName:
+                `${raiser.firstName || "—"} ${raiser.lastName || ""}`.trim(),
+              contactNumber: raiser.contactNumber || "—",
 
-            dogCount: 0,
-            catCount: 0,
+              dogCount: 0,
+              catCount: 0,
 
-            reasonAwanTao: 0,
-            reasonBelow3Months: 0,
-            reasonPregnant: 0,
+              reasonAwanTao: 0,
+              reasonBelow3Months: 0,
+              reasonPregnant: 0,
 
-            remarks: "",
-          };
-        }
+              remarks: "",
+            };
+          }
 
-        if (animalType === "dog") map[raiserId].dogCount += 1;
-        if (animalType === "cat") map[raiserId].catCount += 1;
+          if (animalType === "dog") map[raiserId].dogCount += 1;
+          if (animalType === "cat") map[raiserId].catCount += 1;
 
-      
-
-        map[raiserId].remarks = record.remarks || map[raiserId].remarks;
+          map[raiserId].remarks = record.remarks || map[raiserId].remarks;
+        });
       });
     });
-  });
 
-  return Object.values(map);
-}, [raisers]);
+    return Object.values(map);
+  }, [raisers]);
 
   const joinedRecords = useMemo(() => {
     if (!healthRecords.length || !livestock.length || !raisers.length)
@@ -224,8 +237,8 @@ const unvaccinatedRecords = useMemo(() => {
 
       return {
         id: record.id,
-        recordType: record.type, 
-        recordData: record, 
+        recordType: record.type,
+        recordData: record,
 
         raiserName: raiser
           ? `${raiser.firstName} ${raiser.middleInitial} ${raiser.lastName}`
@@ -262,6 +275,72 @@ const unvaccinatedRecords = useMemo(() => {
       ),
     );
   }, [activeTable, joinedRecords, unvaccinatedRecords, searchTerm]);
+
+
+const handleDeleteHealthRecord = async (record) => {
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "This record will be permanently deleted!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, delete it!",
+    cancelButtonText: "Cancel",
+  });
+
+  if (result.isConfirmed) {
+    try {
+      // Reference to the livestock document
+      const livestockDocRef = doc(db, "raisers", record.raiserId, "livestock", record.livestockId);
+      const livestockSnap = await getDoc(livestockDocRef);
+
+      let livestockData = {};
+      if (livestockSnap.exists()) {
+        livestockData = livestockSnap.data();
+      }
+
+      // Delete the health record
+      const healthDocRef = doc(
+        db,
+        "raisers",
+        record.raiserId,
+        "livestock",
+        record.livestockId,
+        "healthRecords",
+        record.id
+      );
+      await deleteDoc(healthDocRef);
+
+      // Update local state
+      setHealthRecords((prev) => prev.filter((r) => r.id !== record.id));
+
+      // Notify all users
+      await notifyAllUsers({
+        title: "Health and Medical Record Deleted",
+        message: `Record for ${livestockData.typeOfAnimal || "Livestock"} ${livestockData.livestockName || ""} was deleted.`,
+        type: "delete",
+      });
+
+      Swal.fire({
+        icon: "success",
+        title: "Deleted!",
+        text: "The record has been deleted.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error("Error deleting health record:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Failed to delete record.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
+  }
+};
 
   const handleButtonClick = (tableName) => {
     setActiveTable(tableName);
@@ -335,7 +414,7 @@ const unvaccinatedRecords = useMemo(() => {
     doc.setFont("helvetica", "normal");
     doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 48);
 
-    return 52; 
+    return 52;
   };
 
   const handleExportPDF = () => {
@@ -369,7 +448,7 @@ const unvaccinatedRecords = useMemo(() => {
       styles: {
         fontSize: 9,
         cellPadding: 3,
-        lineWidth: 0.3, 
+        lineWidth: 0.3,
         lineColor: [22, 163, 74],
       },
       headStyles: {
@@ -413,8 +492,8 @@ const unvaccinatedRecords = useMemo(() => {
     });
 
     // --- IMAGES ---
-    const imgSize = 18; 
-    const imgY = headerY - 8; 
+    const imgSize = 18;
+    const imgY = headerY - 8;
     const imgGap = 6;
 
     // Left side logos
@@ -463,7 +542,7 @@ const unvaccinatedRecords = useMemo(() => {
 
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
-    const infoStartY = 45; 
+    const infoStartY = 45;
 
     doc.text("Province: ________________________", 14, infoStartY);
     doc.text("Municipality: ____________________", 14, infoStartY + 5);
@@ -523,7 +602,7 @@ const unvaccinatedRecords = useMemo(() => {
       styles: {
         fontSize: 8,
         cellPadding: 2,
-        lineWidth: 0.3, 
+        lineWidth: 0.3,
         lineColor: [22, 163, 74],
         textColor: [0, 0, 0],
         font: "helvetica",
@@ -549,7 +628,6 @@ const unvaccinatedRecords = useMemo(() => {
       },
     });
 
-
     const finalY = doc.lastAutoTable.finalY + 10;
 
     doc.text("Submitted by: ____________________", 14, finalY);
@@ -567,7 +645,6 @@ const unvaccinatedRecords = useMemo(() => {
       handleExportPDF();
     }
   };
-
 
   const resolveCellValue = ({ row, col, activeTable }) => {
     let rawValue;
@@ -660,7 +737,6 @@ const unvaccinatedRecords = useMemo(() => {
               <MedicationLiquidRoundedIcon />
               Unvaccinated Livestocks
             </button>
-
           </div>
         </div>
 
@@ -685,7 +761,6 @@ const unvaccinatedRecords = useMemo(() => {
               >
                 Download Report PDF
               </button>
-
             </div>
           </div>
 
@@ -701,6 +776,8 @@ const unvaccinatedRecords = useMemo(() => {
                       {col.label}
                     </th>
                   ))}
+
+                   {isAdmin && (<th className="p-2">Action</th>)}
                 </tr>
               </thead>
 
@@ -732,6 +809,20 @@ const unvaccinatedRecords = useMemo(() => {
                           {resolveCellValue({ row, col, activeTable })}
                         </td>
                       ))}
+                       {isAdmin && (
+                      <td className="p-2 border border-gray-400">
+                        <IconButton
+                          aria-label="delete"
+                          onClick={() =>
+                            handleDeleteHealthRecord(row.recordData)
+                          }
+                        >
+                          <DeleteRounded
+                            sx={{ color: "#a30808", fontSize: 14 }}
+                          />
+                        </IconButton>
+                      </td>
+                       )}
                     </tr>
                   ))
                 ) : (

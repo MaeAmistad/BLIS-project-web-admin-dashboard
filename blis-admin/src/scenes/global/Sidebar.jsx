@@ -83,7 +83,7 @@ const Sidebarr = () => {
 
   return (
     <div
-      className={`bg-[#2E7D32] h-screen p-2 pt-5 ${
+      className={`bg-[#2E7D32] h-screen p-2 pt-5 flex flex-col ${
         open ? "w-64" : "w-20"
       } duration-300 relative shadow-lg`}
     >
@@ -128,10 +128,10 @@ const Sidebarr = () => {
       </ul>
 
       {/* Logout */}
-      <div>
+      <div className="mt-auto">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 p-3 rounded-lg font-medium bg-red-600 text-white text-xs hover:bg-red-500/80 transition-all w-full"
+          className="flex items-center gap-3 p-3 rounded-lg font-medium bg-red-700 text-white text-xs hover:bg-red-500/80 transition-all w-full"
         >
           <LogoutRoundedIcon />
           <span className={`text-xs ${!open && "hidden"}`}>Log out</span>
@@ -140,7 +140,7 @@ const Sidebarr = () => {
 
       <button
         onClick={() => setOpen(!open)}
-        className="absolute -right-3 bottom-10 bg-[#2E7D32] 
+        className="absolute -right-3 bottom-20 bg-[#2E7D32] 
         text-white rounded-full p-1 shadow-lg hover:scale-105 transition"
       >
         <ArrowBackIosNewRoundedIcon

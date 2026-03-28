@@ -108,29 +108,30 @@ const Login = () => {
       if (status !== "ACTIVE") {
         await Swal.fire({
           icon: "error",
-          title: "Account Inactive",
-          text: "Your account is inactive. Please contact the administrator.",
+          title: "Account Deactivated",
+          text: "Your account has been deactivated. Please contact the administrator.",
           confirmButtonText: "Ok",
           confirmButtonColor: "#08651bfa",
         });
 
         auth.signOut();
+        window.location.reload()
         return;
       }
 
 
-      if (role !== "ADMIN") {
-        await Swal.fire({
-          icon: "error",
-          title: "Unauthorized",
-          text: "You are not authorized to access this system.",
-          confirmButtonText: "Ok",
-          confirmButtonColor: "#08651bfa",
-        });
+      // if (role !== "ADMIN") {
+      //   await Swal.fire({
+      //     icon: "error",
+      //     title: "Unauthorized",
+      //     text: "You are not authorized to access this system.",
+      //     confirmButtonText: "Ok",
+      //     confirmButtonColor: "#08651bfa",
+      //   });
 
-        auth.signOut();
-        return;
-      }
+      //   auth.signOut();
+      //   return;
+      // }
 
       // Success
       Swal.fire({
@@ -145,7 +146,7 @@ const Login = () => {
       Swal.fire({
         icon: "error",
         title: "Login Failed",
-        text: error.message,
+        text: error.message
       });
     }
   };

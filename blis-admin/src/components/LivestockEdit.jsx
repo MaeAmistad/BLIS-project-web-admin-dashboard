@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import HealthRecordsModal from "./HealthModal";
 import { AddCircleOutlineRounded, DeleteRounded } from "@mui/icons-material";
 import HealthRecords from "./HealthRecords";
 
@@ -106,7 +105,7 @@ export default function LivestockEdit({
   };
 
   const handleConfirmSave = async () => {
-    if (isSaving) return; 
+    if (isSaving) return;
     try {
       setIsSaving(true);
       await onSave(livestockList);
@@ -126,7 +125,7 @@ export default function LivestockEdit({
             <h2 className="text-xl font-semibold text-gray-800">
               Edit Livestock
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-xs text-gray-500">
               Update details for each animal
             </p>
           </div>
@@ -163,11 +162,8 @@ export default function LivestockEdit({
                     <AddCircleOutlineRounded fontSize="small" />
                     Add Health Records
                   </button>
-
-              
                 </div>
               </div>
-
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="flex flex-col gap-1">
@@ -176,7 +172,7 @@ export default function LivestockEdit({
                   </label>
 
                   <input
-                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    className="p-2 border rounded-md text-xs focus:ring-2 focus:ring-blue-400"
                     placeholder="Livestock Name"
                     value={item.livestockName || ""}
                     onChange={(e) =>
@@ -190,7 +186,7 @@ export default function LivestockEdit({
                     Type Of Animal
                   </label>
                   <select
-                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    className="p-2 border rounded-md text-xs focus:ring-2 focus:ring-blue-400"
                     value={item.typeOfAnimal || ""}
                     onChange={(e) =>
                       updateLivestock(idx, "typeOfAnimal", e.target.value)
@@ -210,7 +206,7 @@ export default function LivestockEdit({
                     Breed
                   </label>
                   <input
-                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    className="p-2 border rounded-md text-xs focus:ring-2 focus:ring-blue-400"
                     placeholder="Breed"
                     value={item.breed || ""}
                     onChange={(e) =>
@@ -224,7 +220,7 @@ export default function LivestockEdit({
                     Color / Markings
                   </label>
                   <input
-                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    className="p-2 border rounded-md text-xs focus:ring-2 focus:ring-blue-400"
                     placeholder="Color / Markings"
                     value={item.colorMarkings || ""}
                     onChange={(e) =>
@@ -239,7 +235,7 @@ export default function LivestockEdit({
                   </label>
 
                   <input
-                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    className="p-2 border rounded-md text-xs focus:ring-2 focus:ring-blue-400"
                     placeholder="Weight"
                     inputMode="numeric"
                     value={item.weight || ""}
@@ -254,7 +250,7 @@ export default function LivestockEdit({
                     Health Condition
                   </label>
                   <input
-                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    className="p-2 border rounded-md text-xs focus:ring-2 focus:ring-blue-400"
                     placeholder="Health Condition"
                     value={item.healthCondition || ""}
                     onChange={(e) =>
@@ -268,7 +264,7 @@ export default function LivestockEdit({
                     Gender
                   </label>
                   <select
-                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    className="p-2 border rounded-md text-xs focus:ring-2 focus:ring-blue-400"
                     value={item.gender || ""}
                     onChange={(e) =>
                       updateLivestock(idx, "gender", e.target.value)
@@ -286,7 +282,7 @@ export default function LivestockEdit({
                   </label>
                   <input
                     type="date"
-                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    className="p-2 border rounded-md text-xs focus:ring-2 focus:ring-blue-400"
                     value={item.dateOfBirth || ""}
                     onChange={(e) =>
                       updateLivestock(idx, "dateOfBirth", e.target.value)
@@ -299,7 +295,7 @@ export default function LivestockEdit({
                     Age
                   </label>
                   <input
-                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    className="p-2 border rounded-md text-xs focus:ring-2 focus:ring-blue-400"
                     inputMode="numeric"
                     value={item.age || ""}
                     onChange={(e) =>
@@ -313,7 +309,7 @@ export default function LivestockEdit({
                     Status
                   </label>
                   <select
-                    className="p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    className="p-2 border rounded-md text-xs focus:ring-2 focus:ring-blue-400"
                     value={item.status || ""}
                     onChange={(e) =>
                       updateLivestock(idx, "status", e.target.value)
@@ -334,7 +330,7 @@ export default function LivestockEdit({
           <button
             onClick={handleConfirmSave}
             disabled={isSaving}
-            className="px-5 py-2 bg-primary text-white rounded-lg disabled:opacity-50"
+            className="px-5 py-2 bg-primary text-white text-xs rounded-lg disabled:opacity-50"
           >
             {isSaving ? "Saving..." : "Confirm & Save"}
           </button>
@@ -342,22 +338,26 @@ export default function LivestockEdit({
       </div>
 
       {healthOpen && activeLivestockIndex !== null && (
-        <HealthRecords
-          open={healthOpen}
-          onClose={() => setHealthOpen(false)}
-          initialData={livestockList[activeLivestockIndex]?.healthRecords}
-          onSubmit={(records, deletedIds) => {
-            setLivestockList((prev) =>
-              prev.map((l, i) =>
-                i === activeLivestockIndex
-                  ? { ...l, healthRecords: records }
-                  : l,
-              ),
-            );
+        <>
+          {console.log("Passing to HealthRecords:", JSON.stringify(livestockList[activeLivestockIndex]?.healthRecords))}
+          <HealthRecords
+            open={healthOpen}
+            onClose={() => setHealthOpen(false)}
+            initialData={livestockList[activeLivestockIndex]?.healthRecords}
+            livestockTypeOfAnimal={livestockList[activeLivestockIndex]?.typeOfAnimal}
+            onSubmit={(records, deletedIds) => {
+              setLivestockList((prev) =>
+                prev.map((l, i) =>
+                  i === activeLivestockIndex
+                    ? { ...l, healthRecords: records }
+                    : l,
+                ),
+              );
 
-            setHealthOpen(false);
-          }}
-        />
+              setHealthOpen(false);
+            }}
+          />
+        </>
       )}
     </div>
   );

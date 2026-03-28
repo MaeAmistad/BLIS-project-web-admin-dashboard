@@ -13,6 +13,7 @@ import LivestockEdit from "./LivestockEdit";
 import Swal from "sweetalert2";
 import { notifyAllUsers } from "./NotifyAllUsers";
 import { DeleteRounded, EditRounded } from "@mui/icons-material";
+import { useAuth } from "./AuthContext";
 
 const ViewLivestockDetailsModal = ({ open, onClose, raiser }) => {
   const [livestockWithCounts, setLivestockWithCounts] = useState([]);
@@ -23,6 +24,10 @@ const ViewLivestockDetailsModal = ({ open, onClose, raiser }) => {
   const [isSaving, setIsSaving] = useState(false);
 
   console.log("Raiser Details: ", raiser);
+
+  const { user } = useAuth();
+  
+    const isAdmin = user?.role?.toLowerCase() === "admin";
 
   useEffect(() => {
     if (!open || !raiser?.id) return;
@@ -51,6 +56,7 @@ const ViewLivestockDetailsModal = ({ open, onClose, raiser }) => {
             id: livestockDoc.id,
             ...livestockDoc.data(),
             healthRecordsCount: healthSnap.size,
+
           };
         }),
       );
@@ -104,16 +110,33 @@ const ViewLivestockDetailsModal = ({ open, onClose, raiser }) => {
   const openEditLivestock = async (livestock) => {
     console.log("Editing livestock:", livestock);
 
-    const healthSnap = await getDocs(
-      collection(
-        db,
-        "raisers",
-        raiser.id,
-        "livestock",
-        livestock.id,
-        "healthRecords",
-      ),
-    );
+    // const healthSnap = await getDocs(
+    //   collection(
+    //     db,
+    //     "raisers",
+    //     raiser.id,
+    //     "livestock",
+    //     livestock.id,
+    //     "healthRecords",
+    //   ),
+    // );
+
+
+  const healthPath = collection(
+    db,
+    "raisers",
+    raiser.id,
+    "livestock",
+    livestock.id,
+    "healthRecords",
+  );
+
+  console.log("Fetching health records from path:", healthPath.path); // 👈
+
+  const healthSnap = await getDocs(healthPath);
+
+  console.log("Health snap size:", healthSnap.size); // 👈
+  console.log("Health snap empty?:", healthSnap.empty);
 
     const healthRecords = {
       vaccinations: [],
@@ -122,21 +145,41 @@ const ViewLivestockDetailsModal = ({ open, onClose, raiser }) => {
       aiRecords: [],
     };
 
-    healthSnap.forEach((docSnap) => {
-      const data = docSnap.data();
+    // healthSnap.forEach((docSnap) => {
+      
+    //   const data = docSnap.data();
+    //   console.log("Health record:", data);
+    //   let key = data.type;
 
-      let key = data.type;
+    //   if (key === "ai") key = "aiRecords";
 
-      if (key === "ai") key = "aiRecords";
+    //   if (healthRecords[key]) {
+    //     healthRecords[key].push({
+    //       id: docSnap.id,
+    //       ...data,
+    //     });
+    //   }
+    // });
 
-      if (healthRecords[key]) {
-        healthRecords[key].push({
-          id: docSnap.id,
-          ...data,
-        });
-      }
-    });
+healthSnap.forEach((docSnap) => {
+  console.log("Raw health doc:", docSnap.id, JSON.stringify(docSnap.data())); // 👈
+  
+  const data = docSnap.data();
+  const typeToKey = {
+    vaccination: "vaccinations",
+    deworming:   "dewormings",
+    treatment:   "treatments",
+    ai:          "aiRecords",
+  };
 
+  const key = typeToKey[data.type];
+  console.log("Mapped key:", key); // 👈
+  if (key) {
+    healthRecords[key].push({ id: docSnap.id, ...data });
+  }
+});
+
+console.log("Final healthRecords:", JSON.stringify(healthRecords)); // 👈
 
     setEditLivestockData([
       {
@@ -270,6 +313,7 @@ const ViewLivestockDetailsModal = ({ open, onClose, raiser }) => {
                         <EditRounded sx={{ color: "#266b0f", fontSize: 18 }} />
                       </button>
 
+{isAdmin && (
                       <button
                         onClick={() => handleDelete(l.id)}
                         className="hover:text-red-600"
@@ -279,6 +323,7 @@ const ViewLivestockDetailsModal = ({ open, onClose, raiser }) => {
                           sx={{ color: "#a30808", fontSize: 18 }}
                         />
                       </button>
+                      )}
                     </div>
                   </div>
 

@@ -86,8 +86,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {/* <Route path="/settings" element={<Settings />} /> */}
-          {/* <Route path="/profile" element={<Profile/>}/> */}
+
         </Routes>
       </main>
     </div>
