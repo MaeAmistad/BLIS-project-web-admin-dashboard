@@ -10,6 +10,7 @@ import Account from "./scenes/account";
 import UserProfile from "./components/userprofile";
 import React, { useEffect } from "react";
 import ProtectedRoute from "./components/ProtectedRoute";
+import MainPage from "./components/MainPage";
 
 function App() {
   useEffect(() => {
@@ -20,7 +21,13 @@ function App() {
     <div className="app">
       <main className="content">
         <Routes>
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={<MainPage />} />
+          <Route
+            path="/login"
+            element={
+                <Login />
+            }
+          />
           <Route
             path="/dashboard"
             element={
