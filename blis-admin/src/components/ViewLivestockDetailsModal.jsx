@@ -229,7 +229,7 @@ console.log("Final healthRecords:", JSON.stringify(healthRecords)); // 👈
         "healthRecords",
       );
 
-      const upsert = async (records, type) => {
+      const upsert = async (records = [], type) => {
         for (const record of records) {
           const payload = {
             ...record,
@@ -256,9 +256,18 @@ console.log("Final healthRecords:", JSON.stringify(healthRecords)); // 👈
       await upsert(livestock.healthRecords.aiRecords, "ai");
 
       setEditOpen(false);
+      Swal.fire({
+                title: "Livestock Edited",
+                text: "Livestock has been edited successfully.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+              });
+
+    window.location.reload()
     } catch (err) {
       console.error(err);
-      alert("Failed to save changes");
+      Swal.fire("Error", "Something went wrong. " + err.message, "error");
     } finally {
       setIsSaving(false);
     }

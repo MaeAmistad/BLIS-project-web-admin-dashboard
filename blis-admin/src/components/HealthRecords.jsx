@@ -11,8 +11,8 @@ export default function HealthRecords({
     dewormings: [],
     treatments: [],
     aiRecords: [],
-  }, 
-  livestockTypeOfAnimal = ""
+  },
+  livestockTypeOfAnimal = "",
 }) {
   const [openSection, setOpenSection] = useState(null);
 
@@ -24,7 +24,7 @@ export default function HealthRecords({
       dosage: "",
       remarks: "",
       vitamins: "",
-  dateVitamins: "",
+      dateVitamins: "",
     }),
     [],
   );
@@ -56,19 +56,18 @@ export default function HealthRecords({
   );
 
   const emptyAI = useMemo(
-    () => (
-      {
-        animalType: livestockTypeOfAnimal,
-        date: "",
-        time: "",
-        semenType: "",
-        specialist: "",
-        status: "",
-        calvingDate: "",
-        remarks: "",
-        expectedDelivery: "",
-      }   
-    ),[livestockTypeOfAnimal]
+    () => ({
+      animalType: livestockTypeOfAnimal,
+      date: "",
+      time: "",
+      semenType: "",
+      specialist: "",
+      status: "",
+      calvingDate: "",
+      remarks: "",
+      expectedDelivery: "",
+    }),
+    [livestockTypeOfAnimal],
   );
 
   const [vaccinationForm, setVaccinationForm] = useState(emptyVaccination);
@@ -85,28 +84,28 @@ export default function HealthRecords({
     setOpenSection(openSection === section ? null : section);
   };
 
- useEffect(() => {
-  if (!open) return;
+  useEffect(() => {
+    if (!open) return;
 
-  if (Array.isArray(initialData)) {
-    setVaccinations(initialData.filter(r => r.type === "vaccination"));
-    setDewormings(initialData.filter(r => r.type === "deworming"));
-    setTreatments(initialData.filter(r => r.type === "treatment"));
-    setAiRecords(initialData.filter(r => r.type === "ai"));
-  } else {
-    // fallback if already grouped
-    setVaccinations(initialData.vaccinations || []);
-    setDewormings(initialData.dewormings || []);
-    setTreatments(initialData.treatments || []);
-    setAiRecords(initialData.aiRecords || []);
-  }
-}, [open, initialData]);
+    if (Array.isArray(initialData)) {
+      setVaccinations(initialData.filter((r) => r.type === "vaccination"));
+      setDewormings(initialData.filter((r) => r.type === "deworming"));
+      setTreatments(initialData.filter((r) => r.type === "treatment"));
+      setAiRecords(initialData.filter((r) => r.type === "ai"));
+    } else {
+      // fallback if already grouped
+      setVaccinations(initialData.vaccinations || []);
+      setDewormings(initialData.dewormings || []);
+      setTreatments(initialData.treatments || []);
+      setAiRecords(initialData.aiRecords || []);
+    }
+  }, [open, initialData]);
 
-useEffect(() => {
-  if (open) {
-    setAiForm(emptyAI); 
-  }
-}, [open, emptyAI]);
+  useEffect(() => {
+    if (open) {
+      setAiForm(emptyAI);
+    }
+  }, [open, emptyAI]);
 
   useEffect(() => {
     if (!open) {
@@ -118,61 +117,64 @@ useEffect(() => {
     }
   }, [open, emptyAI, emptyDeworming, emptyTreatment, emptyVaccination]);
 
+  const addDays = (dateStr, days) => {
+    const d = new Date(dateStr);
+    d.setDate(d.getDate() + days);
+    return d.toISOString().split("T")[0];
+  };
 
-const addDays = (dateStr, days) => {
-  const d = new Date(dateStr);
-  d.setDate(d.getDate() + days);
-  return d.toISOString().split("T")[0];
-};
+  useEffect(() => {
+    if (!aiForm.date || !aiForm.animalType) return;
 
-useEffect(() => {
-  if (!aiForm.date || !aiForm.animalType) return;
+    const newCalvingDate = addDays(aiForm.date, 21);
 
-  const newCalvingDate = addDays(aiForm.date, 21);
+    let newExpectedDelivery = "";
 
-  let newExpectedDelivery = "";
+    switch (aiForm.animalType.toLowerCase().trim()) {
+      case "pig":
+        newExpectedDelivery = addDays(aiForm.date, 42);
+        break;
+      case "swine":
+        newExpectedDelivery = addDays(aiForm.date, 114);
+        break;
+      case "cow":
+      case "cattle":
+        newExpectedDelivery = addDays(aiForm.date, 284);
+        break;
+      case "goat":
+      case "sheep":
+        newExpectedDelivery = addDays(aiForm.date, 150);
+        break;
+      case "horse":
+        newExpectedDelivery = addDays(aiForm.date, 340);
+        break;
+      case "carabao":
+        newExpectedDelivery = addDays(aiForm.date, 307);
+        break;
+      case "dog":
+      case "cat":
+        newExpectedDelivery = "";
+        break;
+      default:
+        newExpectedDelivery = "";
+    }
 
-  switch (aiForm.animalType.toLowerCase().trim()) {
-    case "pig":
-      newExpectedDelivery = addDays(aiForm.date, 42);
-      break;
-    case "swine":
-      newExpectedDelivery = addDays(aiForm.date, 114);
-      break;
-    case "cow":
-    case "cattle":
-      newExpectedDelivery = addDays(aiForm.date, 284);
-      break;
-    case "goat":
-    case "sheep":
-      newExpectedDelivery = addDays(aiForm.date, 150);
-      break;
-    case "horse":
-      newExpectedDelivery = addDays(aiForm.date, 340);
-      break;
-    case "carabao":
-      newExpectedDelivery = addDays(aiForm.date, 307);
-      break;
-    case "dog":
-    case "cat":
-      newExpectedDelivery = "";
-      break;
-    default:
-      newExpectedDelivery = "";
-  }
-
-
-  if (
-    aiForm.calvingDate !== newCalvingDate ||
-    aiForm.expectedDelivery !== newExpectedDelivery
-  ) {
-    setAiForm((prev) => ({
-      ...prev,
-      calvingDate: newCalvingDate,
-      expectedDelivery: newExpectedDelivery,
-    }));
-  }
-}, [aiForm.date, aiForm.animalType, aiForm.calvingDate, aiForm.expectedDelivery]);
+    if (
+      aiForm.calvingDate !== newCalvingDate ||
+      aiForm.expectedDelivery !== newExpectedDelivery
+    ) {
+      setAiForm((prev) => ({
+        ...prev,
+        calvingDate: newCalvingDate,
+        expectedDelivery: newExpectedDelivery,
+      }));
+    }
+  }, [
+    aiForm.date,
+    aiForm.animalType,
+    aiForm.calvingDate,
+    aiForm.expectedDelivery,
+  ]);
 
   const removeVaccination = (index) => {
     Swal.fire({
@@ -180,8 +182,8 @@ useEffect(() => {
       text: "This vaccination record will be permanently removed.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#dc2626", 
-      cancelButtonColor: "#6b7280", 
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
       confirmButtonText: "Yes, remove it",
       cancelButtonText: "Cancel",
     }).then((result) => {
@@ -205,8 +207,8 @@ useEffect(() => {
       text: "This deworming record will be permanently removed.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#dc2626", 
-      cancelButtonColor: "#6b7280", 
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
       confirmButtonText: "Yes, remove it",
       cancelButtonText: "Cancel",
     }).then((result) => {
@@ -230,8 +232,8 @@ useEffect(() => {
       text: "This treatment record will be permanently removed.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#dc2626", 
-      cancelButtonColor: "#6b7280", 
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
       confirmButtonText: "Yes, remove it",
       cancelButtonText: "Cancel",
     }).then((result) => {
@@ -255,8 +257,8 @@ useEffect(() => {
       text: "This Artificial Insemination record will be permanently removed.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#dc2626", 
-      cancelButtonColor: "#6b7280", 
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
       confirmButtonText: "Yes, remove it",
       cancelButtonText: "Cancel",
     }).then((result) => {
@@ -295,15 +297,15 @@ useEffect(() => {
   );
 
   const handleSubmit = () => {
-  const allRecords = [
-    ...vaccinations,
-    ...dewormings,
-    ...treatments,
-    ...aiRecords,
-  ];
-
-  onSubmit(allRecords);
-};
+    console.log("SAVE ALL CLICKED");
+    
+    onSubmit({
+      vaccinations,
+      dewormings,
+      treatments,
+      aiRecords,
+    });
+  };
 
   if (!open) return null;
 
@@ -327,7 +329,6 @@ useEffect(() => {
             onClick={() => toggleSection("vaccination")}
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              
               <Input
                 label="Vaccine Name"
                 value={vaccinationForm.vaccine}
@@ -410,11 +411,10 @@ useEffect(() => {
               onSave={() => {
                 setVaccinations([
                   ...vaccinations,
-                  { ...vaccinationForm, type: "vaccination"  },
+                  { ...vaccinationForm, type: "vaccination" },
                 ]);
                 setVaccinationForm(emptyVaccination);
               }}
-              
             />
             {vaccinations.length > 0 && (
               <div className="mt-4 border-t pt-4 space-y-2">
@@ -452,7 +452,6 @@ useEffect(() => {
             onClick={() => toggleSection("deworming")}
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              
               <Input
                 label="Type of Dewormer"
                 value={dewormingForm.dewormer}
@@ -525,7 +524,6 @@ useEffect(() => {
                 ]);
                 setDewormingForm(emptyDeworming);
               }}
-             
             />
 
             {dewormings.length > 0 && (
@@ -569,7 +567,6 @@ useEffect(() => {
             onClick={() => toggleSection("treatment")}
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              
               <Input
                 label="Illness"
                 value={treatmentForm.illness}
@@ -659,7 +656,7 @@ useEffect(() => {
               onSave={() => {
                 setTreatments([
                   ...treatments,
-                  { ...treatmentForm, type: "treatment"},
+                  { ...treatmentForm, type: "treatment" },
                 ]);
                 setTreatmentForm(emptyTreatment);
               }}
@@ -706,7 +703,6 @@ useEffect(() => {
             onClick={() => toggleSection("ai")}
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              
               <Input
                 label="Type of Animal"
                 value={aiForm.animalType}
@@ -800,7 +796,10 @@ useEffect(() => {
                       </div>
                     </div>
 
-                    <button onClick={() => removeAI(idx)} className="text-sm text-red">
+                    <button
+                      onClick={() => removeAI(idx)}
+                      className="text-sm text-red"
+                    >
                       Remove
                     </button>
                   </div>
@@ -812,7 +811,10 @@ useEffect(() => {
 
         {/* Footer */}
         <div className="flex justify-end gap-3 mt-6">
-          <button onClick={onClose} className="px-5 py-2 text-xs border rounded-lg">
+          <button
+            onClick={onClose}
+            className="px-5 py-2 text-xs border rounded-lg"
+          >
             Cancel
           </button>
           <button

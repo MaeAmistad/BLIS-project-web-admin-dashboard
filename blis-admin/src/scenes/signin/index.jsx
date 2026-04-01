@@ -71,6 +71,7 @@ const Login = () => {
           title: "Email Not Verified",
           text: "Your email is not verified. Would you like us to resend the verification email?",
           confirmButtonText: "Resend Email",
+          confirmButtonColor: "#08651bfa",
           cancelButtonText: "Cancel",
           showCancelButton: true,
         });
@@ -87,7 +88,8 @@ const Login = () => {
           });
         }
 
-
+        setEmail("")
+        setPassword("")
         await auth.signOut();
         return;
       }

@@ -30,6 +30,7 @@ import { IconButton } from "@mui/material";
 import Headerr from "../../components/Headerr";
 import { notifyAllUsers } from "../../components/NotifyAllUsers";
 import { useAuth } from "../../components/AuthContext";
+import { secondaryAuth } from "../../firebase";
 
 const Account = () => {
   const [users, setUsers] = useState([]);
@@ -46,8 +47,8 @@ const Account = () => {
 
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedUserFilter, setSelectedUserFilter] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-
+  const [isOpenPass1, setIsOpenPass1] = useState(false);
+  const [isOpenPass2, setIsOpenPass2] = useState(false);
   const { user } = useAuth();
 
   const isAdmin = user?.role?.toLowerCase() === "admin";
@@ -99,26 +100,26 @@ const Account = () => {
   };
 
   const filteredUsers = users.filter((user) => {
-  // Only ACTIVE users
-  if (user.status?.toUpperCase() !== "ACTIVE") return false;
+    // Only ACTIVE users
+    if (user.status?.toUpperCase() !== "ACTIVE") return false;
 
-  // Filter by dropdown (if selected)
-  if (selectedUserFilter && user.id !== selectedUserFilter) return false;
+    // Filter by dropdown (if selected)
+    if (selectedUserFilter && user.id !== selectedUserFilter) return false;
 
-  // Filter by search (if typed)
-  if (searchTerm) {
-    const search = searchTerm.toLowerCase();
+    // Filter by search (if typed)
+    if (searchTerm) {
+      const search = searchTerm.toLowerCase();
 
-    const matchesSearch =
-      user.name?.toLowerCase().includes(search) ||
-      user.email?.toLowerCase().includes(search) ||
-      user.contactNumber?.includes(search);
+      const matchesSearch =
+        user.name?.toLowerCase().includes(search) ||
+        user.email?.toLowerCase().includes(search) ||
+        user.contactNumber?.includes(search);
 
-    if (!matchesSearch) return false;
-  }
+      if (!matchesSearch) return false;
+    }
 
-  return true;
-});
+    return true;
+  });
 
   // Add/Edit new user
   const handleSubmit = async (event) => {
@@ -138,11 +139,6 @@ const Account = () => {
       return;
     }
 
-    if (mode === "add" && password.length < 8) {
-      setPasswordError("Password must be at least 8 characters.");
-      return;
-    }
-
     if (mode === "add") {
       if (data.password.length < 8) {
         setPasswordError("Password must be at least 8 characters.");
@@ -156,47 +152,55 @@ const Account = () => {
     }
 
     try {
-      const auth = getAuth();
-
       if (mode === "add") {
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password,
-        );
+        let newUser;
 
-        const user = userCredential.user;
-        const uid = user.uid;
+        try {
+          const userCredential = await createUserWithEmailAndPassword(
+            secondaryAuth,
+            email,
+            password,
+          );
 
-        await setDoc(doc(db, "users", uid), {
-          uid,
-          role,
-          name,
-          email,
-          status: "ACTIVE",
-          createdAt: serverTimestamp(),
-        });
+          newUser = userCredential.user;
+          const uid = newUser.uid;
 
-        await sendEmailVerification(user);
+          await setDoc(doc(db, "users", uid), {
+            uid,
+            role,
+            name,
+            email,
+            status: "ACTIVE",
+            createdAt: serverTimestamp(),
+          });
 
-        await notifyAllUsers({
-          title: "User Added",
-          message: `A new user account was created: ${data.role} ${data.name}.`,
-          type: "add",
-        });
+          await sendEmailVerification(newUser);
 
-        Swal.fire({
-          icon: "success",
-          title: "User Account Created",
-          html: `
-            <p>The user account has been created successfully.</p>
-            <p class="mt-2 text-sm text-gray-600">
-              A verification email has been sent to <b>${email}</b>.
-            </p>
-          `,
-          confirmButtonColor: "#106013ff",
-          confirmButtonText: "Ok",
-        });
+          await notifyAllUsers({
+            title: "User Added",
+            message: `A new user account was created: ${data.role} ${data.name}.`,
+            type: "add",
+          });
+
+          Swal.fire({
+            icon: "success",
+            title: "User Account Created",
+            html: `
+        <p>The user account has been created successfully.</p>
+        <p class="mt-2 text-sm text-gray-600">
+          A verification email has been sent to <b>${email}</b>.
+        </p>
+      `,
+            confirmButtonColor: "#106013ff",
+            timer: undefined,
+            timerProgressBar: false,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+          });
+        } finally {
+          // ALWAYS runs (even if error happens)
+          await secondaryAuth.signOut();
+        }
       }
 
       if (mode === "edit" && selectedUser) {
@@ -238,12 +242,17 @@ const Account = () => {
           ...doc.data(),
         })),
       );
-      window.location.reload();
     } catch (error) {
+      let message = error.message;
+
+      if (error.code === "auth/email-already-in-use") {
+        message = "This email is already registered.";
+      }
+
       Swal.fire({
         icon: "error",
         title: "Operation Failed",
-        text: error.message,
+        text: message,
         confirmButtonColor: "#d33",
       });
     }
@@ -464,7 +473,7 @@ const Account = () => {
                     <div className="mt-1">
                       <p className="text-sm">Role</p>
                       <select
-                        className="w-full h-10 rounded-lg p-1 border border-current"
+                        className="w-full h-10 text-xs rounded-lg p-1 border border-green-600"
                         name="role"
                         value={data.role}
                         onChange={handleSelectChange}
@@ -482,7 +491,7 @@ const Account = () => {
                       <p className="text-sm">Name</p>
                       <input
                         type="text"
-                        className="w-full h-10 border border-current p-1 text-xs rounded-xl"
+                        className="w-full h-10 border border-green-600 p-1 text-xs rounded-xl"
                         name="name"
                         value={data.name}
                         onChange={handleInput}
@@ -493,7 +502,7 @@ const Account = () => {
                       <p className="text-sm">Email</p>
                       <input
                         type="text"
-                        className="w-full h-10 border border-current p-1 text-xs rounded-xl"
+                        className="w-full h-10 border border-green-600 p-1 text-xs rounded-xl"
                         name="email"
                         value={data.email}
                         onChange={handleInput}
@@ -505,21 +514,21 @@ const Account = () => {
                         <div className="mt-1 relative">
                           <p className="text-sm">Password</p>
                           <input
-                            type={isOpen ? "text" : "password"}
+                            type={isOpenPass1 ? "text" : "password"}
                             name="password"
                             value={data.password}
                             onChange={handleInput}
                             className={`w-full h-10 border p-1 text-xs rounded-xl
-          ${passwordError ? "border-red-500" : "border-current"}
+          ${passwordError ? "border-red-500" : "border-green-600"}
         `}
                           />
 
                           <button
                             type="button"
-                            onClick={() => setIsOpen((prev) => !prev)}
+                            onClick={() => setIsOpenPass1((prev) => !prev)}
                             className="absolute right-3 pt-5 top-1/2 -translate-y-1/2"
                           >
-                            {isOpen ? (
+                            {isOpenPass1 ? (
                               <VisibilityRounded
                                 sx={{ color: "#959595", fontSize: 14 }}
                               />
@@ -534,20 +543,20 @@ const Account = () => {
                         <div className="mt-1 relative">
                           <p className="text-sm">Confirm Password</p>
                           <input
-                            type={isOpen ? "text" : "password"}
+                            type={isOpenPass2 ? "text" : "password"}
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             className={`w-full h-10 border p-1 text-xs rounded-xl
-          ${passwordError ? "border-red-500" : "border-current"}
+          ${passwordError ? "border-red-500" : "border-green-600"}
         `}
                           />
 
                           <button
                             type="button"
-                            onClick={() => setIsOpen((prev) => !prev)}
+                            onClick={() => setIsOpenPass2((prev) => !prev)}
                             className="absolute right-3 pt-5 top-1/2 -translate-y-1/2"
                           >
-                            {isOpen ? (
+                            {isOpenPass2 ? (
                               <VisibilityRounded
                                 sx={{ color: "#959595", fontSize: 14 }}
                               />

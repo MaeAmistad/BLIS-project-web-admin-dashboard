@@ -339,13 +339,20 @@ export default function LivestockEdit({
 
       {healthOpen && activeLivestockIndex !== null && (
         <>
-          {console.log("Passing to HealthRecords:", JSON.stringify(livestockList[activeLivestockIndex]?.healthRecords))}
+          {console.log(
+            "Passing to HealthRecords:",
+            JSON.stringify(livestockList[activeLivestockIndex]?.healthRecords),
+          )}
           <HealthRecords
             open={healthOpen}
             onClose={() => setHealthOpen(false)}
             initialData={livestockList[activeLivestockIndex]?.healthRecords}
-            livestockTypeOfAnimal={livestockList[activeLivestockIndex]?.typeOfAnimal}
-            onSubmit={(records, deletedIds) => {
+            livestockTypeOfAnimal={
+              livestockList[activeLivestockIndex]?.typeOfAnimal
+            }
+            onSubmit={(records) => {
+              console.log("RECEIVED FROM MODAL:", records);
+
               setLivestockList((prev) =>
                 prev.map((l, i) =>
                   i === activeLivestockIndex

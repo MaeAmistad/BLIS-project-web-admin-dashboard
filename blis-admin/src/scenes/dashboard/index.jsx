@@ -43,13 +43,13 @@ import {
 import CalendarPanel from "../../components/CalendarPanel";
 
 const COLORS = [
-  "#316ccb", 
-  "#10B981", 
-  "#0b74f5b0", 
-  "#9c0d6a", 
-  "#068865", 
-  "#06B6D4", 
-  "#F97316", 
+  "#316ccb",
+  "#10B981",
+  "#0b74f5b0",
+  "#9c0d6a",
+  "#068865",
+  "#06B6D4",
+  "#F97316",
 ];
 
 const renderCustomizedLabel = ({ x, y, name, percentage }) => {
@@ -101,8 +101,6 @@ const LivestockPieChart = ({ data }) => (
           color: "#374151",
         }}
       />
-
-    
     </PieChart>
   </ResponsiveContainer>
 );
@@ -134,7 +132,17 @@ const ActivityLog = ({ reminders }) => (
           {reminders.map((reminder) => (
             <li
               key={reminder.id}
-              className="border-l-4 border-blue-500 pl-3 text-sm"
+              className={`border-l-4 pl-3 text-sm ${
+                reminder.type === "low-stock"
+                  ? "border-red-500"
+                  : reminder.type === "expiration" &&
+                      reminder.remainingDays <= 3
+                    ? "border-red-500"
+                    : reminder.type === "expiration" &&
+                        reminder.remainingDays <= 7
+                      ? "border-yellow-500"
+                      : "border-blue-500"
+              }`}
             >
               <p className="text-xs text-gray-500 font-semibold">
                 <span>{reminder.date?.toLocaleDateString() || "No date"}</span>
@@ -157,7 +165,21 @@ const ActivityLog = ({ reminders }) => (
                 )}
               </p>
 
-              <p className="font-medium mt-2">{reminder.message}</p>
+              <p
+  className={`font-medium mt-2 ${
+    reminder.type === "low-stock"
+      ? "text-red-600"
+      : reminder.type === "expiration" &&
+          reminder.remainingDays <= 3
+        ? "text-red-600"
+        : reminder.type === "expiration" &&
+            reminder.remainingDays <= 7
+          ? "text-yellow-600"
+          : ""
+  }`}
+>
+  {reminder.message}
+</p>
             </li>
           ))}
         </ul>
@@ -214,154 +236,146 @@ const Dashboard = () => {
   };
 
   const getRemainingDays = (from, to) => {
-  const start = new Date(from);
-  const end = new Date(to);
+    const start = new Date(from);
+    const end = new Date(to);
 
-  start.setHours(0, 0, 0, 0);
-  end.setHours(0, 0, 0, 0);
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
 
-  return Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-};
-
+    return Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+  };
 
   useEffect(() => {
     const fetchReminders = async () => {
       try {
-        const reminderList = [];
         const today = new Date();
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
 
-        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const parseDateString = (dateStr) => {
+          if (!dateStr || typeof dateStr !== "string") return null;
+          const d = new Date(dateStr.replace(/\//g, "-"));
+          return isNaN(d.getTime()) ? null : d;
+        };
 
-        const endOfMonth = new Date(
-          today.getFullYear(),
-          today.getMonth() + 1,
-          0,
-          23,
-          59,
-          59,
-        );
+        const reminderList = [];
 
-        
+        const inventorySnap = await getDocs(collection(db, "inventories"));
 
-        //  Fetch all raisers once 
-        const raiserSnap = await getDocs(collection(db, "raisers"));
-        const raiserMap = {}; 
-        raiserSnap.forEach((r) => {
-          const data = r.data();
-          const fullName = [data.firstName, data.middleInitial, data.lastName]
-            .filter(Boolean)
-            .join(" ");
-          raiserMap[r.id] = fullName;
+        inventorySnap.forEach((doc) => {
+          const { itemName, quantity, expirationDate } = doc.data();
+
+          if (quantity <= 10) {
+            reminderList.push({
+              type: "low-stock",
+              message: `Low Stock Alert for ${itemName} (Qty: ${quantity})`,
+              date: new Date(),
+            });
+          }
+
+          if (expirationDate) {
+            const expDate = parseDateString(expirationDate);
+            if (
+              expDate &&
+              expDate.getMonth() === currentMonth &&
+              expDate.getFullYear() === currentYear
+            ) {
+              reminderList.push({
+                type: "expiration",
+                message: `Expiration Date for ${itemName} is coming`,
+                date: expDate,
+              });
+            }
+          }
         });
 
-        // Fetch all healthRecords 
-        const healthSnap = await getDocs(collectionGroup(db, "healthRecords"));
-        for (const hr of healthSnap.docs) {
-          const data = hr.data();
-          const pathParts = hr.ref.path.split("/");
-          const raiserId = pathParts[1];
-          const livestockId = pathParts[3];
+        const raisersSnap = await getDocs(collection(db, "raisers"));
 
-          const raiserName = raiserMap[raiserId] || "Unknown Raiser";
+        for (const raiserDoc of raisersSnap.docs) {
+          const raiserData = raiserDoc.data();
+          const fullName = `${raiserData.firstName} ${raiserData.lastName}`;
 
-          // Fetch livestock name
-          let livestockName = "Unknown Livestock";
-          const livestockRef = doc(
-            db,
-            `raisers/${raiserId}/livestock/${livestockId}`,
+          const livestockSnap = await getDocs(
+            collection(db, "raisers", raiserDoc.id, "livestock"),
           );
-          const livestockDoc = await getDoc(livestockRef);
-          if (livestockDoc.exists()) {
-            livestockName = livestockDoc.data().typeOfAnimal || livestockName;
-          }
 
-          const type = data.type?.toUpperCase();
-          if (type === "DEWORMING" && data.dateAdministered) {
-            const administeredDate = data.dateAdministered.toDate
-              ? data.dateAdministered.toDate()
-              : new Date(data.dateAdministered);
+          for (const livestockDoc of livestockSnap.docs) {
+            const livestockData = livestockDoc.data();
+            const { typeOfAnimal } = livestockData;
 
-            // Compute quarterly schedule (every 3 months)
-            const nextSchedule = addMonths(administeredDate, 3);
+            const animalType = typeOfAnimal?.toUpperCase();
 
-            // Exclude Dog and Cat (case-insensitive)
-            const excludedAnimals = ["dog", "cat"];
-            if (excludedAnimals.includes(livestockName.toLowerCase())) {
+            if (!animalType || animalType === "DOG" || animalType === "CAT")
               continue;
-            }
 
-            if (nextSchedule >= today && nextSchedule <= endOfMonth) {
-              reminderList.push({
-                id: hr.id,
-                message: `Deworming schedule for ${livestockName}, (${raiserName})`,
-                date: nextSchedule,
-                remainingDays: getRemainingDays(today, nextSchedule),
-              });
-            }
-          }
+            const healthSnap = await getDocs(
+              collection(
+                db,
+                "raisers",
+                raiserDoc.id,
+                "livestock",
+                livestockDoc.id,
+                "healthRecords",
+              ),
+            );
 
-          if (type === "AI" && data.nextCalvingDate) {
-            const date = data.nextCalvingDate.toDate
-              ? data.nextCalvingDate.toDate()
-              : new Date(data.nextCalvingDate);
-            if (date >= today && date <= endOfMonth) {
-              reminderList.push({
-                id: doc.id,
-                message: `Reheat Monitoring Schedule for ${livestockName}, (${raiserName})`,
-                date,
-                remainingDays: getRemainingDays(today, date),
-                
-              });
-            }
-          }
+            healthSnap.forEach((healthDoc) => {
+              const healthData = healthDoc.data();
+              const recordType = healthData.type?.toUpperCase();
 
-          if (type === "AI" && data.expectedDelivery) {
-            const date = data.expectedDelivery.toDate
-              ? data.expectedDelivery.toDate()
-              : new Date(data.expectedDelivery);
-            if (date >= today && date <= endOfMonth) {
-              reminderList.push({
-                id: doc.id,
-                message: `${raiserName}'s ${livestockName} expected Delivery`,
-                date,
-                remainingDays: getRemainingDays(today, date),
-              });
-            }
+              // DEWORMING
+              if (recordType === "DEWORMING" && healthData.dateAdministered) {
+                const administeredDate = parseDateString(
+                  healthData.dateAdministered,
+                );
+                const nextDeworming = addMonths(administeredDate, 3);
+
+                if (
+                  nextDeworming.getMonth() === currentMonth &&
+                  nextDeworming.getFullYear() === currentYear
+                ) {
+                  reminderList.push({
+                    type: "deworming",
+                    message: `Next Deworming Schedule for ${typeOfAnimal} of ${fullName}`,
+                    date: nextDeworming,
+                  });
+                }
+              }
+
+              // AI
+              if (recordType === "AI") {
+                const calvingDate = parseDateString(healthData.calvingDate);
+                if (
+                  calvingDate &&
+                  calvingDate.getMonth() === currentMonth &&
+                  calvingDate.getFullYear() === currentYear
+                ) {
+                  reminderList.push({
+                    type: "ai-reheat",
+                    message: `Reheat Monitoring of the ${typeOfAnimal} of ${fullName}`,
+                    date: calvingDate,
+                  });
+                }
+
+                const expectedDelivery = parseDateString(
+                  healthData.expectedDelivery,
+                );
+                if (
+                  expectedDelivery &&
+                  expectedDelivery.getMonth() === currentMonth &&
+                  expectedDelivery.getFullYear() === currentYear
+                ) {
+                  reminderList.push({
+                    type: "ai-delivery",
+                    message: `Expected Delivery of the ${typeOfAnimal} of ${fullName}`,
+                    date: expectedDelivery,
+                  });
+                }
+              }
+            });
           }
         }
 
-        // INVENTORY REMINDERS 
-        const inventorySnap = await getDocs(collection(db, "inventory"));
-        inventorySnap.forEach((doc) => {
-          const data = doc.data();
-          const expirationDate = data.expirationDate?.toDate
-            ? data.expirationDate.toDate()
-            : new Date(data.expirationDate);
-          const oneWeekBefore = new Date(expirationDate);
-          oneWeekBefore.setDate(expirationDate.getDate() - 7);
-
-          // Low stock reminder
-          if (data.quantity < 20) {
-            reminderList.push({
-              id: doc.id + "_lowStock",
-              message: `Low stock: ${data.itemName} (${data.quantity} left)`,
-              date: today,
-              
-            });
-          }
-
-          // Expiration reminder
-          if (oneWeekBefore >= today && oneWeekBefore <= endOfMonth) {
-            reminderList.push({
-              id: doc.id + "_expire",
-              message: `${data.itemName} expires soon (${expirationDate.toLocaleDateString()})`,
-              date: oneWeekBefore,
-              remainingDays: getRemainingDays(today, expirationDate),
-            });
-          }
-        });
-
-        // Sort by nearest date
         reminderList.sort((a, b) => a.date - b.date);
 
         setReminders(reminderList);
@@ -398,7 +412,6 @@ const Dashboard = () => {
       setActivityLogs(logs);
     });
 
-   
     return () => unsubscribe();
   }, []);
 
@@ -419,7 +432,6 @@ const Dashboard = () => {
           })),
         );
 
-
         const livestockSnap = await getDocs(collectionGroup(db, "livestock"));
         const healthSnap = await getDocs(collectionGroup(db, "healthRecords"));
         const animalMap = {};
@@ -434,7 +446,6 @@ const Dashboard = () => {
           animalMap[key] = (animalMap[key] || 0) + 1;
         });
 
-
         const totalLivestock = livestockSnap.size;
 
         const livestockTypeData = Object.entries(animalMap).map(
@@ -447,11 +458,9 @@ const Dashboard = () => {
 
         setLivestockByType(livestockTypeData);
 
-
         const activeUsersSnap = await getDocs(
           query(collection(db, "users"), where("status", "==", "ACTIVE")),
         );
-
 
         let vaccinationCount = 0;
         let treatmentCount = 0;
@@ -491,7 +500,6 @@ const Dashboard = () => {
             unvaccinatedCount++;
           }
         });
-
 
         const inventorySnap = await getDocs(collection(db, "inventories"));
         let lowStockCount = 0;
@@ -546,7 +554,7 @@ const Dashboard = () => {
     allLogs.sort((a, b) => {
       const aTime = a.createdAt?.toDate?.() || new Date(a.createdAt);
       const bTime = b.createdAt?.toDate?.() || new Date(b.createdAt);
-      return bTime - aTime; 
+      return bTime - aTime;
     });
 
     const filteredLogs = allLogs.filter((log) => isToday(log.createdAt));
@@ -569,7 +577,6 @@ const Dashboard = () => {
       }));
       setActivityLogs((prev) => mergeAndSort(prev, logs));
     });
-
 
     const healthQuery = query(
       collectionGroup(db, "healthRecords"),
@@ -691,7 +698,6 @@ const Dashboard = () => {
 
                 {/* CHARTS SECTION  */}
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-6">
-                 
                   <div className="xl:col-span-8 bg-white rounded-2xl shadow p-4 border border-gray-200">
                     <h3 className="font-semibold mb-3">Raisers per Address</h3>
 

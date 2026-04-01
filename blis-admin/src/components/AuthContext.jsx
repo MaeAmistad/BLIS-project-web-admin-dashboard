@@ -21,11 +21,17 @@ export const AuthProvider = ({ children }) => {
       const userRef = doc(db, "users", firebaseUser.uid);
       const userSnap = await getDoc(userRef);
 
-      setUser({
-        uid: firebaseUser.uid,
-        email: firebaseUser.email,
-        ...(userSnap.exists() ? userSnap.data() : {}),
-      });
+      try {
+        const userSnap = await getDoc(userRef);
+
+        setUser({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          ...(userSnap.exists() ? userSnap.data() : {}),
+        });
+      } catch (error) {
+        alert("Error fetching user data:", error);
+      }
 
       setLoading(false);
     });
