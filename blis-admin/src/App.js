@@ -11,6 +11,11 @@ import UserProfile from "./components/userprofile";
 import React, { useEffect } from "react";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MainPage from "./components/MainPage";
+import ProjectDispersal from "./scenes/dispersal/index";
+import DispersalManagement from "./components/DispersalManagement";
+import ProjectManagement from "./scenes/project";
+import Project from "./scenes/project";
+import Dispersal from "./scenes/dispersal/index";
 
 function App() {
   useEffect(() => {
@@ -77,6 +82,15 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/projectAndDispersal"
+            element={
+              <ProtectedRoute>
+                <Dispersal />
+              </ProtectedRoute>
+            }
+          />
+        
           <Route
             path="/account"
             element={

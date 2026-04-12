@@ -65,6 +65,17 @@ body,
   background: transparent !important;
 }
 
+.fc-event-title {
+  text-align: center;
+  width: 100%;
+}
+
+.fc-event-main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 /* Hover */
 .fc-daygrid-day:hover .fc-daygrid-day-number {
   background: #066b09;

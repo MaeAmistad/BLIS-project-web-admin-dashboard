@@ -12,6 +12,7 @@ import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import { getAuth, signOut } from "firebase/auth";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { AccountTreeRounded } from "@mui/icons-material";
 
 const Sidebarr = () => {
   const [open, setOpen] = useState(true);
@@ -45,6 +46,21 @@ const Sidebarr = () => {
       title: "Health and Medical Records",
       path: "/healthandmed",
       icon: <MedicalInformationIcon />,
+    },
+    // {
+    //   title: "Project Management",
+    //   path: "/project",
+    //   icon: <AccountTreeRounded />,
+    // },
+    // {
+    //   title: "Dispersal Management",
+    //   path: "/dispersal",
+    //   icon: <AccountTreeRounded />,
+    // },
+    {
+      title: "Project & Dispersal Management",
+      path: "/projectAndDispersal",
+      icon: <AccountTreeRounded />,
     },
     {
       title: "Inventory and Supplies",

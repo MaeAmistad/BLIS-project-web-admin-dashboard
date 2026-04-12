@@ -150,40 +150,42 @@ const LivestockInventory = () => {
   };
 
   const getTimestamp = (ts) => {
-  if (!ts) return 0;
+    if (!ts) return 0;
 
-  // Supports Firestore timestamp or JS Date
-  if (ts.seconds) return ts.seconds * 1000;
-  return new Date(ts).getTime();
-};
+    // Supports Firestore timestamp or JS Date
+    if (ts.seconds) return ts.seconds * 1000;
+    return new Date(ts).getTime();
+  };
   // Search filter
-  const filteredLivestock = livestocks.filter((r) => {
-    const term = searchTerm.toLowerCase();
+  const filteredLivestock = livestocks
+    .filter((r) => {
+      const term = searchTerm.toLowerCase();
 
-    const animals = r.livestockList
-      .filter((l) => l.typeOfAnimal)
-      .map((l) => l.typeOfAnimal)
-      .join(" ")
-      .toLowerCase();
+      const animals = r.livestockList
+        .filter((l) => l.typeOfAnimal)
+        .map((l) => l.typeOfAnimal)
+        .join(" ")
+        .toLowerCase();
 
-    return (
-      r.raiserName?.toLowerCase().includes(term) ||
-      r.address?.toLowerCase().includes(term) ||
-      animals.includes(term)
-    );
-  }).sort((a, b) => {
-    const aLastActivity = Math.max(
-      getTimestamp(a.createdAt),
-      getTimestamp(a.updatedAt)
-    );
+      return (
+        r.raiserName?.toLowerCase().includes(term) ||
+        r.address?.toLowerCase().includes(term) ||
+        animals.includes(term)
+      );
+    })
+    .sort((a, b) => {
+      const aLastActivity = Math.max(
+        getTimestamp(a.createdAt),
+        getTimestamp(a.updatedAt),
+      );
 
-    const bLastActivity = Math.max(
-      getTimestamp(b.createdAt),
-      getTimestamp(b.updatedAt)
-    );
+      const bLastActivity = Math.max(
+        getTimestamp(b.createdAt),
+        getTimestamp(b.updatedAt),
+      );
 
-    return bLastActivity - aLastActivity;
-  });
+      return bLastActivity - aLastActivity;
+    });
 
   const handlePrintLivestocks = () => {
     const doc = new jsPDF({
@@ -272,7 +274,7 @@ const LivestockInventory = () => {
         fontSize: 8,
         halign: "center",
         valign: "middle",
-        lineWidth: 0.3, 
+        lineWidth: 0.3,
         lineColor: [22, 163, 74],
       },
       headStyles: {
@@ -300,7 +302,6 @@ const LivestockInventory = () => {
         <Topbar />
         <div className="sticky top-14 flex flex-col md:flex-row items-start md:items-center justify-between p-1 m-2">
           <Headerr title="Livestock Information" />
-
         </div>
 
         {/* Main Body */}
@@ -370,20 +371,27 @@ const LivestockInventory = () => {
 
                       <td className="p-2 text-center border border-gray-400">
                         {r.livestockList.length > 0 ? (
-                          <span
-                            className="text-gray-700"
-                            title={r.livestockList
-                              .map((l) => l.typeOfAnimal || l.animalType || "")
-                              .filter(Boolean)
-                              .join(", ")}
-                          >
-                            {r.livestockList
-                              .map((l) => l.typeOfAnimal || l.animalType || "")
-                              .filter(Boolean)
-                              .slice(0, 3)
-                              .join(", ")}
-                            {r.livestockList.length > 3 && "…"}
-                          </span>
+                          (() => {
+                            const uniqueTypes = [
+                              ...new Set(
+                                r.livestockList
+                                  .map(
+                                    (l) => l.typeOfAnimal || l.animalType || "",
+                                  )
+                                  .filter(Boolean),
+                              ),
+                            ];
+
+                            return (
+                              <span
+                                className="text-gray-700"
+                                title={uniqueTypes.join(", ")}
+                              >
+                                {uniqueTypes.slice(0, 3).join(", ")}
+                                {uniqueTypes.length > 3 && "…"}
+                              </span>
+                            );
+                          })()
                         ) : (
                           <span className="text-gray-400">No Livestock</span>
                         )}
@@ -416,8 +424,6 @@ const LivestockInventory = () => {
                               sx={{ color: "#220577ff", fontSize: 16 }}
                             />
                           </IconButton>
-
-                          
                         </div>
                       </td>
                     </tr>
@@ -434,7 +440,6 @@ const LivestockInventory = () => {
           </div>
         </div>
       </div>
-
 
       <ViewLivestockDetailsModal
         open={viewOpen}

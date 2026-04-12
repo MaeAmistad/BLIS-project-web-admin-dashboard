@@ -56,11 +56,10 @@ export default function CalendarPanel() {
               .filter(record => record.type === "ai" && record.calvingDate)
               .map(record => ({
                 id: `${raiserId}-${livestockId}-${record.id}`,
-                title: "Re-heat",
+                title: "Reheat",
                 start: record.calvingDate,
                 allDay: true,
-                backgroundColor: "#ef4444", // red
-                borderColor: "#ef4444",
+                backgroundColor: "#2941dc", 
                 textColor: "white",
               }))
         );

@@ -52,6 +52,7 @@ const RaiserProfile = () => {
   const [showEdit, setShowEdit] = useState(false);
   const [showRaiser, setShowRaiser] = useState(false);
   const [wizardStep, setWizardStep] = useState(0);
+  const [statusFilter, setStatusFilter] = useState("Active");
 
   const [wizardData, setWizardData] = useState({
     raiser: {},
@@ -307,7 +308,10 @@ const RaiserProfile = () => {
       const matchesStatus =
         selectedStatus === "" || raiser.registrationStatus === selectedStatus;
 
-      return matchesSearch && matchesAddress && matchesStatus;
+      const matchesStatusToggle =
+  statusFilter === "" || raiser.registrationStatus === statusFilter;
+
+      return matchesSearch && matchesAddress && matchesStatus && matchesStatusToggle ;
     })
     .sort((a, b) => {
       const aLastActivity = Math.max(
@@ -467,7 +471,7 @@ const RaiserProfile = () => {
               value={selectedAddress}
               onChange={(e) => setSelectedAddress(e.target.value)}
             >
-              <option value="">Barangay</option>
+              <option value="">All</option>
               {uniqueAddresses.map((address) => (
                 <option key={address} value={address}>
                   {address}
@@ -481,7 +485,7 @@ const RaiserProfile = () => {
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
             >
-              <option value="">Registration Status</option>
+              <option value="">All</option>
               {uniqueStatuses.map((status) => (
                 <option key={status} value={status}>
                   {status}
@@ -498,14 +502,37 @@ const RaiserProfile = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
 
-            {/* Button pushed to the right */}
-            <button
-              onClick={handlePrintRaisers}
-              className="ml-auto px-3 py-2 text-sm rounded-lg bg-black text-white hover:bg-black-700 disabled:opacity-50 disabled:cursor-no-drop"
-            >
-              <Print fontSize="extra-small" />
-              Print Raisers
-            </button>
+            <div className="flex items-center gap-2 ml-auto">
+              <button
+                onClick={() => setStatusFilter("Active")}
+                className={`px-3 py-2 text-sm rounded-lg ${
+                  statusFilter === "active"
+                    ? "bg-green-600 text-white"
+                    : "bg-gray-200 text-gray-700"
+                }`}
+              >
+                Active Raisers
+              </button>
+
+              <button
+                onClick={() => setStatusFilter("Inactive")}
+                className={`px-3 py-2 text-sm rounded-lg ${
+                  statusFilter === "inactive"
+                    ? "bg-red-600 text-white"
+                    : "bg-gray-200 text-gray-700"
+                }`}
+              >
+                Inactive Raisers
+              </button>
+
+              <button
+                onClick={handlePrintRaisers}
+                className="px-3 py-2 text-sm rounded-lg bg-black text-white flex items-center gap-1"
+              >
+                <Print fontSize="extra-small" />
+                Print Raisers
+              </button>
+            </div>
           </div>
 
           {/* TABLE */}
