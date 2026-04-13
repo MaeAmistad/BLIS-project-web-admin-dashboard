@@ -1,12 +1,63 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { db } from "../firebase.js";
+import { collection, getDocs } from "firebase/firestore";
 
 const ViewDetailsModal = ({ open, onClose, raiser }) => {
-  if (!open || !raiser) return null; 
+  const [livestockList, setLivestockList] = useState([]);
+  const [loadingLivestock, setLoadingLivestock] = useState(false);
+
+  useEffect(() => {
+    const fetchLivestock = async () => {
+      if (!raiser?.id) return;
+
+      try {
+        setLoadingLivestock(true);
+
+        const livestockRef = collection(db, "raisers", raiser.id, "livestock");
+
+        const snapshot = await getDocs(livestockRef);
+
+        const rawData = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        const grouped = rawData.reduce((acc, item) => {
+          const type = item.typeOfAnimal || item.animalType || "Unknown";
+
+          if (!acc[type]) {
+            acc[type] = {
+              type,
+              count: 0,
+              breed: item.breed || "—",
+            };
+          }
+
+          acc[type].count += 1;
+
+          return acc;
+        }, {});
+
+        const groupedList = Object.values(grouped);
+
+        setLivestockList(groupedList);
+      } catch (error) {
+        console.error("Error fetching livestock:", error);
+      } finally {
+        setLoadingLivestock(false);
+      }
+    };
+
+    if (open) {
+      fetchLivestock();
+    }
+  }, [raiser, open]);
+
+  if (!open || !raiser) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl shadow-lg w-full max-w-3xl mx-4 p-6 relative overflow-y-auto max-h-[90vh]">
-        
         {/* Close button */}
         <button
           onClick={onClose}
@@ -72,9 +123,43 @@ const ViewDetailsModal = ({ open, onClose, raiser }) => {
 
           <div className="col-span-2">
             <p className="font-medium text-gray-900">Date Registered</p>
-            <p>{raiser.dateOfRegistration|| "—"}</p>
+            <p>{raiser.dateOfRegistration || "—"}</p>
           </div>
         </div>
+
+        {/* Livestock Section */}
+        <h3 className="text-lg font-semibold text-gray-800 mb-2 border-b pb-1">
+          Livestock Information
+        </h3>
+
+        {loadingLivestock ? (
+          <p className="text-sm text-gray-500">Loading livestock...</p>
+        ) : livestockList.length === 0 ? (
+          <p className="text-sm text-gray-500">No livestock found.</p>
+        ) : (
+          <div className="overflow-x-auto mb-6">
+            <table className="w-full text-sm border border-gray-300">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="p-2 border">Type</th>
+                  <th className="p-2 border">Breed</th>
+                  <th className="p-2 border">Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                {livestockList.map((livestock, index) => (
+                  <tr key={index} className="text-center">
+                    <td className="p-2 border">{livestock.type}</td>
+                    <td className="p-2 border">{livestock.breed}</td>
+                    <td className="p-2 border font-semibold text-green-700">
+                      {livestock.count}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {/* Footer */}
         <div className="flex justify-center mt-8">

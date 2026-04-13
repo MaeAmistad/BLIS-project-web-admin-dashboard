@@ -25,6 +25,7 @@ const Dispersal = () => {
   const [isDispersalLoading, setIsDispersalLoading] = useState(true);
   const [isProjectLoading, setIsProjectLoading] = useState(true);
   const [activeTable, setActiveTable] = useState("projects");
+  const [raisersMap, setRaisersMap] = useState({});
 
   const [openDispersal, setOpenDispersal] = useState(false);
   const [openProject, setOpenProject] = useState(false);
@@ -50,21 +51,53 @@ const Dispersal = () => {
   }, []);
 
   // Fetch dispersals from Firestore
+ useEffect(() => {
+  const unsub = onSnapshot(
+    collection(db, "dispersals"),
+    (snapshot) => {
+      const data = snapshot.docs.map((doc) => {
+        const dispersal = doc.data();
+
+        const raiser = raisersMap[dispersal.raiserId];
+
+        return {
+          id: doc.id,
+          ...dispersal,
+          raiserName: raiser?.fullName || "Unknown Raiser",
+        };
+      });
+
+      setDispersal(data);
+      setIsDispersalLoading(false);
+    },
+    (error) => {
+      console.error("Error fetching dispersals:", error);
+      setIsDispersalLoading(false);
+    }
+  );
+
+  return () => unsub();
+}, [raisersMap]);
+
   useEffect(() => {
-    const unsub = onSnapshot(
-      collection(db, "dispersals"),
-      (snapshot) => {
-        const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setDispersal(data);
-        setIsDispersalLoading(false);
-      },
-      (error) => {
-        console.error("Error fetching dispersals:", error);
-        setIsDispersalLoading(false);
-      }
-    );
-    return () => unsub();
-  }, []);
+  const unsub = onSnapshot(collection(db, "raisers"), (snapshot) => {
+    const map = {};
+
+    snapshot.docs.forEach((doc) => {
+      const data = doc.data();
+
+      map[doc.id] = {
+        id: doc.id,
+        fullName: `${data.firstName || ""} ${data.middleName || ""} ${data.lastName || ""}`.trim(),
+        ...data,
+      };
+    });
+
+    setRaisersMap(map);
+  });
+
+  return () => unsub();
+}, []);
 
   const getTimestamp = (ts) => {
     if (!ts) return 0;
@@ -74,7 +107,7 @@ const Dispersal = () => {
 
   const filteredDispersal = dispersal
     .filter((item) =>
-      item.itemName?.toLowerCase().includes(searchTerm.toLowerCase())
+      item.projectName?.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .sort((a, b) => {
       const aLastActivity = Math.max(getTimestamp(a.createdAt), getTimestamp(a.updatedAt));
@@ -183,6 +216,7 @@ const Dispersal = () => {
                     <th className="w-[100px]">Description</th>
                     <th className="w-[120px]">Start Date</th>
                     <th className="w-[120px]">End Date</th>
+                    <th className="w-[120px]">Status</th>
                     <th className="w-[50px]">Action</th>
                   </tr>
                 </thead>
@@ -213,6 +247,7 @@ const Dispersal = () => {
                         <td className="p-2 text-center border border-gray-400">
                           {item.endDate ? new Date(item.endDate).toLocaleDateString() : "-"}
                         </td>
+                        <td className="p-2 text-center border border-gray-400">{item.status ?? "-"}</td>
                         <td className="p-2 text-center border border-gray-400">
                           <div className="flex justify-center">
                             <IconButton aria-label="view">
@@ -243,6 +278,7 @@ const Dispersal = () => {
                     <th className="w-[100px]">Animal Type</th>
                     <th className="w-[100px]">Quantity</th>
                     <th className="w-[120px]">Dispersal Date</th>
+                    <th className="w-[120px]">Status</th>
                     <th className="w-[50px]">Action</th>
                   </tr>
                 </thead>
@@ -264,12 +300,13 @@ const Dispersal = () => {
                       <tr key={item.id} className="border-b hover:bg-green-100 text-xs">
                         <td className="p-2 text-center border border-gray-400">{index + 1}</td>
                         <td className="p-2 text-center border border-gray-400">{item.projectName ?? "-"}</td>
-                        <td className="p-2 text-center border border-gray-400">{item.raiseName ?? "-"}</td>
+                        <td className="p-2 text-center border border-gray-400">{item.raiserName ?? "-"}</td>
                         <td className="p-2 text-center border border-gray-400">{item.animalType ?? "-"}</td>
                         <td className="p-2 text-center border border-gray-400">{item.quantity ?? "-"}</td>
                         <td className="p-2 text-center border border-gray-400">
                           {item.dispersalDate ? new Date(item.dispersalDate).toLocaleDateString() : "-"}
                         </td>
+                         <td className="p-2 text-center border border-gray-400">{item.status ?? "-"}</td>
                         <td className="p-2 text-center border border-gray-400">
                           <div className="flex justify-center">
                             <IconButton aria-label="view">

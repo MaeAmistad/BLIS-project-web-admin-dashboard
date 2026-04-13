@@ -52,7 +52,6 @@ const formatRecordType = (type) => {
     .replace(/^./, (str) => str.toUpperCase());
 };
 
-
 const renderDynamicFields = (obj) => (
   <div className="grid grid-cols-2 border border-green-400 rounded-md overflow-hidden">
     {LIVESTOCK_FIELD_ORDER.map((key) => {
@@ -136,6 +135,34 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
   const [livestock, setLivestock] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const groupedLivestock = Object.values(
+    livestock.reduce((acc, item) => {
+      const type = item.typeOfAnimal || item.animalType || "Unknown";
+
+      if (!acc[type]) {
+        acc[type] = {
+          type,
+          count: 0,
+          breeds: new Set(),
+          animals: [],
+        };
+      }
+
+      acc[type].count += 1;
+
+      if (item.breed) {
+        acc[type].breeds.add(item.breed);
+      }
+
+      acc[type].animals.push(item);
+
+      return acc;
+    }, {}),
+  ).map((item) => ({
+    ...item,
+    breeds: Array.from(item.breeds).join(", "),
+  }));
+
   const fetchLivestockWithHealth = async (raiserId) => {
     const livestockRef = collection(db, "raisers", raiserId, "livestock");
     const livestockSnap = await getDocs(livestockRef);
@@ -186,10 +213,10 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
     loadData();
   }, [raiserInfo]);
 
-  const toggleHealthRecords = (livestockId) => {
+  const toggleHealthRecords = (key) => {
     setOpenHealth((prev) => ({
       ...prev,
-      [livestockId]: !prev[livestockId],
+      [key]: !prev[key],
     }));
   };
 
@@ -223,7 +250,6 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
     doc.text("Bantay, Ilocos Sur", centerX, headerY + 10, {
       align: "center",
     });
-
 
     const imgSize = 18;
     const imgY = headerY - 8;
@@ -259,7 +285,9 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
     );
 
     doc.setFontSize(14);
-    doc.text("Raiser and Livestock Information", centerX, 42, { align: "center" });
+    doc.text("Raiser and Livestock Information", centerX, 42, {
+      align: "center",
+    });
 
     const LABEL_COL_WIDTH = 45;
     const VALUE_COL_WIDTH = pageWidth - 36 - LABEL_COL_WIDTH;
@@ -304,7 +332,7 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
       theme: "grid",
       styles: {
         fontSize: 9,
-        lineWidth: 0.3, 
+        lineWidth: 0.3,
         lineColor: [22, 163, 74],
       },
       columnStyles: {
@@ -337,7 +365,7 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
         theme: "striped",
         styles: {
           fontSize: 9,
-          lineWidth: 0.3, 
+          lineWidth: 0.3,
           lineColor: [22, 163, 74],
         },
         columnStyles: {
@@ -376,7 +404,7 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
             theme: "grid",
             styles: {
               fontSize: 8,
-              lineWidth: 0.3, 
+              lineWidth: 0.3,
               lineColor: [22, 163, 74],
             },
             columnStyles: {
@@ -405,6 +433,27 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
   };
 
   if (!visible) return null;
+
+  const getRecordTypeSummary = (records = []) => {
+    const summary = records.reduce((acc, record) => {
+      const type = record.type || "Unknown";
+
+      if (!acc[type]) {
+        acc[type] = 0;
+      }
+
+      acc[type] += 1;
+
+      return acc;
+    }, {});
+
+    return Object.entries(summary)
+      .map(([type, count]) => {
+        const label = formatRecordType(type);
+        return `${label} (${count})`;
+      })
+      .join(", ");
+  };
   return (
     <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
       <div
@@ -485,70 +534,66 @@ const RaiserView = ({ visible, raiserInfo, onClose }) => {
           <p className="text-gray-500">No livestock found</p>
         ) : (
           <div className="space-y-3">
-            {livestock.map((animal, index) => (
-              <div key={animal.id} className="border rounded-lg p-4 bg-gray-50">
-                <h4 className="font-semibold mb-2">Livestock {index + 1}</h4>
+            {groupedLivestock.map((group, index) => (
+              <div key={index} className="border rounded-lg p-4 bg-gray-50">
+                <h4 className="font-semibold mb-2 text-lg">{group.type}</h4>
 
+                {/* Summary */}
+                <div className="grid grid-cols-2 border border-green-400 rounded-md overflow-hidden text-sm">
+                  <div className="px-3 py-2 font-medium border-b border-r border-green-400">
+                    Type of Animal
+                  </div>
+                  <div className="px-3 py-2 border-b border-green-400">
+                    {group.type}
+                  </div>
 
-                {renderDynamicFields(animal)}
+                  <div className="px-3 py-2 font-medium border-b border-r border-green-400">
+                    Breeds
+                  </div>
+                  <div className="px-3 py-2 border-b border-green-400">
+                    {group.breeds || "—"}
+                  </div>
 
+                  <div className="px-3 py-2 font-medium border-r border-green-400">
+                    Total Count
+                  </div>
+                  <div className="px-3 py-2 font-semibold text-green-700">
+                    {group.count}
+                  </div>
+                </div>
 
+                {/* Health Records */}
                 <div className="mt-4 border-t pt-3">
-                  <div className="space-y-3">
-                    <div className="mt-3">
-                      <div
-                        className={`flex items-center justify-between select-none ${
-                          animal.healthRecords?.length > 0
-                            ? "cursor-pointer"
-                            : ""
-                        }`}
-                        onClick={() => {
-                          if (animal.healthRecords?.length > 0) {
-                            toggleHealthRecords(animal.id);
-                          }
-                        }}
-                      >
-                        <h5
-                          className={`font-semibold text-sm ${
-                            animal.healthRecords?.length > 0
-                              ? "text-blue-600"
-                              : "text-gray-400"
-                          }`}
+                  <h5 className="font-semibold text-sm text-gray-700 mb-2">
+                    Health Records Summary
+                  </h5>
+
+                  <div className="space-y-2">
+                    {group.animals.map((animal, index) => {
+                      const records = animal.healthRecords || [];
+                      const summary = getRecordTypeSummary(records);
+
+                      return (
+                        <div
+                          key={animal.id}
+                          className="flex justify-between items-center bg-white border rounded-md px-3 py-2"
                         >
-                          {animal.healthRecords?.length > 0
-                            ? "Health Records"
-                            : "No Health Records for this Livestock"}
-                        </h5>
-
-                        {animal.healthRecords?.length > 0 && (
-                          <span className="text-xs p-1.5 rounded-lg text-white bg-primary">
-                            {openHealth[animal.id]
-                              ? "Close Details ▼"
-                              : "Open Details ▶"}
+                          <span className="text-sm text-gray-700">
+                            {animal.livestockName || `Animal ${index + 1}`}
                           </span>
-                        )}
-                      </div>
 
-                      {animal.healthRecords?.length > 0 &&
-                        openHealth[animal.id] && (
-                          <div className="mt-3 border-t pt-3 space-y-3">
-                            {animal.healthRecords.map((record) => (
-                              <div
-                                key={record.id}
-                                className="border rounded-md p-3 bg-white"
-                              >
-                                {record.type && (
-                                  <p className="font-semibold text-xs mb-1 capitalize">
-                                    {formatRecordType(record.type)}
-                                  </p>
-                                )}
-
-                                {renderDynamicRecords(record)}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                    </div>
+                          <span
+                            className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                              records.length > 0
+                                ? "bg-green-100 text-green-700"
+                                : "bg-gray-200 text-gray-500"
+                            }`}
+                          >
+                            {records.length > 0 ? summary : "No records"}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

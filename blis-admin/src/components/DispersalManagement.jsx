@@ -26,6 +26,7 @@ const DispersalManagement = ({ open, onClose, mode, dispersal }) => {
     dispersalDate: "",
     animalType: "",
     quantity: "",
+    status:"Active"
   });
 
   useEffect(() => {
@@ -36,6 +37,7 @@ const DispersalManagement = ({ open, onClose, mode, dispersal }) => {
         dispersalDate: "",
         animalType: "",
         quantity: "",
+        status:""
       });
     }
   }, [open]);
@@ -48,6 +50,7 @@ const DispersalManagement = ({ open, onClose, mode, dispersal }) => {
         dispersalDate: dispersal.dispersalDate || "",
         animalType: dispersal.animalType || "",
         quantity: dispersal.quantity || "",
+        status: dispersal.status || ""
       });
     }
   }, [dispersal, mode]);
@@ -135,7 +138,7 @@ const DispersalManagement = ({ open, onClose, mode, dispersal }) => {
 
         await notifyAllUsers({
           title: "Dispersal Added",
-          message: `A new dispersal was added to: ${formData.raiserName}.`,
+          message: `A new dispersal was added to: ${formData.projectName}.`,
           type: "add",
         });
 
@@ -318,8 +321,8 @@ const DispersalManagement = ({ open, onClose, mode, dispersal }) => {
                 ? "Updating..."
                 : "Adding..."
               : mode === "edit"
-                ? "Update Project"
-                : "Add Project"}
+                ? "Update Dispersal"
+                : "Add Dispersal"}
           </button>
         </div>
       </div>
