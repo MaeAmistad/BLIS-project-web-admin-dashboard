@@ -692,7 +692,7 @@ const handleDeleteHealthRecord = async (record) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <button
               onClick={() => handleButtonClick("healthList")}
-              className="flex items-center gap-2 bg-green-600 text-white px-5 text-xs py-3 rounded-xl shadow hover:bg-green-700 transition"
+              className="flex items-center gap-2 bg-white border border-green-600 px-5 text-xs py-3 rounded-xl shadow hover:bg-green-700 transition"
             >
               <HealingIcon />
               Livestock Health List
@@ -700,7 +700,7 @@ const handleDeleteHealthRecord = async (record) => {
 
             <button
               onClick={() => handleButtonClick("vaccination")}
-              className="flex items-center gap-2 bg-blue-600 text-white px-5 text-xs py-3 rounded-xl shadow hover:bg-blue-700 transition"
+              className="flex items-center gap-2 bg-white border border-blue-600 px-5 text-xs py-3 rounded-xl shadow hover:bg-blue-700 transition"
             >
               <VaccinesIcon />
               Vaccination Record
@@ -708,7 +708,7 @@ const handleDeleteHealthRecord = async (record) => {
 
             <button
               onClick={() => handleButtonClick("deworming")}
-              className="flex items-center gap-2 bg-purple-600 text-white text-xs px-5 py-3 rounded-xl shadow hover:bg-purple-800 transition"
+              className="flex items-center gap-2 bg-white border border-purple-600 text-xs px-5 py-3 rounded-xl shadow hover:bg-purple-800 transition"
             >
               <MedicationIcon />
               Deworming Record
@@ -716,7 +716,7 @@ const handleDeleteHealthRecord = async (record) => {
 
             <button
               onClick={() => handleButtonClick("treatment")}
-              className="flex items-center gap-2 bg-red-600 text-white text-xs px-5 py-3 rounded-xl shadow hover:bg-red-700 transition"
+              className="flex items-center gap-2 bg-white border border-red-600 text-xs px-5 py-3 rounded-xl shadow hover:bg-red-700 transition"
             >
               <LocalHospitalIcon />
               Treatment Record
@@ -724,7 +724,7 @@ const handleDeleteHealthRecord = async (record) => {
 
             <button
               onClick={() => handleButtonClick("ai")}
-              className="flex items-center gap-2 bg-amber-600 text-white text-xs px-5 py-3 rounded-xl shadow hover:bg-amber-700 transition"
+              className="flex items-center gap-2 bg-white border border-amber-600 text-xs px-5 py-3 rounded-xl shadow hover:bg-amber-700 transition"
             >
               <BiotechIcon />
               Artificial Insemination Record
@@ -732,7 +732,7 @@ const handleDeleteHealthRecord = async (record) => {
 
             <button
               onClick={() => handleButtonClick("unvaccinated")}
-              className="flex items-center gap-2 bg-sky-700 text-white text-xs px-5 py-3 rounded-xl shadow hover:bg-sky-900  transition"
+              className="flex items-center gap-2 bg-white border border-sky-700 text-xs px-5 py-3 rounded-xl shadow hover:bg-sky-900  transition"
             >
               <MedicationLiquidRoundedIcon />
               Unvaccinated Livestocks
@@ -748,7 +748,7 @@ const handleDeleteHealthRecord = async (record) => {
               placeholder="Search records..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full h-10 md:w-96 px-2 py-2 border border-gray-300 rounded-lg shadow-sm
+              className="w-full h-10 md:w-96 px-2 py-2 border border-gren-400 rounded-lg shadow-sm
                focus:outline-none focus:ring-2 focus:ring-primary text-xs"
             />
 

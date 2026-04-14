@@ -73,7 +73,7 @@ const renderCustomizedLabel = ({ x, y, name, percentage }) => {
 };
 
 const LivestockPieChart = ({ data }) => (
-  <ResponsiveContainer width="100%" height={300}>
+  <ResponsiveContainer width="100%" height={250}>
     <PieChart>
       <Pie
         data={data}
@@ -107,15 +107,12 @@ const LivestockPieChart = ({ data }) => (
 );
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
-  <div
-    className={`rounded-xl shadow p-3 border-2 ${color}
-                max-w-[220px] w-full`}
-  >
+  <div className={`rounded-xl shadow p-3 border-2 ${color} w-full`}>
     <div className="flex justify-between items-center">
-      <p className="text-xs opacity-90">{title}</p>
-      <Icon className="w-5 h-5 opacity-80" />
+      <p className="text-md opacity-90">{title}</p>
+      <Icon className="w-5 text-md h-5 opacity-80" />
     </div>
-    <h2 className="text-l font-bold mt-1">{value}</h2>
+    <h2 className="text-2xl font-bold mt-1">{value}</h2>
   </div>
 );
 
@@ -642,32 +639,46 @@ const Dashboard = () => {
               <p className="mt-6 text-center">Loading dashboard...</p>
             ) : (
               <div className="py-4 space-y-5">
-                {/* STAT CARDS — full width */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <StatCard
-                    title="Total Raisers"
-                    value={stats.raisers}
-                    icon={Users}
-                    color="border border-primary"
-                  />
-                  <StatCard
-                    title="Total Livestocks"
-                    value={stats.livestock}
-                    icon={Beef}
-                    color="border border-primary"
-                  />
-                  <StatCard
-                    title="Inventory Items"
-                    value={stats.inventoryItems}
-                    icon={Boxes}
-                    color="border border-primary"
-                  />
-                  <StatCard
-                    title="Total Accounts"
-                    value={stats.activeUsers}
-                    icon={Users}
-                    color="border border-primary"
-                  />
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start">
+                  {/* Stat cards */}
+                  <div className="grid grid-cols-2 gap-3 h-full">
+                    <StatCard
+                      title="Total Raisers"
+                      value={stats.raisers}
+                      icon={Users}
+                      color="border border-primary border-4"
+                    />
+                    <StatCard
+                      title="Total Livestocks"
+                      value={stats.livestock}
+                      icon={Beef}
+                      color="border border-primary border-4"
+                    />
+                    <StatCard
+                      title="Inventory Items"
+                      value={stats.inventoryItems}
+                      icon={Boxes}
+                      color="border border-primary border-4"
+                    />
+                    <StatCard
+                      title="Total Accounts"
+                      value={stats.activeUsers}
+                      icon={Users}
+                      color="border border-primary border-4"
+                    />
+                  </div>
+
+                  {/* Pie chart */}
+                  {!loadingDashboard && livestockByType.length > 0 && (
+                    <div className="bg-white rounded-2xl shadow p-4 border border-gray-200 flex flex-col items-center">
+                      <h3 className="font-semibold mb-1 text-center text-sm">
+                        Livestock Distribution by Type
+                      </h3>
+                      <div className="w-full">
+                        <LivestockPieChart data={livestockByType} />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* ACTIVITY LOG + CALENDAR */}
@@ -683,59 +694,46 @@ const Dashboard = () => {
                   </div>
                 </div>
 
-                {/* CHARTS */}
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
-                  <div className="xl:col-span-8 bg-white rounded-2xl shadow p-4 border border-gray-200">
-                    <h3 className="font-semibold mb-3">
-                      Active Raisers per Barangay
-                    </h3>
-                    <div className="w-full h-[260px]">
-                      {raisersByAddress.length === 0 ? (
-                        <EmptyChartState message="No raisers data available yet" />
-                      ) : (
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart
-                            data={raisersByAddress}
-                            margin={{ top: 10, right: 20, left: 0, bottom: 50 }}
-                          >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis
-                              dataKey="address"
-                              angle={-30}
-                              textAnchor="end"
-                              interval={0}
-                              height={60}
-                              tick={{ fontSize: 12 }}
-                            />
-                            <YAxis
-                              allowDecimals={false}
-                              domain={[0, "auto"]}
-                              tick={{ fontSize: 12 }}
-                            />
-                            <Tooltip contentStyle={{ fontSize: "12px" }} />
-                            <Line
-                              type="monotone"
-                              dataKey="count"
-                              stroke="#2563eb"
-                              strokeWidth={3}
-                              dot={{ r: 4 }}
-                            />
-                          </LineChart>
-                        </ResponsiveContainer>
-                      )}
-                    </div>
+                {/* LINE CHART — full width */}
+                <div className="bg-white rounded-2xl shadow p-4 border border-gray-200">
+                  <h3 className="font-semibold mb-3">
+                    Active Raisers per Barangay
+                  </h3>
+                  <div className="w-full h-[260px]">
+                    {raisersByAddress.length === 0 ? (
+                      <EmptyChartState message="No raisers data available yet" />
+                    ) : (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart
+                          data={raisersByAddress}
+                          margin={{ top: 10, right: 20, left: 0, bottom: 50 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis
+                            dataKey="address"
+                            angle={-30}
+                            textAnchor="end"
+                            interval={0}
+                            height={60}
+                            tick={{ fontSize: 12 }}
+                          />
+                          <YAxis
+                            allowDecimals={false}
+                            domain={[0, "auto"]}
+                            tick={{ fontSize: 12 }}
+                          />
+                          <Tooltip contentStyle={{ fontSize: "12px" }} />
+                          <Line
+                            type="monotone"
+                            dataKey="count"
+                            stroke="#2563eb"
+                            strokeWidth={3}
+                            dot={{ r: 4 }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    )}
                   </div>
-
-                  {!loadingDashboard && livestockByType.length > 0 && (
-                    <div className="xl:col-span-4 bg-white rounded-2xl shadow p-4 border border-gray-200 flex flex-col">
-                      <h3 className="font-semibold mb-3 text-center text-sm">
-                        Livestock Distribution by Type
-                      </h3>
-                      <div className="flex-1 w-full">
-                        <LivestockPieChart data={livestockByType} />
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
             )}

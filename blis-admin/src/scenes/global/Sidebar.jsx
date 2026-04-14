@@ -147,7 +147,7 @@ const Sidebarr = () => {
       <div className="mt-auto">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 p-3 rounded-lg font-medium bg-red-700 text-white text-xs hover:bg-red-500/80 transition-all w-full"
+          className="flex items-center gap-3 p-3 rounded-lg font-medium bg-white text-red-700 text-xs hover:bg-red-500/80 hover:text-white transition-all w-full"
         >
           <LogoutRoundedIcon />
           <span className={`text-xs ${!open && "hidden"}`}>Log out</span>
