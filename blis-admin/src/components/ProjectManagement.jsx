@@ -191,7 +191,7 @@ const ProjectManagement = ({ open, onClose, mode, project }) => {
             <input
               type="text"
               name="projectName"
-              value={formData.itemName}
+              value={formData.projectName}
               onChange={handleChange}
               className="w-full text-xs border border-gray-300 rounded-xl p-2 focus:ring-2 focus:ring-green-500 focus:outline-none"
             />

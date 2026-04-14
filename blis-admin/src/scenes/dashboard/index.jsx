@@ -639,36 +639,41 @@ const Dashboard = () => {
               <p className="mt-6 text-center">Loading dashboard...</p>
             ) : (
               <div className="py-4 space-y-5">
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start">
-                  {/* Stat cards */}
-                  <div className="grid grid-cols-2 gap-3 h-full">
-                    <StatCard
-                      title="Total Raisers"
-                      value={stats.raisers}
-                      icon={Users}
-                      color="border border-primary border-4"
-                    />
-                    <StatCard
-                      title="Total Livestocks"
-                      value={stats.livestock}
-                      icon={Beef}
-                      color="border border-primary border-4"
-                    />
-                    <StatCard
-                      title="Inventory Items"
-                      value={stats.inventoryItems}
-                      icon={Boxes}
-                      color="border border-primary border-4"
-                    />
-                    <StatCard
-                      title="Total Accounts"
-                      value={stats.activeUsers}
-                      icon={Users}
-                      color="border border-primary border-4"
-                    />
-                  </div>
+                {/* ✅ ROW 1 — 2 Stat Cards */}
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                  <StatCard
+                    title="Total Raisers"
+                    value={stats.raisers}
+                    icon={Users}
+                    color="border border-primary border-4"
+                  />
+                  <StatCard
+                    title="Total Livestocks"
+                    value={stats.livestock}
+                    icon={Beef}
+                    color="border border-primary border-4"
+                  />
+                </div>
 
-                  {/* Pie chart */}
+                {/* ✅ ROW 2 — 2 Stat Cards */}
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                  <StatCard
+                    title="Inventory Items"
+                    value={stats.inventoryItems}
+                    icon={Boxes}
+                    color="border border-primary border-4"
+                  />
+                  <StatCard
+                    title="Total Accounts"
+                    value={stats.activeUsers}
+                    icon={Users}
+                    color="border border-primary border-4"
+                  />
+                </div>
+
+                {/* ✅ ROW 3 — Pie | Calendar */}
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                  {/* Pie Chart */}
                   {!loadingDashboard && livestockByType.length > 0 && (
                     <div className="bg-white rounded-2xl shadow p-4 border border-gray-200 flex flex-col items-center">
                       <h3 className="font-semibold mb-1 text-center text-sm">
@@ -679,65 +684,70 @@ const Dashboard = () => {
                       </div>
                     </div>
                   )}
-                </div>
 
-                {/* ACTIVITY LOG + CALENDAR */}
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                  <div className="bg-white rounded-2xl border border-gray-200 shadow p-4 min-h-[280px]">
-                    <ActivityLog
-                      reminders={reminders}
-                      loading={loadingReminders}
-                    />
-                  </div>
+                  {/* Calendar */}
                   <div className="bg-white rounded-2xl border border-gray-200 shadow p-4 min-h-[280px]">
                     <CalendarPanel />
                   </div>
                 </div>
 
-                {/* LINE CHART — full width */}
-                <div className="bg-white rounded-2xl shadow p-4 border border-gray-200">
-                  <h3 className="font-semibold mb-3">
-                    Active Raisers per Barangay
-                  </h3>
-                  <div className="w-full h-[260px]">
-                    {raisersByAddress.length === 0 ? (
-                      <EmptyChartState message="No raisers data available yet" />
-                    ) : (
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart
-                          data={raisersByAddress}
-                          margin={{ top: 10, right: 20, left: 0, bottom: 50 }}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis
-                            dataKey="address"
-                            angle={-30}
-                            textAnchor="end"
-                            interval={0}
-                            height={60}
-                            tick={{ fontSize: 12 }}
-                          />
-                          <YAxis
-                            allowDecimals={false}
-                            domain={[0, "auto"]}
-                            tick={{ fontSize: 12 }}
-                          />
-                          <Tooltip contentStyle={{ fontSize: "12px" }} />
-                          <Line
-                            type="monotone"
-                            dataKey="count"
-                            stroke="#2563eb"
-                            strokeWidth={3}
-                            dot={{ r: 4 }}
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    )}
+                {/* ✅ ROW 4 — Line Chart | Reminders */}
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                  {/* Line Chart */}
+                  <div className="bg-white rounded-2xl shadow p-4 border border-gray-200">
+                    <h3 className="font-semibold mb-3">
+                      Active Raisers per Barangay
+                    </h3>
+
+                    <div className="w-full h-[260px]">
+                      {raisersByAddress.length === 0 ? (
+                        <EmptyChartState message="No raisers data available yet" />
+                      ) : (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart
+                            data={raisersByAddress}
+                            margin={{ top: 10, right: 20, left: 0, bottom: 50 }}
+                          >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis
+                              dataKey="address"
+                              angle={-30}
+                              textAnchor="end"
+                              interval={0}
+                              height={60}
+                              tick={{ fontSize: 12 }}
+                            />
+                            <YAxis
+                              allowDecimals={false}
+                              domain={[0, "auto"]}
+                              tick={{ fontSize: 12 }}
+                            />
+                            <Tooltip contentStyle={{ fontSize: "12px" }} />
+                            <Line
+                              type="monotone"
+                              dataKey="count"
+                              stroke="#2563eb"
+                              strokeWidth={3}
+                              dot={{ r: 4 }}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Reminders */}
+                  <div className="bg-white rounded-2xl border border-gray-200 shadow p-4 min-h-[280px]">
+                    <ActivityLog
+                      reminders={reminders}
+                      loadingReminders={loadingReminders}
+                    />
                   </div>
                 </div>
               </div>
             )}
           </div>
+
           {/* <div className="px-4 m-1 mt-1 flex-grow overflow-y-auto bg-white-main shadow-md rounded-md">
             {loadingDashboard ? (
               <p className="mt-6 item-center text-center">

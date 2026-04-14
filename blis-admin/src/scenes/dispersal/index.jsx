@@ -360,7 +360,7 @@ const handleDeleteProject = async (id) => {
                             </IconButton>
                             <IconButton aria-label="edit">
                               <EditRounded
-                              onClick={handleEditProject(item)}
+                              onClick={() => handleEditProject(item)}
                                 sx={{ color: "#266b0f", fontSize: 14 }}
                               />
                             </IconButton>
@@ -450,7 +450,7 @@ const handleDeleteProject = async (id) => {
                             </IconButton>
                             <IconButton aria-label="edit">
                               <EditRounded
-                              onClick={handleEditDispersal(item)}
+                              onClick={() => handleEditDispersal(item)}
                                 sx={{ color: "#266b0f", fontSize: 14 }}
                               />
                             </IconButton>
