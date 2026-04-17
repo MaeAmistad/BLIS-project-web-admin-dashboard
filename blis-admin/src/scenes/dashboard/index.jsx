@@ -26,6 +26,8 @@ import {
   AlertTriangle,
   Activity,
   Droplets,
+  UsersRound,
+  Dog,
 } from "lucide-react";
 import { LineChart as LineChartIcon } from "lucide-react";
 import {
@@ -52,156 +54,207 @@ const COLORS = [
   "#06B6D4",
   "#F97316",
 ];
+const renderCustomizedLabel = ({
+  cx,
+  cy,
+  midAngle,
+  innerRadius,
+  outerRadius,
+  percent,
+}) => {
+  const RADIAN = Math.PI / 180;
 
-const renderCustomizedLabel = ({ x, y, name, percentage }) => {
+ 
+  const radius = outerRadius + 10;
+
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
   return (
     <text
       x={x}
       y={y}
-      textAnchor="middle"
-      dominantBaseline="central"
       fill="#374151"
+      textAnchor={x > cx ? "start" : "end"}
+      dominantBaseline="central"
+      fontSize={11}
+      fontWeight="600"
     >
-      <tspan x={x} fontSize="10" fontWeight="600">
-        {name}
-      </tspan>
-      <tspan x={x} dy="1.1em" fontSize="9" fill="#6B7280">
-        {percentage}%
-      </tspan>
+      {(percent * 100).toFixed(0)}%
     </text>
   );
 };
 
 const LivestockPieChart = ({ data }) => (
-  <ResponsiveContainer width="100%" height={250}>
-    <PieChart>
-      <Pie
-        data={data}
-        dataKey="count"
-        nameKey="name"
-        cx="50%"
-        cy="50%"
-        outerRadius={90}
-        label={renderCustomizedLabel}
-        labelLine={false}
-      >
-        {data.map((_, index) => (
-          <Cell key={index} fill={COLORS[index % COLORS.length]} />
-        ))}
-      </Pie>
-      <Tooltip
-        cursor={false}
-        contentStyle={{
-          border: "none",
-          boxShadow: "none",
-          backgroundColor: "rgba(255, 255, 255, 0.95)",
-          padding: "6px 8px",
-        }}
-        itemStyle={{
-          fontSize: "12px",
-          color: "#374151",
-        }}
-      />
-    </PieChart>
-  </ResponsiveContainer>
+  <div className="flex items-center justify-center gap-6">
+    <div className="flex justify-center items-center">
+      <ResponsiveContainer width={230} height={200}>
+        <PieChart>
+          <Pie
+            data={data}
+            dataKey="count"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            outerRadius={80}
+            labelLine={true}
+            label={renderCustomizedLabel}
+          >
+            {data.map((_, index) => (
+              <Cell key={index} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Pie>
+          <Tooltip
+            contentStyle={{
+              border: "none",
+              boxShadow: "none",
+              backgroundColor: "rgba(255,255,255,0.95)",
+              padding: "6px 8px",
+            }}
+            itemStyle={{ fontSize: "10px", color: "#374151" }}
+          />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+    <div className="flex flex-col gap-2 items-center justify-center">
+      {data.map((item, index) => (
+        <div
+          key={index}
+          className="flex items-center gap-2 w-40 justify-between"
+        >
+          <div className="flex items-center gap-2">
+            <span
+              className="w-2.5 h-2.5 rounded-full"
+              style={{ backgroundColor: COLORS[index % COLORS.length] }}
+            />
+
+            <span className="text-xs font-medium text-gray-700">
+              {item.name}
+            </span>
+          </div>
+
+          <span className="text-xs font-semibold text-gray-800">
+            {item.count}
+          </span>
+        </div>
+      ))}
+    </div>
+  </div>
 );
 
-const StatCard = ({ title, value, icon: Icon, color }) => (
-  <div className={`rounded-xl shadow p-3 border-2 ${color} w-full`}>
-    <div className="flex justify-between items-center">
-      <p className="text-md opacity-90">{title}</p>
-      <Icon className="w-5 text-md h-5 opacity-80" />
+const StatCard = ({
+  title,
+  value,
+  icon: Icon,
+  weeklyAdded = 0,
+  weeklyDeleted = 0,
+}) => (
+  <div className="bg-white rounded-xl shadow p-4 border border-green-600 border-4 flex items-center gap-4 w-full">
+    <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+      <Icon className="w-5 h-5 text-gray-600" />
     </div>
-    <h2 className="text-2xl font-bold mt-1">{value}</h2>
+    <div className="flex-1">
+      <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wide">
+        {title}
+      </p>
+      <h2 className="text-2xl font-semibold text-gray-900 leading-tight">
+        {value}
+      </h2>
+    </div>
+    <div className="flex flex-col items-end gap-1">
+      <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+        ↑ +{weeklyAdded}{" "}
+        <span className="font-normal text-green-600">this week</span>
+      </span>
+      <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-700">
+        ↓ −{weeklyDeleted}{" "}
+        <span className="font-normal text-red-600">this week</span>
+      </span>
+    </div>
   </div>
 );
 
 const ActivityLog = ({ reminders, loadingReminders }) => {
   const navigate = useNavigate();
-
   const handleClick = (reminder) => {
-    if (reminder.type === "low-stock" || reminder.type === "expiration") {
+    if (reminder.type === "low-stock" || reminder.type === "expiration")
       navigate("/inventorySupplies");
-    } else {
-      navigate("/healthandmed");
-    }
+    else navigate("/healthandmed");
   };
+  const borderColor = (r) =>
+    r.type === "low-stock"
+      ? "border-red-500"
+      : r.type === "expiration" && r.remainingDays <= 3
+        ? "border-red-500"
+        : r.type === "expiration" && r.remainingDays <= 7
+          ? "border-yellow-500"
+          : "border-blue-500";
+  const dotColor = (r) =>
+    r.type === "low-stock"
+      ? "bg-red-500"
+      : r.type === "expiration" && r.remainingDays <= 3
+        ? "bg-red-500"
+        : r.type === "expiration" && r.remainingDays <= 7
+          ? "bg-yellow-500"
+          : "bg-blue-500";
 
   return (
-    <div className="bg-white rounded-2xl shadow p-4 border border-gray-300 flex flex-col h-full">
-      <h3 className="font-semibold text-md mb-4 flex items-center gap-2 bg-gray-700 text-white rounded-lg p-1">
-        <Activity size={14} /> Reminders
-      </h3>
+    <div className="bg-white rounded-2xl shadow p-4 border border-gray-200">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-semibold text-sm flex items-center gap-2">
+          <span className="w-1 h-4 bg-blue-600 rounded-sm inline-block" />
+          Reminders
+        </h3>
+        <button className="text-[11px] text-blue-600 flex items-center gap-1">
+          ↑ See all ›
+        </button>
+      </div>
 
-      <div className="flex-1 overflow-y-auto">
-        {loadingReminders ? (
-          <p className="text-xs text-gray-500 animate-pulse">
-            Loading reminders...
-          </p>
-        ) : reminders.length === 0 ? (
-          <p className="text-xs text-gray-500">No reminders</p>
-        ) : (
-          <ul className="space-y-4 text-xs">
-            {reminders.map((reminder) => (
-              <li
-                key={reminder.id}
-                onClick={() => handleClick(reminder)}
-                role="button"
-                className={`border-l-4 pl-3 text-sm cursor-pointer hover:bg-gray-100 transition ${
-                  reminder.type === "low-stock"
-                    ? "border-red-500"
-                    : reminder.type === "expiration" &&
-                        reminder.remainingDays <= 3
-                      ? "border-red-500"
-                      : reminder.type === "expiration" &&
-                          reminder.remainingDays <= 7
-                        ? "border-yellow-500"
-                        : "border-blue-500"
-                }`}
-              >
-                <p className="text-xs text-gray-500 font-semibold">
-                  <span>
-                    {reminder.date?.toLocaleDateString() || "No date"}
-                  </span>
-
+      {loadingReminders ? (
+        <p className="text-xs text-gray-400 animate-pulse">
+          Loading reminders...
+        </p>
+      ) : reminders.length === 0 ? (
+        <p className="text-xs text-gray-400">No reminders</p>
+      ) : (
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-2">
+          {reminders.map((reminder) => (
+            <div
+              key={reminder.id}
+              onClick={() => handleClick(reminder)}
+              role="button"
+              className={`flex items-start gap-2 p-3 rounded-lg bg-gray-50 border-l-4 cursor-pointer hover:bg-gray-100 transition ${borderColor(reminder)}`}
+            >
+              <span
+                className={`w-2 h-2 rounded-full flex-shrink-0 mt-1 ${dotColor(reminder)}`}
+              />
+              <div>
+                <p className="text-[10px] text-gray-400 font-medium">
+                  {reminder.date?.toLocaleDateString() || "No date"}
                   {typeof reminder.remainingDays === "number" && (
                     <span
-                      className={`ml-2 px-2 py-0.5 rounded-full text-[10px]
-                        ${
-                          reminder.remainingDays <= 3
-                            ? "bg-red-100 text-red-600"
-                            : reminder.remainingDays <= 7
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-green-100 text-green-700"
-                        }`}
+                      className={`ml-2 px-1.5 py-0.5 rounded-full text-[10px] ${
+                        reminder.remainingDays <= 3
+                          ? "bg-red-100 text-red-600"
+                          : reminder.remainingDays <= 7
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-green-100 text-green-700"
+                      }`}
                     >
                       {reminder.remainingDays === 0
                         ? "Today"
-                        : `${reminder.remainingDays} days left`}
+                        : `${reminder.remainingDays}d left`}
                     </span>
                   )}
                 </p>
-
-                <p
-                  className={`font-medium mt-2 ${
-                    reminder.type === "low-stock"
-                      ? "text-red-600"
-                      : reminder.type === "expiration" &&
-                          reminder.remainingDays <= 3
-                        ? "text-red-600"
-                        : reminder.type === "expiration" &&
-                            reminder.remainingDays <= 7
-                          ? "text-yellow-600"
-                          : ""
-                  }`}
-                >
+                <p className="text-xs font-medium text-gray-800 mt-1 leading-snug">
                   {reminder.message}
                 </p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -238,6 +291,17 @@ const Dashboard = () => {
     inventoryItems: 0,
     lowStock: 0,
     unvaccinated: 0,
+  });
+
+  const [weeklyStats, setWeeklyStats] = useState({
+    raisersAdded: 0,
+    raisersDeleted: 0,
+    livestockAdded: 0,
+    livestockDeleted: 0,
+    inventoryAdded: 0,
+    inventoryDeleted: 0,
+    usersAdded: 0,
+    usersDeleted: 0,
   });
 
   const [raisersByAddress, setRaisersByAddress] = useState([]);
@@ -554,6 +618,76 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
+    const fetchWeeklyStats = async () => {
+      const now = new Date();
+      const startOfWeek = new Date(now);
+      startOfWeek.setDate(now.getDate() - now.getDay());
+      startOfWeek.setHours(0, 0, 0, 0);
+
+      const isThisWeek = (timestamp) => {
+        if (!timestamp) return false;
+        const date = timestamp.toDate?.() || new Date(timestamp);
+        return date >= startOfWeek;
+      };
+
+      try {
+        const raisersSnap = await getDocs(collection(db, "raisers"));
+        let raisersAdded = 0,
+          raisersDeleted = 0;
+        raisersSnap.forEach((doc) => {
+          const data = doc.data();
+          if (isThisWeek(data.createdAt)) raisersAdded++;
+          if (data.deletedAt && isThisWeek(data.deletedAt)) raisersDeleted++;
+        });
+
+        const livestockSnap = await getDocs(collectionGroup(db, "livestock"));
+        let livestockAdded = 0,
+          livestockDeleted = 0;
+        livestockSnap.forEach((doc) => {
+          const data = doc.data();
+          if (isThisWeek(data.createdAt)) livestockAdded++;
+          if (data.deletedAt && isThisWeek(data.deletedAt)) livestockDeleted++;
+        });
+
+        const inventorySnap = await getDocs(collection(db, "inventories"));
+        let inventoryAdded = 0,
+          inventoryDeleted = 0;
+        inventorySnap.forEach((doc) => {
+          const data = doc.data();
+          if (isThisWeek(data.createdAt)) inventoryAdded++;
+          if (data.deletedAt && isThisWeek(data.deletedAt)) inventoryDeleted++;
+        });
+
+        const usersSnap = await getDocs(
+          query(collection(db, "users"), where("status", "==", "ACTIVE")),
+        );
+        let usersAdded = 0,
+          usersDeleted = 0;
+        usersSnap.forEach((doc) => {
+          const data = doc.data();
+          if (isThisWeek(data.createdAt)) usersAdded++;
+          if (data.deletedAt && isThisWeek(data.deletedAt)) usersDeleted++;
+        });
+
+        setWeeklyStats({
+          raisersAdded,
+          raisersDeleted,
+          livestockAdded,
+          livestockDeleted,
+          inventoryAdded,
+          inventoryDeleted,
+          usersAdded,
+          usersDeleted,
+        });
+      } catch (error) {
+        console.error("Weekly stats error:", error);
+      }
+    };
+
+    fetchWeeklyStats();
+  }, []);
+
+  useEffect(() => {
     console.log("raisersByAddress:", raisersByAddress);
 
     if (raisersByAddress.length === 0) {
@@ -639,230 +773,66 @@ const Dashboard = () => {
               <p className="mt-6 text-center">Loading dashboard...</p>
             ) : (
               <div className="py-4 space-y-5">
-                {/* ✅ ROW 1 — 2 Stat Cards */}
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                   <StatCard
                     title="Total Raisers"
                     value={stats.raisers}
-                    icon={Users}
-                    color="border border-primary border-4"
+                    icon={UsersRound}
+                    weeklyAdded={weeklyStats.raisersAdded}
+                    weeklyDeleted={weeklyStats.raisersDeleted}
                   />
                   <StatCard
                     title="Total Livestocks"
                     value={stats.livestock}
-                    icon={Beef}
-                    color="border border-primary border-4"
+                    icon={Dog}
+                    weeklyAdded={weeklyStats.livestockAdded}
+                    weeklyDeleted={weeklyStats.livestockDeleted}
                   />
                 </div>
 
-                {/* ✅ ROW 2 — 2 Stat Cards */}
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                   <StatCard
                     title="Inventory Items"
                     value={stats.inventoryItems}
                     icon={Boxes}
-                    color="border border-primary border-4"
+                    weeklyAdded={weeklyStats.inventoryAdded}
+                    weeklyDeleted={weeklyStats.inventoryDeleted}
                   />
                   <StatCard
                     title="Total Accounts"
                     value={stats.activeUsers}
                     icon={Users}
-                    color="border border-primary border-4"
+                    weeklyAdded={weeklyStats.usersAdded}
+                    weeklyDeleted={weeklyStats.usersDeleted}
                   />
                 </div>
 
-                {/* ✅ ROW 3 — Pie | Calendar */}
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                  {/* Pie Chart */}
                   {!loadingDashboard && livestockByType.length > 0 && (
-                    <div className="bg-white rounded-2xl shadow p-4 border border-gray-200 flex flex-col items-center">
-                      <h3 className="font-semibold mb-1 text-center text-sm">
-                        Livestock Distribution by Type
+                    <div className="bg-white rounded-2xl shadow p-4 border border-gray-200">
+                      <h3 className="font-semibold mb-3 text-sm flex items-center gap-2">
+                        <span className="w-1 h-4 bg-blue-600 rounded-sm inline-block" />
+                        Livestock Distribution{" "}
+                        <span className="font-normal text-gray-400 text-xs">
+                          by type
+                        </span>
                       </h3>
-                      <div className="w-full">
-                        <LivestockPieChart data={livestockByType} />
-                      </div>
+                      <LivestockPieChart data={livestockByType} />
                     </div>
                   )}
 
-                  {/* Calendar */}
                   <div className="bg-white rounded-2xl border border-gray-200 shadow p-4 min-h-[280px]">
                     <CalendarPanel />
                   </div>
                 </div>
 
-                {/* ✅ ROW 4 — Line Chart | Reminders */}
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                  {/* Line Chart */}
-                  <div className="bg-white rounded-2xl shadow p-4 border border-gray-200">
-                    <h3 className="font-semibold mb-3">
-                      Active Raisers per Barangay
-                    </h3>
-
-                    <div className="w-full h-[260px]">
-                      {raisersByAddress.length === 0 ? (
-                        <EmptyChartState message="No raisers data available yet" />
-                      ) : (
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart
-                            data={raisersByAddress}
-                            margin={{ top: 10, right: 20, left: 0, bottom: 50 }}
-                          >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis
-                              dataKey="address"
-                              angle={-30}
-                              textAnchor="end"
-                              interval={0}
-                              height={60}
-                              tick={{ fontSize: 12 }}
-                            />
-                            <YAxis
-                              allowDecimals={false}
-                              domain={[0, "auto"]}
-                              tick={{ fontSize: 12 }}
-                            />
-                            <Tooltip contentStyle={{ fontSize: "12px" }} />
-                            <Line
-                              type="monotone"
-                              dataKey="count"
-                              stroke="#2563eb"
-                              strokeWidth={3}
-                              dot={{ r: 4 }}
-                            />
-                          </LineChart>
-                        </ResponsiveContainer>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Reminders */}
-                  <div className="bg-white rounded-2xl border border-gray-200 shadow p-4 min-h-[280px]">
-                    <ActivityLog
-                      reminders={reminders}
-                      loadingReminders={loadingReminders}
-                    />
-                  </div>
-                </div>
+                <ActivityLog
+                  reminders={reminders}
+                  loadingReminders={loadingReminders}
+                />
               </div>
             )}
           </div>
-
-          {/* <div className="px-4 m-1 mt-1 flex-grow overflow-y-auto bg-white-main shadow-md rounded-md">
-            {loadingDashboard ? (
-              <p className="mt-6 item-center text-center">
-                Loading dashboard...
-              </p>
-            ) : (
-              <>
-          
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-6 items-stretch min-h-[200px]">
-        
-                  <div className="xl:col-span-4 flex flex-col gap-4 h-full">
-                    <div className="grid grid-cols-2 md:grid-cols-2 gap-3 auto-rows-fr">
-                      <StatCard
-                        title="Total Raisers"
-                        value={stats.raisers}
-                        icon={Users}
-                        color="border border-primary"
-                      />
-                      <StatCard
-                        title="Total Livestocks"
-                        value={stats.livestock}
-                        icon={Beef}
-                        color="border border-primary"
-                      />
-                      <StatCard
-                        title="Inventory Items"
-                        value={stats.inventoryItems}
-                        icon={Boxes}
-                        color="border border-primary"
-                      />
-                       <StatCard
-                        title="Total Accounts"
-                        value={stats.activeUsers}
-                        icon={Users}
-                        color="border border-primary"
-                      />
-
-                    </div>
-                  </div>
-
-     
-                  <div className="xl:col-span-7 h-full grid grid-cols-1 xl:grid-cols-2 gap-4 auto-rows-fr h-full">
-
-                    <div className="h-[300px]">
-                      <ActivityLog reminders={reminders} loading={loadingReminders}/>
-                    </div>
-
-    
-                    <div className="h-[300px] flex flex-col">
-                      <CalendarPanel />
-                    </div>
-                  </div>
-                </div>
-
-
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-6">
-                  <div className="xl:col-span-8 bg-white rounded-2xl shadow p-4 border border-gray-200">
-                    <h3 className="font-semibold mb-3">Active Raisers per Barangay</h3>
-
-                    <div className="w-full h-[260px]">
-                      {raisersByAddress.length === 0 ? (
-                        <EmptyChartState message="No raisers data available yet" />
-                      ) : (
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart
-                            data={raisersByAddress}
-                            margin={{ top: 10, right: 20, left: 0, bottom: 50 }}
-                          >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis
-                              dataKey="address"
-                              angle={-30}
-                              textAnchor="end"
-                              interval={0}
-                              height={60}
-                              tick={{ fontSize: 12 }}
-                            />
-                            <YAxis
-                              allowDecimals={false}
-                              domain={[0, "auto"]}
-                              tick={{ fontSize: 12 }}
-                            />
-                            <Tooltip
-                              contentStyle={{ fontSize: "12px" }}
-                              labelStyle={{ fontSize: "12px" }}
-                            />
-                            <Line
-                              type="monotone"
-                              dataKey="count"
-                              stroke="#2563eb"
-                              strokeWidth={3}
-                              dot={{ r: 4 }}
-                            />
-                          </LineChart>
-                        </ResponsiveContainer>
-                      )}
-                    </div>
-                  </div>
-
-      
-                  {!loadingDashboard && livestockByType.length > 0 && (
-                    <div className="xl:col-span-4 bg-white rounded-2xl shadow p-4 flex flex-col border border-gray-200">
-                      <h3 className="font-semibold mb-3 text-center text-sm">
-                        Livestock Distribution by Type
-                      </h3>
-
-                      <div className="flex-1 w-full">
-                        <LivestockPieChart data={livestockByType} />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-          </div> */}
         </div>
       </div>
     </div>
