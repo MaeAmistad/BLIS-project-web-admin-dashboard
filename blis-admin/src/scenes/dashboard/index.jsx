@@ -164,12 +164,12 @@ const StatCard = ({
     </div>
     <div className="flex flex-col items-end gap-1">
       <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700">
-        <ArrowUp className="w-3 h-3" />+{weeklyAdded}
+        <ArrowUp className="w-4 h-4" />+{weeklyAdded}
         <span className="font-normal text-green-600">this week</span>
       </span>
 
       <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-700">
-        <ArrowDown className="w-3 h-3" />
+        <ArrowDown className="w-4 h-4" />
         {weeklyDeleted}
         <span className="font-normal text-red-600">this week</span>
       </span>

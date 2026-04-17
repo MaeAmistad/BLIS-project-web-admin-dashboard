@@ -329,8 +329,8 @@ const LivestockInventory = () => {
 
           {/* Table */}
           <div className="relative overflow-y-auto h-[550px] border border-gray-300 mt-2 rounded-md">
-            <table cclassName="min-w-[500px] w-full text-center">
-              <thead className="h-8 bg-primary uppercase sticky top-0 text-white text-sm">
+            <table cclassName="w-full text-center">
+              <thead className="h-8 bg-primary uppercase sticky top-0 text-white text-sm z-10">
                 <tr>
                   <th className="w-[50px] text-center">NO</th>
                   <th className="w-[300px] text-center">Raiser Name</th>
