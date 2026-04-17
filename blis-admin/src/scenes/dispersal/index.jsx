@@ -15,6 +15,8 @@ import Headerr from "../../components/Headerr";
 import ProjectManagement from "../../components/ProjectManagement";
 import DispersalManagement from "../../components/DispersalManagement";
 import Swal from "sweetalert2";
+import ViewDispersal from "../../components/ViewDispersal";
+import ViewProject from "../../components/ViewProject";
 
 const Dispersal = () => {
   const [dispersal, setDispersal] = useState([]);
@@ -33,6 +35,9 @@ const Dispersal = () => {
   const [mode, setMode] = useState("add");
   const [selectedDispersal, setSelectedDispersal] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
+
+  const [viewProject, setViewProject] = useState(false);
+  const [viewDispersal, setViewDispersal] = useState(false);
 
   // Fetch projects from Firestore
   useEffect(() => {
@@ -149,7 +154,7 @@ const Dispersal = () => {
   };
 
   const handleEditDispersal = (id) => {
-   setOpenDispersal(true);
+    setOpenDispersal(true);
     setMode("edit");
     setSelectedDispersal(id);
   };
@@ -161,61 +166,69 @@ const Dispersal = () => {
   };
 
   const handleEditProject = (id) => {
-   setOpenProject(true);
+    setOpenProject(true);
     setMode("edit");
     setSelectedProject(id);
   };
 
+  const handleViewProject = (item) => {
+    setSelectedProject(item);
+    setViewProject(true);
+  };
+
+  const handleViewDispersal = (item) => {
+    setSelectedDispersal(item);
+    setViewDispersal(true);
+  };
+
   const handleDeleteDispersal = async (id) => {
-  const confirm = await Swal.fire({
-    title: "Are you sure?",
-    text: "This dispersal will be permanently deleted!",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#3085d6",
-    confirmButtonText: "Yes, delete it!",
-  });
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: "This dispersal will be permanently deleted!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
 
-  if (!confirm.isConfirmed) return;
+    if (!confirm.isConfirmed) return;
 
-  try {
-    await deleteDoc(doc(db, "dispersals", id));
+    try {
+      await deleteDoc(doc(db, "dispersals", id));
 
-    Swal.fire("Deleted!", "Dispersal has been deleted.", "success");
-    setDispersal((prev) => prev.filter((item) => item.id !== id));
+      Swal.fire("Deleted!", "Dispersal has been deleted.", "success");
+      setDispersal((prev) => prev.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "Failed to delete dispersal", "error");
+    }
+  };
 
-  } catch (error) {
-    console.error(error);
-    Swal.fire("Error", "Failed to delete dispersal", "error");
-  }
-};
+  const handleDeleteProject = async (id) => {
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: "This project will be permanently deleted!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
 
-const handleDeleteProject = async (id) => {
-  const confirm = await Swal.fire({
-    title: "Are you sure?",
-    text: "This project will be permanently deleted!",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#3085d6",
-    confirmButtonText: "Yes, delete it!",
-  });
+    if (!confirm.isConfirmed) return;
 
-  if (!confirm.isConfirmed) return;
+    try {
+      await deleteDoc(doc(db, "projects", id));
 
-  try {
-    await deleteDoc(doc(db, "projects", id));
+      Swal.fire("Deleted!", "Project has been deleted.", "success");
 
-    Swal.fire("Deleted!", "Project has been deleted.", "success");
-
-    setProjects((prev) => prev.filter((item) => item.id !== id));
-
-  } catch (error) {
-    console.error(error);
-    Swal.fire("Error", "Failed to delete project", "error");
-  }
-};
+      setProjects((prev) => prev.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "Failed to delete project", "error");
+    }
+  };
 
   return (
     <div className="app flex flex-col md:flex-row">
@@ -261,7 +274,7 @@ const handleDeleteProject = async (id) => {
                 className={`px-3 w-32 py-2 text-sm rounded-lg ${
                   activeTable === "projects"
                     ? "bg-green-600 text-white"
-                    : "bg-black text-white"
+                    : "bg-gray-200 text-black"
                 }`}
                 onClick={() => setActiveTable("projects")}
               >
@@ -272,7 +285,7 @@ const handleDeleteProject = async (id) => {
                 className={`px-3 py-2 w-32 text-sm rounded-lg ${
                   activeTable === "dispersal"
                     ? "bg-green-600 text-white"
-                    : "bg-black text-white"
+                    : "bg-gray-200 text-black"
                 }`}
                 onClick={() => setActiveTable("dispersal")}
               >
@@ -355,18 +368,21 @@ const handleDeleteProject = async (id) => {
                           <div className="flex justify-center">
                             <IconButton aria-label="view">
                               <VisibilityRounded
+                                onClick={() => handleViewProject(item)}
                                 sx={{ color: "#e2c018ff", fontSize: 14 }}
                               />
                             </IconButton>
                             <IconButton aria-label="edit">
                               <EditRounded
-                              onClick={() => handleEditProject(item)}
+                                onClick={() => handleEditProject(item)}
                                 sx={{ color: "#266b0f", fontSize: 14 }}
                               />
                             </IconButton>
                             {isAdmin && (
-                              <IconButton aria-label="delete"
-                              onClick={() => handleDeleteProject(item.id)}>
+                              <IconButton
+                                aria-label="delete"
+                                onClick={() => handleDeleteProject(item.id)}
+                              >
                                 <DeleteRounded
                                   sx={{ color: "#a30808", fontSize: 14 }}
                                 />
@@ -445,18 +461,21 @@ const handleDeleteProject = async (id) => {
                           <div className="flex justify-center">
                             <IconButton aria-label="view">
                               <VisibilityRounded
+                                onClick={() => handleViewDispersal(item)}
                                 sx={{ color: "#e2c018ff", fontSize: 14 }}
                               />
                             </IconButton>
                             <IconButton aria-label="edit">
                               <EditRounded
-                              onClick={() => handleEditDispersal(item)}
+                                onClick={() => handleEditDispersal(item)}
                                 sx={{ color: "#266b0f", fontSize: 14 }}
                               />
                             </IconButton>
                             {isAdmin && (
-                              <IconButton aria-label="delete"
-                              onClick={() => handleDeleteDispersal(item.id)}>
+                              <IconButton
+                                aria-label="delete"
+                                onClick={() => handleDeleteDispersal(item.id)}
+                              >
                                 <DeleteRounded
                                   sx={{ color: "#a30808", fontSize: 14 }}
                                 />
@@ -488,6 +507,22 @@ const handleDeleteProject = async (id) => {
             onClose={() => setOpenDispersal(false)}
             mode={mode}
             dispersal={selectedDispersal}
+          />
+        )}
+
+        {viewDispersal && (
+          <ViewDispersal
+            open={viewDispersal}
+            onClose={() => setViewDispersal(false)}
+            data={selectedDispersal}
+          />
+        )}
+
+        {viewProject && (
+          <ViewProject
+            open={viewProject}
+            onClose={() => setViewProject(false)}
+            data={selectedProject}
           />
         )}
       </div>

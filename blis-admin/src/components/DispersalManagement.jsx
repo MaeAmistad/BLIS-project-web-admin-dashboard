@@ -205,6 +205,12 @@ const DispersalManagement = ({ open, onClose, mode, dispersal }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
       <div className="bg-white w-full max-w-2xl rounded-2xl shadow-lg p-6 relative overflow-y-auto max-h-[90vh]">
+      <button
+            onClick={onClose}
+            className="absolute top-3 right-3 text-red-500 hover:text-red-800 transition"
+          >
+            ✕
+          </button>
         <h2 className="text-2xl font-semibold mb-4 text-gray-800 item-center">
           {mode === "edit" ? "Edit Dispersal" : "Add Dispersal"}
         </h2>
