@@ -28,6 +28,8 @@ import {
   Droplets,
   UsersRound,
   Dog,
+  ArrowDown,
+  ArrowUp,
 } from "lucide-react";
 import { LineChart as LineChartIcon } from "lucide-react";
 import {
@@ -64,7 +66,6 @@ const renderCustomizedLabel = ({
 }) => {
   const RADIAN = Math.PI / 180;
 
- 
   const radius = outerRadius + 10;
 
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -163,11 +164,13 @@ const StatCard = ({
     </div>
     <div className="flex flex-col items-end gap-1">
       <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700">
-        ↑ +{weeklyAdded}{" "}
+        <ArrowUp className="w-3 h-3" />+{weeklyAdded}
         <span className="font-normal text-green-600">this week</span>
       </span>
+
       <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-700">
-        ↓ −{weeklyDeleted}{" "}
+        <ArrowDown className="w-3 h-3" />
+        {weeklyDeleted}
         <span className="font-normal text-red-600">this week</span>
       </span>
     </div>
